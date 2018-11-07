@@ -44,4 +44,11 @@ public class OHStyle {
     public static final String CLASS_OH_DIALOG_BOX = "oh_dialog_box";
     public static final String CLASS_OH_DIALOG_BUTTON = "oh_dialog_button";
     
+    //for CSG
+    public static final String CLASS_TOGGLE_BUTTON = "csg_toggle_button";
+    public static final String CLASS_SITE_HBOX = "csg_site_hbox";
+    public static final String CLASS_COMBO_BOX = "csg_combo_box";
+    public static final String CLASS_LABEL = "csg_label";
+    public static final String CLASS_HEADER_LABEL = "csg_header_label";
+    public static final String CLASS_CHECKBOX = "csg_checkbox";
 }

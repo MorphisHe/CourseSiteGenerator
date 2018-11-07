@@ -215,3 +215,35 @@
     -fx-background-color:SWATCH_ACCENT;
 }
 
+
+.csg_toggle_button{
+    
+}
+
+.csg_site_hbox{
+    -fx-padding: 10;
+    -fx-border-color: SWATCH_ACCENT;
+    -fx-border-style: solid inside;
+    -fx-border-width: 2;
+    -fx-border-insets: 5;
+    -fx-border-radius: 5;
+    -fx-background-radius: 0.5;
+    -fx-background-color: SWATCH_COMPLEMENT;
+    
+    
+}
+
+.csg_label{
+    -fx-font-weight: bold;
+    -fx-font-size: 10pt;
+    -fx-text-fill: darkorange;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+.csg_header_label{
+    -fx-font-weight: bold;
+    -fx-font-size: 15pt;
+    -fx-text-fill: green;
+    -fx-font-family: "Segoe UI Semibold";
+}
+

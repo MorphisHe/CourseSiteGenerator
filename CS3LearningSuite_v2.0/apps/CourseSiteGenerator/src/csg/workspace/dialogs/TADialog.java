@@ -44,7 +44,7 @@ public class TADialog extends Stage {
         initDialog();
 
         // NOW PUT THE GRID IN THE SCENE AND THE SCENE IN THE DIALOG
-        GridPane gridPane = (GridPane)app.getGUIModule().getGUINode(OH_TA_DIALOG_GRID_PANE);
+        GridPane gridPane = (GridPane)app.getGUIModule().getGUINode(CSG_TA_DIALOG_GRID_PANE);
         Scene scene = new Scene(gridPane);
         this.setScene(scene);
         
@@ -60,20 +60,20 @@ public class TADialog extends Stage {
         AppNodesBuilder guiBuilder = app.getGUIModule().getNodesBuilder();
         
         // THE NODES ABOVE GO DIRECTLY INSIDE THE GRID
-        GridPane gridPane = guiBuilder.buildGridPane(OH_TA_DIALOG_GRID_PANE, null, CLASS_OH_DIALOG_GRID_PANE, ENABLED);
-        guiBuilder.buildLabel(OH_TA_DIALOG_HEADER_LABEL, gridPane, 0, 0, 3, 1, CLASS_OH_DIALOG_HEADER, ENABLED);
-        guiBuilder.buildLabel(OH_TA_DIALOG_NAME_LABEL, gridPane, 0, 1, 1, 1, CLASS_OH_DIALOG_PROMPT, ENABLED);
-        TextField nameTextField = guiBuilder.buildTextField(OH_TA_DIALOG_NAME_TEXT_FIELD, gridPane, 1, 1, 2, 1, CLASS_OH_DIALOG_TEXT_FIELD, ENABLED);
-        guiBuilder.buildLabel(OH_TA_DIALOG_EMAIL_LABEL, gridPane, 0, 2, 1, 1, CLASS_OH_DIALOG_PROMPT, ENABLED);
-        TextField emailTextField = guiBuilder.buildTextField(OH_TA_DIALOG_EMAIL_TEXT_FIELD, gridPane, 1, 2, 2, 1, CLASS_OH_DIALOG_TEXT_FIELD, ENABLED);
-        guiBuilder.buildLabel(OH_TA_DIALOG_TYPE_LABEL, gridPane, 0, 3, 1, 1, CLASS_OH_DIALOG_PROMPT, ENABLED);
+        GridPane gridPane = guiBuilder.buildGridPane(CSG_TA_DIALOG_GRID_PANE, null, CLASS_OH_DIALOG_GRID_PANE, ENABLED);
+        guiBuilder.buildLabel(CSG_TA_DIALOG_HEADER_LABEL, gridPane, 0, 0, 3, 1, CLASS_OH_DIALOG_HEADER, ENABLED);
+        guiBuilder.buildLabel(CSG_TA_DIALOG_NAME_LABEL, gridPane, 0, 1, 1, 1, CLASS_OH_DIALOG_PROMPT, ENABLED);
+        TextField nameTextField = guiBuilder.buildTextField(CSG_TA_DIALOG_NAME_TEXT_FIELD, gridPane, 1, 1, 2, 1, CLASS_OH_DIALOG_TEXT_FIELD, ENABLED);
+        guiBuilder.buildLabel(CSG_TA_DIALOG_EMAIL_LABEL, gridPane, 0, 2, 1, 1, CLASS_OH_DIALOG_PROMPT, ENABLED);
+        TextField emailTextField = guiBuilder.buildTextField(CSG_TA_DIALOG_EMAIL_TEXT_FIELD, gridPane, 1, 2, 2, 1, CLASS_OH_DIALOG_TEXT_FIELD, ENABLED);
+        guiBuilder.buildLabel(CSG_TA_DIALOG_TYPE_LABEL, gridPane, 0, 3, 1, 1, CLASS_OH_DIALOG_PROMPT, ENABLED);
         ToggleGroup tg = new ToggleGroup();
-        RadioButton gradRadioButton = guiBuilder.buildRadioButton(OH_TA_DIALOG_GRAD_RADIO_BUTTON, gridPane, 1, 3, 1, 1, CLASS_OH_DIALOG_RADIO_BUTTON, ENABLED, tg, true);
-        RadioButton undergradRadioButton = guiBuilder.buildRadioButton(OH_TA_DIALOG_UNDERGRAD_RADIO_BUTTON, gridPane, 2, 3, 1, 1, CLASS_OH_DIALOG_RADIO_BUTTON, ENABLED, tg, false);
-        HBox okCancelBox = guiBuilder.buildHBox(OH_TA_DIALOG_OK_BOX, gridPane, 0, 4, 3, 1, CLASS_OH_DIALOG_BOX, ENABLED);
+        RadioButton gradRadioButton = guiBuilder.buildRadioButton(CSG_TA_DIALOG_GRAD_RADIO_BUTTON, gridPane, 1, 3, 1, 1, CLASS_OH_DIALOG_RADIO_BUTTON, ENABLED, tg, true);
+        RadioButton undergradRadioButton = guiBuilder.buildRadioButton(CSG_TA_DIALOG_UNDERGRAD_RADIO_BUTTON, gridPane, 2, 3, 1, 1, CLASS_OH_DIALOG_RADIO_BUTTON, ENABLED, tg, false);
+        HBox okCancelBox = guiBuilder.buildHBox(CSG_TA_DIALOG_OK_BOX, gridPane, 0, 4, 3, 1, CLASS_OH_DIALOG_BOX, ENABLED);
         okCancelBox.setAlignment(Pos.CENTER);
-        Button okButton = guiBuilder.buildTextButton(OH_TA_DIALOG_OK_BUTTON, okCancelBox, CLASS_OH_DIALOG_BUTTON, !ENABLED);
-        Button cancelButton = guiBuilder.buildTextButton(OH_TA_DIALOG_CANCEL_BUTTON, okCancelBox, CLASS_OH_DIALOG_BUTTON, ENABLED);
+        Button okButton = guiBuilder.buildTextButton(CSG_TA_DIALOG_OK_BUTTON, okCancelBox, CLASS_OH_DIALOG_BUTTON, !ENABLED);
+        Button cancelButton = guiBuilder.buildTextButton(CSG_TA_DIALOG_CANCEL_BUTTON, okCancelBox, CLASS_OH_DIALOG_BUTTON, ENABLED);
        
         // AND SETUP THE EVENT HANDLERS
         nameTextField.setOnAction(e->{
@@ -107,10 +107,10 @@ public class TADialog extends Stage {
     
     private void processDataChange() {
         AppGUIModule gui = app.getGUIModule();
-        TextField nameTextField = ((TextField)gui.getGUINode(OH_TA_DIALOG_NAME_TEXT_FIELD));
-        TextField emailTextField = ((TextField)gui.getGUINode(OH_TA_DIALOG_EMAIL_TEXT_FIELD));
-        RadioButton radioButton = ((RadioButton)gui.getGUINode(OH_TA_DIALOG_GRAD_RADIO_BUTTON));
-        Button okButton = ((Button)gui.getGUINode(OH_TA_DIALOG_OK_BUTTON));
+        TextField nameTextField = ((TextField)gui.getGUINode(CSG_TA_DIALOG_NAME_TEXT_FIELD));
+        TextField emailTextField = ((TextField)gui.getGUINode(CSG_TA_DIALOG_EMAIL_TEXT_FIELD));
+        RadioButton radioButton = ((RadioButton)gui.getGUINode(CSG_TA_DIALOG_GRAD_RADIO_BUTTON));
+        Button okButton = ((Button)gui.getGUINode(CSG_TA_DIALOG_OK_BUTTON));
         String name = nameTextField.getText();
         String email = emailTextField.getText();
         TAType type = TAType.Undergraduate;
@@ -152,9 +152,9 @@ public class TADialog extends Stage {
 
     private void processCompleteWork() {
         // GET THE SETTINGS
-        String name = ((TextField)app.getGUIModule().getGUINode(OH_TA_DIALOG_NAME_TEXT_FIELD)).getText();
-        String email = ((TextField)app.getGUIModule().getGUINode(OH_TA_DIALOG_EMAIL_TEXT_FIELD)).getText();
-        RadioButton undergradRadioButton = ((RadioButton)app.getGUIModule().getGUINode(OH_TA_DIALOG_UNDERGRAD_RADIO_BUTTON));
+        String name = ((TextField)app.getGUIModule().getGUINode(CSG_TA_DIALOG_NAME_TEXT_FIELD)).getText();
+        String email = ((TextField)app.getGUIModule().getGUINode(CSG_TA_DIALOG_EMAIL_TEXT_FIELD)).getText();
+        RadioButton undergradRadioButton = ((RadioButton)app.getGUIModule().getGUINode(CSG_TA_DIALOG_UNDERGRAD_RADIO_BUTTON));
         TAType type = TAType.Graduate;
         if (undergradRadioButton.isSelected()) {
             type = TAType.Undergraduate;
@@ -189,20 +189,20 @@ public class TADialog extends Stage {
         editTA = null;
         
         // USE THE TEXT IN THE HEADER FOR EDIT
-        TextField nameTextField = ((TextField)app.getGUIModule().getGUINode(OH_TA_DIALOG_NAME_TEXT_FIELD));
-        TextField emailTextField = ((TextField)app.getGUIModule().getGUINode(OH_TA_DIALOG_EMAIL_TEXT_FIELD));
+        TextField nameTextField = ((TextField)app.getGUIModule().getGUINode(CSG_TA_DIALOG_NAME_TEXT_FIELD));
+        TextField emailTextField = ((TextField)app.getGUIModule().getGUINode(CSG_TA_DIALOG_EMAIL_TEXT_FIELD));
         nameTextField.setText(taToEdit.getName());
         emailTextField.setText(taToEdit.getEmail());
         if (initTAToEdit.getType().equals(TAType.Graduate.toString())) {
-            ((RadioButton)app.getGUIModule().getGUINode(OH_TA_DIALOG_GRAD_RADIO_BUTTON)).setSelected(true);
+            ((RadioButton)app.getGUIModule().getGUINode(CSG_TA_DIALOG_GRAD_RADIO_BUTTON)).setSelected(true);
         }
         else {
-            ((RadioButton)app.getGUIModule().getGUINode(OH_TA_DIALOG_UNDERGRAD_RADIO_BUTTON)).setSelected(true);
+            ((RadioButton)app.getGUIModule().getGUINode(CSG_TA_DIALOG_UNDERGRAD_RADIO_BUTTON)).setSelected(true);
         }
         
         // NOTHING HAS CHANGED WHEN THIS LOADS SO WE'LL
         // START WITH THE OK BUTTON DISABLED
-        ((Button)app.getGUIModule().getGUINode(OH_TA_DIALOG_OK_BUTTON)).setDisable(true);
+        ((Button)app.getGUIModule().getGUINode(CSG_TA_DIALOG_OK_BUTTON)).setDisable(true);
         
         // MAKE SURE OUR TEXT FIELDS START OFF PROPERLY
         CourseSiteFoolproofDesign fP = new CourseSiteFoolproofDesign(app);

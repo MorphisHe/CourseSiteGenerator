@@ -7,6 +7,50 @@
     <property_list>
 
         <!-- ENGLISH LANGUAGE SETTINGS FOR DESKTOP JAVA FRAMEWORK CONTROLS -->
+        
+        <!-- EACH TABS -->
+        <property name="CSG_SITE_TAB_BUTTON_TEXT"  value="Site"></property>
+        <property name="CSG_SYLLUBUS_TAB_BUTTON_TEXT"  value="Syllubus"></property>
+        <property name="CSG_OFFICE_HOUR_TAB_BUTTON_TEXT"  value="Office Hours"></property>
+        <property name="CSG_MEETING_TIME_TAB_BUTTON_TEXT"  value="Meeting Times"></property>
+        <property name="CSG_SCHEDULE_TAB_BUTTON_TEXT"  value="Schedule"></property>
+
+        <!-- SITE TAB-->
+        <!-- SITE BANNER-->
+        <property name="SITE_BANNER_LABEL_TEXT"  value="Banner"></property>
+        <property name="SITE_SBJ_LABEL_TEXT"  value="Subject:"></property>
+        <property name="SITE_SEMESTER_LABEL_TEXT"  value="Semester:"></property>
+        <property name="SITE_NUMBER_LABEL_TEXT"  value="Number:"></property>
+        <property name="SITE_YEAR_LABEL_TEXT"  value="Year:"></property>
+        <property name="SITE_EXPORT_DIR_LABEL_TEXT"  value="Export Dir:"></property>
+        <property name="SITE_TITLE_LABEL_TEXT"  value="Title:"></property>
+        <!-- SITE PAGE-->
+        <property name="SITE_PAGE_LABEL_TEXT"  value="Pages:"></property>
+        <property name="SITE_HOME_CHECK_BOX_TEXT"  value="Home"></property>
+        <property name="SITE_HWS_CHECK_BOX_TEXT"  value="HWs"></property>
+        <property name="SITE_SCHEDULE_CHECK_BOX_TEXT"  value="Schedule"></property>
+        <property name="SITE_SYLLUBUS_CHECK_BOX_TEXT"  value="Syllubus"></property>
+        <!-- SITE STYLE-->
+        <property name="SITE_STYLE_LABEL_TEXT"  value="Style"></property>
+        <property name="SITE_NOTE_LABEL_TEXT"  value="Note: Stylesheet should be placed inside work/css to be selectable"></property>
+        <!-- SITE INSTRUCTOR-->
+        <property name="SITE_INSTRUCTOR_LABEL_TEXT"  value="Instructor"></property>
+        <property name="SITE_NAME_LABEL_TEXT"  value="Name:"></property>
+        <property name="SITE_EMAIL_LABEL_TEXT"  value="Email:"></property>
+        <property name="SITE_ROOM_LABEL_TEXT"  value="Room:"></property>
+        <property name="SITE_HOME_PAGE_LABEL_TEXT"  value="Home Page:"></property>
+
+        <!-- SYLLUBUS TAB-->
+        <property name="SYLLUBUS_DES_LABEL_TEXT"  value="Description:"></property>
+        <property name="SYLLUBUS_TOPIC_LABEL_TEXT"  value="Topics:"></property>
+        <property name="SYLLUBUS_PREQ_LABEL_TEXT"  value="Prerequisites:"></property>
+        <property name="SYLLUBUS_OUTCOME_LABEL_TEXT"  value="Outcomes:"></property>
+        <property name="SYLLUBUS_TEXTBOOK_LABEL_TEXT"  value="Textbooks:"></property>
+        <property name="SYLLUBUS_GRADED_COMP_LABEL_TEXT"  value="Graded Components:"></property>
+        <property name="SYLLUBUS_GRADING_NOTE_LABEL_TEXT"  value="Grading Note:"></property>
+        <property name="SYLLUBUS_ACAD_DIS_LABEL_TEXT"  value="Academic Dishonesty:"></property>
+        <property name="SYLLUBUS_SPEC_ASSIST_LABEL_TEXT"  value="Special Assistance:"></property>
+        
 
         <!-- WELCOME DIALOG TEXT -->
         <property name="WELCOME_DIALOG_TITLE"               value="Welcome to Office Hours"></property>
@@ -73,18 +117,18 @@
         <!-- ENGLISH LANGUAGE SETTINGS SPECIFICALLY FOR TDLM CONTROLS -->
 
         <!-- LANGUAGE-DEPENDENT TEXT FOR OH WORKSPACE CONTROLS -->
-        <property name="OH_TAS_HEADER_LABEL_TEXT"           value="Teaching Assistants"></property>
-        <property name="OH_ALL_RADIO_BUTTON_TEXT"                value="All"></property>
-        <property name="OH_GRAD_RADIO_BUTTON_TEXT"               value="Graduate"></property>
-        <property name="OH_UNDERGRAD_RADIO_BUTTON_TEXT"          value="Undergraduate"></property>
-        <property name="OH_NAME_TEXT_FIELD_PROMPT_TEXT"     value="Name"></property>
-        <property name="OH_EMAIL_TEXT_FIELD_PROMPT_TEXT"    value="Email"></property>
-        <property name="OH_ADD_TA_BUTTON_TEXT"              value="Add TA"></property>
-        <property name="OH_OFFICE_HOURS_HEADER_LABEL_TEXT"  value="Office Hours"></property>
-        <property name="OH_NAME_TABLE_COLUMN_TEXT"          value="Name"></property>
-        <property name="OH_EMAIL_TABLE_COLUMN_TEXT"         value="Email"></property>
-        <property name="OH_SLOTS_TABLE_COLUMN_TEXT"         value="Time Slots"></property>
-        <property name="OH_TYPE_TABLE_COLUMN_TEXT"          value="Type"></property>
+        <property name="CSG_TAS_HEADER_LABEL_TEXT"           value="Teaching Assistants"></property>
+        <property name="CSG_ALL_RADIO_BUTTON_TEXT"                value="All"></property>
+        <property name="CSG_GRAD_RADIO_BUTTON_TEXT"               value="Graduate"></property>
+        <property name="CSG_UNDERGRAD_RADIO_BUTTON_TEXT"          value="Undergraduate"></property>
+        <property name="CSG_NAME_TEXT_FIELD_PROMPT_TEXT"     value="Name"></property>
+        <property name="CSG_EMAIL_TEXT_FIELD_PROMPT_TEXT"    value="Email"></property>
+        <property name="CSG_ADD_TA_BUTTON_TEXT"              value="Add TA"></property>
+        <property name="CSG_OFFICE_HOURS_HEADER_LABEL_TEXT"  value="Office Hours"></property>
+        <property name="CSG_NAME_TABLE_COLUMN_TEXT"          value="Name"></property>
+        <property name="CSG_EMAIL_TABLE_COLUMN_TEXT"         value="Email"></property>
+        <property name="CSG_SLOTS_TABLE_COLUMN_TEXT"         value="Time Slots"></property>
+        <property name="CSG_TYPE_TABLE_COLUMN_TEXT"          value="Type"></property>
         <property name="OH_START_TIME_TABLE_COLUMN_TEXT"    value="Start Time"></property>
         <property name="OH_END_TIME_TABLE_COLUMN_TEXT"      value="End Time"></property>
         <property name="OH_MONDAY_TABLE_COLUMN_TEXT"        value="Monday"></property>
@@ -94,18 +138,18 @@
         <property name="OH_FRIDAY_TABLE_COLUMN_TEXT"        value="Friday"></property>
         
         <!-- ERROR DIALOG -->
-        <property name="OH_NO_TA_SELECTED_TITLE"        value="No TA Selected"></property>
-        <property name="OH_NO_TA_SELECTED_CONTENT"      value="Toggle only possible if TA Selected"></property>
+        <property name="CSG_NO_TA_SELECTED_TITLE"        value="No TA Selected"></property>
+        <property name="CSG_NO_TA_SELECTED_CONTENT"      value="Toggle only possible if TA Selected"></property>
         
         <!-- EDIT TA DIALOG -->
-        <property name="OH_TA_DIALOG_HEADER_LABEL_TEXT" value="Edit Teaching Assistant"></property>
-        <property name="OH_TA_DIALOG_NAME_LABEL_TEXT" value="Name: "></property>
-        <property name="OH_TA_DIALOG_EMAIL_LABEL_TEXT" value="Email: "></property>
-        <property name="OH_TA_DIALOG_TYPE_LABEL_TEXT" value="Type: "></property>
-        <property name="OH_TA_DIALOG_GRAD_RADIO_BUTTON_TEXT" value="Graduate"></property>
-        <property name="OH_TA_DIALOG_UNDERGRAD_RADIO_BUTTON_TEXT" value="Undergraduate"></property>
-        <property name="OH_TA_DIALOG_OK_BUTTON_TEXT" value="Ok"></property>
-        <property name="OH_TA_DIALOG_CANCEL_BUTTON_TEXT" value="Cancel"></property>
+        <property name="CSG_TA_DIALOG_HEADER_LABEL_TEXT" value="Edit Teaching Assistant"></property>
+        <property name="CSG_TA_DIALOG_NAME_LABEL_TEXT" value="Name: "></property>
+        <property name="CSG_TA_DIALOG_EMAIL_LABEL_TEXT" value="Email: "></property>
+        <property name="CSG_TA_DIALOG_TYPE_LABEL_TEXT" value="Type: "></property>
+        <property name="CSG_TA_DIALOG_GRAD_RADIO_BUTTON_TEXT" value="Graduate"></property>
+        <property name="CSG_TA_DIALOG_UNDERGRAD_RADIO_BUTTON_TEXT" value="Undergraduate"></property>
+        <property name="CSG_TA_DIALOG_OK_BUTTON_TEXT" value="Ok"></property>
+        <property name="CSG_TA_DIALOG_CANCEL_BUTTON_TEXT" value="Cancel"></property>
 
         <!-- TO SWITCH BACK TO ANOTHER LANGUAGE -->
         <property name="LANGUAGE_DIALOG_TITLE"          value="App Language Selection"></property>
@@ -121,7 +165,7 @@
     <property_options_list>
         <property_options name="LANGUAGE_OPTIONS">
             <option>English</option>
-            <option>Klingon</option>
+            <option>Chinese</option>
         </property_options>
     </property_options_list>
 </properties>

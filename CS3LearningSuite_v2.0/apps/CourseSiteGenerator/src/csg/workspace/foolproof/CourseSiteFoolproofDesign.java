@@ -5,12 +5,12 @@ import djf.ui.foolproof.FoolproofDesign;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import csg.CourseSiteGeneratorApp;
-import static csg.CourseSitePropertyType.OH_ADD_TA_BUTTON;
-import static csg.CourseSitePropertyType.OH_EMAIL_TEXT_FIELD;
-import static csg.CourseSitePropertyType.OH_NAME_TEXT_FIELD;
 import csg.data.OfficeHoursData;
 import static csg.workspace.style.OHStyle.CLASS_OH_TEXT_FIELD;
 import static csg.workspace.style.OHStyle.CLASS_OH_TEXT_FIELD_ERROR;
+import static csg.CourseSitePropertyType.CSG_NAME_TEXT_FIELD;
+import static csg.CourseSitePropertyType.CSG_EMAIL_TEXT_FIELD;
+import static csg.CourseSitePropertyType.CSG_ADD_TA_BUTTON;
 
 public class CourseSiteFoolproofDesign implements FoolproofDesign {
 
@@ -30,12 +30,12 @@ public class CourseSiteFoolproofDesign implements FoolproofDesign {
         AppGUIModule gui = app.getGUIModule();
         
         // FOOLPROOF DESIGN STUFF FOR ADD TA BUTTON
-        TextField nameTextField = ((TextField) gui.getGUINode(OH_NAME_TEXT_FIELD));
-        TextField emailTextField = ((TextField) gui.getGUINode(OH_EMAIL_TEXT_FIELD));
+        TextField nameTextField = ((TextField) gui.getGUINode(CSG_NAME_TEXT_FIELD));
+        TextField emailTextField = ((TextField) gui.getGUINode(CSG_EMAIL_TEXT_FIELD));
         String name = nameTextField.getText();
         String email = emailTextField.getText();
         OfficeHoursData data = (OfficeHoursData) app.getDataComponent();
-        Button addTAButton = (Button) gui.getGUINode(OH_ADD_TA_BUTTON);
+        Button addTAButton = (Button) gui.getGUINode(CSG_ADD_TA_BUTTON);
 
         // FIRST, IF NO TYPE IS SELECTED WE'LL JUST DISABLE
         // THE CONTROLS AND BE DONE WITH IT

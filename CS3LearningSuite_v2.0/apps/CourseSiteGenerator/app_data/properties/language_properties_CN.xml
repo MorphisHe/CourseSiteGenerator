@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This XML file provides all the text to be used when the application
+    is to be displayed in English.
+-->
+<properties>
+    <property_list>
+
+        <!-- ENGLISH LANGUAGE SETTINGS FOR DESKTOP JAVA FRAMEWORK CONTROLS -->
+
+        <!-- EACH TABS -->
+        <property name="CSG_SITE_TAB_BUTTON_TEXT"  value="网站"></property>
+        <property name="CSG_SYLLUBUS_TAB_BUTTON_TEXT"  value="课程概括"></property>
+        <property name="CSG_OFFICE_HOUR_TAB_BUTTON_TEXT"  value="办公时间"></property>
+        <property name="CSG_MEETING_TIME_TAB_BUTTON_TEXT"  value="会议时间"></property>
+        <property name="CSG_SCHEDULE_TAB_BUTTON_TEXT"  value="行程"></property>
+
+        <!-- SITE TAB-->
+        <!-- SITE BANNER-->
+        <property name="SITE_BANNER_LABEL_TEXT"  value="横幅"></property>
+        <property name="SITE_SBJ_LABEL_TEXT"  value="主题:"></property>
+        <property name="SITE_SEMESTER_LABEL_TEXT"  value="学期:"></property>
+        <property name="SITE_NUMBER_LABEL_TEXT"  value="号码:"></property>
+        <property name="SITE_YEAR_LABEL_TEXT"  value="年份:"></property>
+        <property name="SITE_EXPORT_DIR_LABEL_TEXT"  value="输出路径:"></property>
+        <property name="SITE_TITLE_LABEL_TEXT"  value="标题:"></property>>
+        <!-- SITE PAGE-->
+        <property name="SITE_PAGE_LABEL_TEXT"  value="页面:"></property>
+        <property name="SITE_HOME_CHECK_BOX_TEXT"  value="主页"></property>
+        <property name="SITE_HWS_CHECK_BOX_TEXT"  value="作业"></property>
+        <property name="SITE_SCHEDULE_CHECK_BOX_TEXT"  value="行程"></property>
+        <property name="SITE_SYLLUBUS_CHECK_BOX_TEXT"  value="课程概括"></property>
+        <!-- SITE STYLE-->
+        <property name="SITE_STYLE_LABEL_TEXT"  value="主题"></property>
+        <property name="SITE_NOTE_LABEL_TEXT"  value="注意: 主题文件需要先加入到 work／css 才可以被选择"></property>
+        <!-- SITE INSTRUCTOR-->
+        <property name="SITE_INSTRUCTOR_LABEL_TEXT"  value="教授"></property>
+        <property name="SITE_NAME_LABEL_TEXT"  value="名字:"></property>
+        <property name="SITE_EMAIL_LABEL_TEXT"  value="邮箱:"></property>
+        <property name="SITE_ROOM_LABEL_TEXT"  value="教室号码:"></property>
+        <property name="SITE_HOME_PAGE_LABEL_TEXT"  value="主页地址:"></property>
+
+        <!-- SYLLUBUS TAB-->
+        <property name="SYLLUBUS_DES_LABEL_TEXT"  value="介绍:"></property>
+        <property name="SYLLUBUS_TOPIC_LABEL_TEXT"  value="标题:"></property>
+        <property name="SYLLUBUS_PREQ_LABEL_TEXT"  value="先决条件:"></property>
+        <property name="SYLLUBUS_OUTCOME_LABEL_TEXT"  value="目标:"></property>
+        <property name="SYLLUBUS_TEXTBOOK_LABEL_TEXT"  value="教科书:"></property>
+        <property name="SYLLUBUS_GRADED_COMP_LABEL_TEXT"  value="评价指标:"></property>
+        <property name="SYLLUBUS_GRADING_NOTE_LABEL_TEXT"  value="回馈:"></property>
+        <property name="SYLLUBUS_ACAD_DIS_LABEL_TEXT"  value="作弊行为:"></property>
+        <property name="SYLLUBUS_SPEC_ASSIST_LABEL_TEXT"  value="特殊帮助:"></property>
+
+        <!-- OFFICE HOURS TAB-->
+
+ 
+
+        <!-- WELCOME DIALOG TEXT -->
+        <property name="WELCOME_DIALOG_TITLE"               value="欢迎使用超级课程表"></property>
+        <property name="WELCOME_DIALOG_RECENT_WORK_LABEL"   value="最近使用"></property>
+        <property name="WELCOME_DIALOG_NEW_BUTTON_TEXT"  value="创建一个新的课表"></property>
+
+        <!-- GENERIC APP ERROR MESSAGES -->
+        <property name="APP_ERROR_TITLE"            value="程序错误"></property>
+        <property name="APP_ERROR_CONTENT"          value="程序出现了一个错误"></property>
+
+        <!-- PROPERTIES ERROR MESSAGES -->
+        <property name="PROPERTIES_ERROR_TITLE"     value="属性文件错误"></property>
+        <property name="PROPERTIES_ERROR_CONTENT"   value="读取属性文件失败"></property>
+
+        <!-- FILE TOOLBAR TOOLTIPS -->
+        <property name="NEW_BUTTON_TOOLTIP"         value="新课表"></property>
+        <property name="LOAD_BUTTON_TOOLTIP"        value="读取课表"></property>
+        <property name="CLOSE_BUTTON_TOOLTIP"       value="关闭课表"></property>
+        <property name="SAVE_BUTTON_TOOLTIP"        value="保存课表"></property>
+        <property name="EXPORT_BUTTON_TOOLTIP"      value="弹出课表"></property>
+        <property name="EXIT_BUTTON_TOOLTIP"        value="退出"></property>
+
+        <!-- CLIPBOARD TOOLBAR TOOLTIPS -->
+        <property name="CUT_BUTTON_TOOLTIP"         value="剪切"></property>
+        <property name="COPY_BUTTON_TOOLTIP"        value="复制"></property>
+        <property name="PASTE_BUTTON_TOOLTIP"       value="粘贴"></property>
+
+        <!-- UNDO TOOLBAR TOOLTIPS -->
+        <property name="UNDO_BUTTON_TOOLTIP"        value="后退"></property>
+        <property name="REDO_BUTTON_TOOLTIP"        value="前进"></property>
+
+        <!-- HELP TOOLBAR TOOLTIPS -->
+        <property name="HELP_BUTTON_TOOLTIP"        value="帮助"></property>
+        <property name="LANGUAGE_BUTTON_TOOLTIP"    value="切换语言"></property>
+        <property name="ABOUT_BUTTON_TOOLTIP"       value="关于"></property>
+
+        <!-- NEW FEEDBACK DIALOGS -->	
+        <property name="NEW_SUCCESS_TITLE"      value="新建成功"></property>
+        <property name="NEW_SUCCESS_CONTENT"	value="成功创建可还没保存"></property>
+        <property name="NEW_ERROR_TITLE"        value="警告: 错误"></property>
+        <property name="NEW_ERROR_CONTENT"      value="创建纽约错误"></property>
+
+        <!-- LOAD FEEDBACK DIALOGS -->
+        <property name="LOAD_WORK_TITLE"        value="读取文件"></property>
+        <property name="LOAD_SUCCESS_TITLE"     value="读取完毕"></property>
+        <property name="LOAD_SUCCESS_CONTENT"   value="文件读取完毕,现在可以进行编辑."></property>
+        <property name="LOAD_ERROR_TITLE"       value="读取错误"></property>        
+        <property name="LOAD_ERROR_CONTENT"     value="读取失败. 可能存在文件格式错误."></property>
+
+        <!-- SAVE FEEDBACK DIALOGS -->
+        <property name="SAVE_WORK_TITLE"        value="保存文件"></property>
+        <property name="SAVE_SUCCESS_TITLE"     value="保存完毕"></property>
+        <property name="SAVE_SUCCESS_CONTENT"   value="文件以保存."></property>
+        <property name="SAVE_ERROR_TITLE"       value="保存错误"></property>
+        <property name="SAVE_ERROR_CONTENT"     value="保存失败. 可能存在文件访问错误."></property>
+        <property name="SAVE_VERIFY_TITLE"	value="需要保存未保存的数据吗?"></property>
+        <property name="SAVE_VERIFY_CONTENT"	value="需要保存您未保存的数据先吗?"></property>
+
+        <!-- ABOUT DIALOG -->
+        <property name="ABOUT_TITLE"            value="关于超级课程表"></property>
+        <property name="ABOUT_CONTENT"          value="超级课程表, 课程管理者 - 调试企业 - © 2018"></property>
+
+
+        <!-- ENGLISH LANGUAGE SETTINGS SPECIFICALLY FOR TDLM CONTROLS -->
+
+        <!-- LANGUAGE-DEPENDENT TEXT FOR OH WORKSPACE CONTROLS -->
+        <property name="CSG_TAS_HEADER_LABEL_TEXT"           value="教师助理"></property>
+	    <property name="CSG_NAME_TEXT_FIELD_PROMPT_TEXT"     value="名字"></property>
+        <property name="CSG_EMAIL_TEXT_FIELD_PROMPT_TEXT"    value="邮箱地址"></property>
+        <property name="CSG_ADD_TA_BUTTON_TEXT"              value="添加教师助理"></property>
+        <property name="CSG_OFFICE_HOURS_HEADER_LABEL_TEXT"  value="时间表"></property>
+        <property name="CSG_NAME_TABLE_COLUMN_TEXT"          value="名字"></property>
+        <property name="CSG_EMAIL_TABLE_COLUMN_TEXT"         value="邮件地址"></property>
+	    <property name="CSG_TYPE_TABLE_COLUMN_TEXT"          value="类型"></property>
+        <property name="CSG_SLOTS_TABLE_COLUMN_TEXT"         value="时隙"></property>
+        <property name="OH_START_TIME_TABLE_COLUMN_TEXT"    value="开始时间"></property>
+        <property name="OH_END_TIME_TABLE_COLUMN_TEXT"      value="结束时间"></property>
+        <property name="OH_MONDAY_TABLE_COLUMN_TEXT"        value="周一"></property>
+        <property name="OH_TUESDAY_TABLE_COLUMN_TEXT"       value="周二"></property>
+        <property name="OH_WEDNESDAY_TABLE_COLUMN_TEXT"     value="周三"></property>
+        <property name="OH_THURSDAY_TABLE_COLUMN_TEXT"      value="周四"></property>
+        <property name="OH_FRIDAY_TABLE_COLUMN_TEXT"        value="周五"></property>
+	    <property name="CSG_ALL_RADIO_BUTTON_TEXT"       value="全部"></property>
+	    <property name="CSG_GRAD_RADIO_BUTTON_TEXT"         value="研究生"></property>
+	    <property name="CSG_UNDERGRAD_RADIO_BUTTON_TEXT"       value="本科生"></property>
+
+        <!-- ERROR DIALOG -->
+        <property name="CSG_NO_TA_SELECTED_TITLE"        value="您还未选择一个助教"></property>
+        <property name="CSG_NO_TA_SELECTED_CONTENT"      value="必须先选择一个助教"></property>
+        
+        <!-- EDIT TA DIALOG -->
+        <property name="CSG_TA_DIALOG_HEADER_LABEL_TEXT" value="编辑助教资料"></property>
+        <property name="CSG_TA_DIALOG_NAME_LABEL_TEXT" value="名字: "></property>
+        <property name="CSG_TA_DIALOG_EMAIL_LABEL_TEXT" value="电子邮箱: "></property>
+        <property name="CSG_TA_DIALOG_TYPE_LABEL_TEXT" value="类型: "></property>
+        <property name="CSG_TA_DIALOG_GRAD_RADIO_BUTTON_TEXT" value="研究生"></property>
+        <property name="CSG_TA_DIALOG_UNDERGRAD_RADIO_BUTTON_TEXT" value="本科生"></property>
+        <property name="CSG_TA_DIALOG_OK_BUTTON_TEXT" value="确定"></property>
+        <property name="CSG_TA_DIALOG_CANCEL_BUTTON_TEXT" value="取消"></property>
+
+        <!-- TO SWITCH BACK TO ANOTHER LANGUAGE -->
+        <property name="LANGUAGE_DIALOG_TITLE"          value="软件语言选择"></property>
+        <property name="LANGUAGE_DIALOG_HEADER_TEXT"    value="选择一个语言"></property>
+        <property name="LANGUAGE_DIALOG_CONTENT_TEXT"   value="请选择用户使用界面的语言."></property>
+
+        <property name="WORK_FILE_EXT"          value="教师助理"></property>
+	<property name="WORK_FILE_EXT_DESC"     value="教师助理文件"></property>
+
+    </property_list>
+    
+    <property_options_list>
+        <property_options name="LANGUAGE_OPTIONS">
+            <option>英语</option>
+	    <option>克林贡语</option>
+	    <option>中文</option>
+        </property_options>
+    </property_options_list>
+</properties>

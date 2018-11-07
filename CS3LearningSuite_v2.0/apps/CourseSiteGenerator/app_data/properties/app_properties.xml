@@ -36,7 +36,7 @@
         <property name="HAS_SAVE_AS"            value="true"></property>
         <property name="HAS_EXPORT"             value="false"></property>
         <property name="HAS_EXIT"               value="true"></property>
-        <property name="HAS_CLIPBOARD_TOOLBAR"  value="true"></property>
+        <property name="HAS_CLIPBOARD_TOOLBAR"  value="false"></property>
         <property name="HAS_UNDO_TOOLBAR"       value="true"></property>
         <property name="HAS_HELP_TOOLBAR"       value="true"></property>
         <property name="HAS_HELP"               value="true"></property>
