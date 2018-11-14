@@ -34,7 +34,7 @@
         <property name="HAS_CLOSE"              value="true"></property>
         <property name="HAS_SAVE"               value="true"></property>
         <property name="HAS_SAVE_AS"            value="true"></property>
-        <property name="HAS_EXPORT"             value="false"></property>
+        <property name="HAS_EXPORT"             value="true"></property>
         <property name="HAS_EXIT"               value="true"></property>
         <property name="HAS_CLIPBOARD_TOOLBAR"  value="false"></property>
         <property name="HAS_UNDO_TOOLBAR"       value="true"></property>
@@ -74,12 +74,14 @@
         <property name="DEFAULT_LANGUAGE"               value="English"></property>
         <property name="ENGLISH_ABBREVIATION"           value="EN"></property>
         <property name="KLINGON_ABBREVIATION"           value="TLH"></property>
+        <property name="CHINESE_ABBREVIATION"           value="CN"></property>
 
     </property_list>
     <property_options_list>
         <property_options name="LANGUAGE_OPTIONS">
             <option>English</option>
             <option>Klingon</option>
+            <option>Chinese</option>
         </property_options>
     </property_options_list>
 </properties>

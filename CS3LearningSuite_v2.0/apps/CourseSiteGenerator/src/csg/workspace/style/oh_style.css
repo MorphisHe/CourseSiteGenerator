@@ -13,7 +13,7 @@
         djf top toolbar buttons: 36x36
         
 
-    @author Richard McKenna
+    @author Jiang He
     @version 1.0
 */
 .root{
@@ -118,7 +118,7 @@
 .oh_prompt {
 
 }
-.oh_text_field, .oh_text_field_error {
+b.oh_text_field, .oh_text_field_error {
     -fx-font-size: 14pt;
 }
 .oh_text_field {
@@ -128,10 +128,14 @@
     -fx-text-fill: red;
 }
 .oh_button {
-    -fx-font-size: 14pt;
+    -fx-text-fill: white;
+    -fx-font-family: "Arial Narrow";
     -fx-font-weight: bold;
-    -fx-border-radius: 10 10 10 10;
-    -fx-background-radius: 10 10 10 10;        
+    -fx-background-color: linear-gradient(#61a2b1, #2A5058);
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );        
+}
+.button:hover {
+    -fx-background-color: SWATCH_NEUTRAL;
 }
 .oh_radio_box {
     -fx-padding: 0 0 0 180;
@@ -215,11 +219,6 @@
     -fx-background-color:SWATCH_ACCENT;
 }
 
-
-.csg_toggle_button{
-    
-}
-
 .csg_site_hbox{
     -fx-padding: 10;
     -fx-border-color: SWATCH_ACCENT;
@@ -229,8 +228,6 @@
     -fx-border-radius: 5;
     -fx-background-radius: 0.5;
     -fx-background-color: SWATCH_COMPLEMENT;
-    
-    
 }
 
 .csg_label{
@@ -246,4 +243,65 @@
     -fx-text-fill: green;
     -fx-font-family: "Segoe UI Semibold";
 }
+
+.csg_combo_box{
+    -fx-background-color: white;
+}
+
+.table-row-cell :empty{
+    -fx-background-color: white;
+}
+
+.table-row-cell :empty.table-cell{
+    -fx-border-width: 0px;
+}
+
+.check-box .box {
+    -fx-background-color: white;
+    -fx-border-color:grey;
+    -fx-border-radius:3px; 
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #28a3f4;
+}
+
+.toggle-button:selected:focused {
+    -fx-background-color: darkgray;
+    -fx-text-fill: black;
+}
+
+.toggle-button:hover {
+    -fx-background-color: SWATCH_NEUTRAL;
+}
+
+
+.tab-pane > .tab-header-area > .headers-region > .tab:top {  
+    -fx-border-color: #a3a7a8;  
+    -fx-border-radius: 15 15 0 0;  
+    -fx-background-color: white;  
+    -fx-pref-height: 40px;    
+    -fx-background-insets: 0;  
+    -fx-focus-color: transparent;
+}  
+  
+.tab-pane > .tab-header-area > .headers-region > .tab:selected:top {  
+    -fx-border-color: orange darkcyan orange darkcyan;  
+    -fx-border-width: 5 5 5 5;     
+    -fx-background-color: white;  
+    -fx-pref-height: 40px;    
+    -fx-background-insets: 0;  
+}  
+.tab-pane > .tab-header-area > .tab-header-background {  
+    -fx-background-color:white;  
+    -fx-border-color: #a3a7a8;  
+    -fx-border-width: 0 0 1 0;  
+    -fx-background-insets: 0;  
+    -fx-pref-height: 45px;    
+} 
+
 

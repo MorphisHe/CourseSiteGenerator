@@ -25,10 +25,12 @@ import static csg.CourseSitePropertyType.CSG_FOOLPROOF_SETTINGS;
 import static csg.CourseSitePropertyType.CSG_TA_EDIT_DIALOG;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
+import javafx.collections.FXCollections;
+
 
 /**
  *
- * @author McKillaGorilla
+ * @author Jiang He
  */
 public class CourseSiteController {
 
@@ -57,6 +59,14 @@ public class CourseSiteController {
             nameTF.requestFocus();
         }
         app.getFoolproofModule().updateControls(CSG_FOOLPROOF_SETTINGS);
+    }
+    
+    public void processDeleteTA(){
+        OfficeHoursData data = (OfficeHoursData)app.getDataComponent();
+        if (data.isTASelected()) {
+            TeachingAssistantPrototype taToDelete = data.getSelectedTA();;
+            data.removeTA(taToDelete);
+        }
     }
 
     public void processVerifyTA() {
@@ -127,5 +137,40 @@ public class CourseSiteController {
         AppGUIModule gui = app.getGUIModule();
         TableView<TimeSlot> officeHoursTableView = (TableView) gui.getGUINode(CSG_OFFICE_HOURS_TABLE_VIEW);
         officeHoursTableView.refresh();
+    }
+    
+    /**
+     * This method is to set display for office hour after start time and end time
+     * is picked. Will only show the rows within the picked time interval
+     * @param startTime : starting time of the office hour
+     * @param endTime : ending time of the office hour
+     */
+    public void processOHdisplay(String startTime, String endTime){
+        AppGUIModule gui = app.getGUIModule();
+        OfficeHoursData data = (OfficeHoursData)app.getDataComponent();
+        TableView<TimeSlot> table = (TableView) gui.getGUINode(CSG_OFFICE_HOURS_TABLE_VIEW);
+        
+        //get the full oh table first
+        table.setItems(data.getOfficeHours());
+        
+        //this will store the rows that we are showing
+        ObservableList subentries = FXCollections.observableArrayList();
+ 
+        boolean laterThanStartTime = false;
+        for (int i = 0; i < table.getItems().size(); i++) {
+            String columnStartTime = "" + table.getColumns().get(0).getCellData(i);
+            String columnEndTime = "" + table.getColumns().get(1).getCellData(i);
+            if (columnStartTime.equals(startTime) || laterThanStartTime) {
+                subentries.add(table.getItems().get(i));
+                laterThanStartTime = true;
+                //break the loop if we hit the endTime row
+                if (columnEndTime.equals(endTime)) break;
+            }
+        }
+        table.setItems(subentries);
+    }
+    
+    public void processTAdisplay(){
+        
     }
 }

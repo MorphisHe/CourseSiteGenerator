@@ -11,7 +11,7 @@ import javafx.beans.property.StringProperty;
  * This class stores information for a single TA-Day/Time mapping for our office
  * hours grid. It's useful to provide a list of these objects for file I/O.
  *
- * @author Richard McKenna
+ * @author Jiang He
  */
 public class TimeSlot {
 

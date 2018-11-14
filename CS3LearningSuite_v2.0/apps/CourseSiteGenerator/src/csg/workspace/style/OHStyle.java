@@ -5,8 +5,8 @@ package csg.workspace.style;
  * are used by JavaFX to apply style properties to controls like
  * buttons, labels, and panes.
 
- * @author Richard McKenna
- * @author ?
+ * @author Jiang He
+ * 
  * @version 1.0
  */
 public class OHStyle {
@@ -51,4 +51,8 @@ public class OHStyle {
     public static final String CLASS_LABEL = "csg_label";
     public static final String CLASS_HEADER_LABEL = "csg_header_label";
     public static final String CLASS_CHECKBOX = "csg_checkbox";
+    public static final String CLASS_TEXT_AREA = "csg_textarea";
+    public static final String CLASS_SCROLL_PANE = "csg_scroll_pane";
+    public static final String CLASS_DATE_PICKER = "csg_data_picker";
+    
 }

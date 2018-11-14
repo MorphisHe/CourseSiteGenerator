@@ -7,6 +7,7 @@ import javafx.beans.property.StringProperty;
  * This class represents a Teaching Assistant for the table of TAs.
  * 
  * @author Richard McKenna
+ * @param <E>
  */
 public class TeachingAssistantPrototype<E extends Comparable<E>> implements Comparable<E>  {
     // THE TABLE WILL STORE TA NAMES AND EMAILS
@@ -17,6 +18,9 @@ public class TeachingAssistantPrototype<E extends Comparable<E>> implements Comp
 
     /**
      * Constructor initializes both the TA name and email.
+     * @param initName
+     * @param initEmail
+     * @param initType
      */
     public TeachingAssistantPrototype(String initName, String initEmail, TAType initType) {
         name = new SimpleStringProperty(initName);

@@ -108,6 +108,7 @@
         <property_options name="LANGUAGE_OPTIONS">
             <option>English Hol</option>
             <option>tlhIngan</option>
+            <option>Chinese Hol</option>
         </property_options>
     </property_options_list>
 </properties>
