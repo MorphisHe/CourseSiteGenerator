@@ -4,7 +4,6 @@ import static djf.AppTemplate.PATH_ICONS;
 import djf.modules.AppGUIModule;
 import djf.modules.AppLanguageModule;
 import static djf.modules.AppLanguageModule.FILE_PROTOCOL;
-import java.util.ArrayList;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -14,6 +13,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.control.RadioButton;
@@ -24,6 +24,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.ToggleButton;
@@ -105,15 +106,22 @@ public class AppNodesBuilder {
     }    
 
     public ComboBox buildComboBox(Object nodeId,
-            Object optionsListProperty,
+            ObservableList<String> optionsListProperty,
             Object defaultValueProperty,
             Pane parentPane,
             String styleClass,
-            boolean enabled) {
+            boolean enabled,
+            boolean editable,
+            String defaultValue) {
         // MAKE AND INIT THE COMBO BOX
-        ComboBox comboBox = initComboBox(optionsListProperty, defaultValueProperty);
+        ComboBox comboBox = new ComboBox(optionsListProperty);
+        comboBox.getSelectionModel().selectFirst();
         initNode(nodeId, comboBox, parentPane, styleClass, enabled);
-        comboBox.setEditable(true);
+        comboBox.setEditable(editable);
+        if(defaultValue.equals("first")){
+            comboBox.getSelectionModel().selectFirst();
+        }
+        else comboBox.getSelectionModel().selectLast();
         
         return comboBox;
     }
@@ -123,36 +131,37 @@ public class AppNodesBuilder {
             int col, int row, int colSpan, int rowSpan,
             String styleClass,
             boolean enabled,
-            Object optionsListProperty,
+            ObservableList<String> optionsListProperty,
             Object defaultValueProperty) {
         // MAKE AND INIT THE COMBO BOX
-        ComboBox comboBox = initComboBox(optionsListProperty, defaultValueProperty);
+        ComboBox comboBox = new ComboBox(optionsListProperty);
+        comboBox.getSelectionModel().selectFirst();
         initNode(nodeId, comboBox, parent, col, row, colSpan, rowSpan, styleClass, enabled);        
         return comboBox;
     }
-    
-    private ComboBox initComboBox(
-            Object optionsListProperty,
-            Object defaultValueProperty) {
-        // LOAD THE OPTIONS INTO THE COMBO BOX
-        ComboBox comboBox = new ComboBox();
-        PropertiesManager props = PropertiesManager.getPropertiesManager();
-        ObservableList<String> items = comboBox.getItems();
-        ArrayList<String> propertyOptions = props.getPropertyOptionsList(optionsListProperty);
-        String defaultValue = props.getProperty(defaultValueProperty);
-        if (defaultValue != null) {
-            items.add(defaultValue);
-            comboBox.getSelectionModel().select(defaultValue);
-        }
-        if (propertyOptions != null) {
-            for (String s : propertyOptions) {
-                if (!items.contains(s)) {
-                    items.add(s);
-                }
-            }
-        }
-        return comboBox;
-    }
+
+//    private ComboBox initComboBox(
+//            Object optionsListProperty,
+//            Object defaultValueProperty) {
+//        // LOAD THE OPTIONS INTO THE COMBO BOX
+//        ComboBox comboBox = new ComboBox();
+//        PropertiesManager props = PropertiesManager.getPropertiesManager();
+//        ObservableList<String> items = comboBox.getItems();
+//        ArrayList<String> propertyOptions = props.getPropertyOptionsList(optionsListProperty);
+//        String defaultValue = props.getProperty(defaultValueProperty);
+//        if (defaultValue != null) {
+//            items.add(defaultValue);
+//            comboBox.getSelectionModel().select(defaultValue);
+//        }
+//        if (propertyOptions != null) {
+//            for (String s : propertyOptions) {
+//                if (!items.contains(s)) {
+//                    items.add(s);
+//                }
+//            }
+//        }
+//        return comboBox;
+//    }
 
     public GridPane buildGridPane(Object nodeId,
             Pane parentPane,
@@ -430,6 +439,7 @@ public class AppNodesBuilder {
         // AND RETURN THE COMPLETED BUTTON
         return button;
     }
+    
     public ToggleButton buildTextToggleButton(Object nodeId,
             GridPane parent,
             int col, int row, int colSpan, int rowSpan,
@@ -453,7 +463,9 @@ public class AppNodesBuilder {
         ToggleButton button = new ToggleButton();
         
         // PUT THE BUTTON INTO ITS PROPER TOGGLE GROUP
-        button.setToggleGroup(tg);
+        if(tg != null) button.setToggleGroup(tg);
+        button.setWrapText(true);
+        button.setTextAlignment(TextAlignment.CENTER);
         
         // IS IT SELECTED?
         button.setSelected(selected);
@@ -593,6 +605,25 @@ public class AppNodesBuilder {
         // AND RETURN THE COMPLETED BUTTON
         return textField;
     }
+    
+    public TextArea buildTextArea(Object nodeId,
+            Pane parentPane,
+            String styleClass,
+            boolean enabled) {
+        // NOW MAKE THE TEXT FIELD
+        TextArea textArea = new TextArea();
+
+        // INITIALIZE THE OTHER SETTINGS
+        initNode(nodeId, textArea, parentPane, styleClass, enabled);
+
+        // MAKE SURE THE LANGUAGE MANAGER HAS IT
+        // SO THAT IT CAN CHANGE THE LANGUAGE AS NEEDED
+        initPromptNode(nodeId, textArea);
+
+        // AND RETURN THE COMPLETED BUTTON
+        return textArea;
+    }
+    
     public TableView buildTableView(Object nodeId,
             Pane parentPane,
             String styleClass,
@@ -674,13 +705,32 @@ public class AppNodesBuilder {
     public ScrollPane buildScrollPane(
             Object nodeId,
             Pane parentPane,
+            String styleClass,
             boolean enabled){
         
+        // CREATE A NEW SCROLL PANE
         ScrollPane sp = new ScrollPane();
-        gui.addGUINode(nodeId, sp);
+        
+        // INITIALIZE THE OTHER SETTINGS
+        initNode(nodeId, sp, styleClass, enabled);
+        
+        // SETTING THIS SCROLL PANE TO THE TARGET PARENT
         sp.setContent(parentPane);
+        
         sp.setVbarPolicy(ScrollBarPolicy.ALWAYS);
         return sp;
+    }
+    
+    public DatePicker buildDatePicker(Object nodeId,
+            Pane parentPane,
+            String styleClass,
+            boolean enabled){
+        
+        DatePicker dp = new DatePicker();
+        
+        initNode(nodeId, dp, parentPane, styleClass, enabled);
+        return dp;
+        
     }
     
 //    private void initTab(Object nodeId, Tab tab) {
@@ -694,6 +744,3 @@ public class AppNodesBuilder {
     
 }
 
-//date picker
-//scroll pane
-//
