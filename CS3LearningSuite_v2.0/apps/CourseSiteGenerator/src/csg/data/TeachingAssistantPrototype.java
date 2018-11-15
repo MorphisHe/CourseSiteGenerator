@@ -6,7 +6,7 @@ import javafx.beans.property.StringProperty;
 /**
  * This class represents a Teaching Assistant for the table of TAs.
  * 
- * @author Richard McKenna
+ * @author Jiang He
  * @param <E>
  */
 public class TeachingAssistantPrototype<E extends Comparable<E>> implements Comparable<E>  {

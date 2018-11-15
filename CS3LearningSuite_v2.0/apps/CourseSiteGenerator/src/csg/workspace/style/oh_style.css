@@ -122,7 +122,7 @@ b.oh_text_field, .oh_text_field_error {
     -fx-font-size: 14pt;
 }
 .oh_text_field {
-    -fx-text-fill: black;
+    -fx-text-fill: green;
 }
 .oh_text_field_error {
     -fx-text-fill: red;

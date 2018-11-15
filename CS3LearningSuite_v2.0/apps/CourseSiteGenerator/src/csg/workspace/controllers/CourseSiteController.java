@@ -25,6 +25,7 @@ import static csg.CourseSitePropertyType.CSG_FOOLPROOF_SETTINGS;
 import static csg.CourseSitePropertyType.CSG_TA_EDIT_DIALOG;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
+import java.util.HashMap;
 import javafx.collections.FXCollections;
 
 
@@ -59,12 +60,14 @@ public class CourseSiteController {
             nameTF.requestFocus();
         }
         app.getFoolproofModule().updateControls(CSG_FOOLPROOF_SETTINGS);
+        
+        ((TableView<TeachingAssistantPrototype>)gui.getGUINode(CSG_TAS_TABLE_VIEW)).refresh();
     }
     
     public void processDeleteTA(){
         OfficeHoursData data = (OfficeHoursData)app.getDataComponent();
         if (data.isTASelected()) {
-            TeachingAssistantPrototype taToDelete = data.getSelectedTA();;
+            TeachingAssistantPrototype taToDelete = data.getSelectedTA();
             data.removeTA(taToDelete);
         }
     }
@@ -167,10 +170,68 @@ public class CourseSiteController {
                 if (columnEndTime.equals(endTime)) break;
             }
         }
+        //add all rows to oh table
         table.setItems(subentries);
     }
     
     public void processTAdisplay(){
+        AppGUIModule gui = app.getGUIModule();
+        OfficeHoursData data = (OfficeHoursData)app.getDataComponent();
+        TableView<TimeSlot> ohTable = (TableView) gui.getGUINode(CSG_OFFICE_HOURS_TABLE_VIEW);
+        TableView<TeachingAssistantPrototype> taTable = (TableView) gui.getGUINode(CSG_TAS_TABLE_VIEW);
         
+        //first put our full ta table data to a temp data holder
+        //this way we dont change any data
+        data.setTempTAs(data.getTeachingAssistants());
+        
+        //reset the table with full ta table data
+        taTable.setItems(data.getTeachingAssistants());
+        
+        //this will store the rows that we are showing
+        ObservableList subentries = FXCollections.observableArrayList();
+        
+        //this will store all ta's name and their time slot that are to be shown
+        HashMap<String, Integer> tasToShow = new HashMap<>();
+        
+        //this loop will put the needed ta name and time slot to hashmap
+        for (int i = 0; i < ohTable.getItems().size(); i++) {
+            for(int j = 0; j < ohTable.getColumns().size(); j++){
+                //incase if there is multiple name in one table cell
+                String[] temp = ("" + ohTable.getColumns().get(j).getCellData(i)).split("\n");
+                
+                for (String name : temp){
+                    //check if taName is already in hashmap
+                    if (tasToShow.containsKey(name)) {
+                        tasToShow.put(name, tasToShow.get(name) + 1);
+                    } else {
+                        tasToShow.put(name, 1);
+                    }
+                }
+                
+            }
+        }
+        
+        //this loop with update the display of ta table
+        for (int i = 0; i < taTable.getItems().size(); i++) {
+            String taName = "" + taTable.getColumns().get(0).getCellData(i);
+            if(tasToShow.containsKey(taName)){
+                TeachingAssistantPrototype cloneTA = (TeachingAssistantPrototype) taTable.getItems().get(i).clone();
+                cloneTA.setSlots(tasToShow.get(taName).toString());
+                subentries.add(cloneTA);
+            }
+        }
+        //add all ta to ta table
+        taTable.setItems(subentries);
+    }
+    
+    //this method shows the full ta and oh table data
+    public void showFullTAandOH(){
+        AppGUIModule gui = app.getGUIModule();
+        OfficeHoursData data = (OfficeHoursData)app.getDataComponent();
+        TableView<TimeSlot> ohTable = (TableView) gui.getGUINode(CSG_OFFICE_HOURS_TABLE_VIEW);
+        TableView<TeachingAssistantPrototype> taTable = (TableView) gui.getGUINode(CSG_TAS_TABLE_VIEW);
+        
+        ohTable.setItems(data.getOfficeHours());
+        taTable.setItems(data.getTeachingAssistants());
     }
 }

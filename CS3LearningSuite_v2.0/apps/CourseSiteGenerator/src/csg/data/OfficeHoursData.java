@@ -37,6 +37,9 @@ public class OfficeHoursData implements AppDataComponent {
     // DATA IN THE ROWS OF THE TABLE VIEW
     ObservableList<TeachingAssistantPrototype> teachingAssistants;
     ObservableList<TimeSlot> officeHours;    
+    
+    // HOLDER FOR FULL TAS TABLE
+    ObservableList<TeachingAssistantPrototype> tempTAS;
 
     // THESE ARE THE TIME BOUNDS FOR THE OFFICE HOURS GRID. NOTE
     // THAT THESE VALUES CAN BE DIFFERENT FOR DIFFERENT FILES, BUT
@@ -89,6 +92,22 @@ public class OfficeHoursData implements AppDataComponent {
     
     public ObservableList<TimeSlot> getOfficeHours(){
         return officeHours;
+    }
+    
+    public ObservableList<TeachingAssistantPrototype> getTeachingAssistants(){
+        return teachingAssistants;
+    }
+    
+    public ObservableList<TeachingAssistantPrototype> getTempTAs(){
+        return tempTAS;
+    }
+    
+    public void setTempTAs(ObservableList<TeachingAssistantPrototype> tas){
+        tempTAS = tas;
+    }
+    
+    public void setTeachingAssistants(ObservableList<TeachingAssistantPrototype> tas){
+        teachingAssistants = tas;
     }
     
     // PRIVATE HELPER METHODS
@@ -264,8 +283,8 @@ public class OfficeHoursData implements AppDataComponent {
         HashMap<TimeSlot, ArrayList<DayOfWeek>> timeSlots = new HashMap();
         for (TimeSlot timeSlot : officeHours) {
             if (timeSlot.hasTA(ta)) {
-                ArrayList<DayOfWeek> daysForTA = timeSlot.getDaysForTA(ta);
-                timeSlots.put(timeSlot, daysForTA);
+            ArrayList<DayOfWeek> daysForTA = timeSlot.getDaysForTA(ta);
+            timeSlots.put(timeSlot, daysForTA);
             }
         }
         return timeSlots;

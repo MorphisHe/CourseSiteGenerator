@@ -193,6 +193,8 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
                 ohEndTimeCB.setItems(getEtList(CBstartTime, OH_END_TIME));
                 controller.processOHdisplay(CBstartTime, CBendTime);
+                if(!fullInterval()) controller.processTAdisplay();
+                else controller.showFullTAandOH();
             });
             return cell ;
         });
@@ -210,6 +212,8 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
                 controller.processOHdisplay(CBstartTime, CBendTime);
                 ohStartTimeCB.setItems(getStList(CBendTime, OH_START_TIME, OH_END_TIME));
+                if(!fullInterval()) controller.processTAdisplay();
+                else controller.showFullTAandOH();
             });
             return cell ;
         });
@@ -234,14 +238,21 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         RadioButton allRadio = (RadioButton) gui.getGUINode(CSG_ALL_RADIO_BUTTON);
         allRadio.setOnAction(e -> {
             controller.processSelectAllTAs();
+            if(!fullInterval()) controller.processTAdisplay();
+            else controller.showFullTAandOH();
+            
         });
         RadioButton gradRadio = (RadioButton) gui.getGUINode(CSG_GRAD_RADIO_BUTTON);
         gradRadio.setOnAction(e -> {
             controller.processSelectGradTAs();
+            if(!fullInterval()) controller.processTAdisplay();
+            else controller.showFullTAandOH();
         });
         RadioButton undergradRadio = (RadioButton) gui.getGUINode(CSG_UNDERGRAD_RADIO_BUTTON);
         undergradRadio.setOnAction(e -> {
             controller.processSelectUndergradTAs();
+            if(!fullInterval()) controller.processTAdisplay();
+            else controller.showFullTAandOH();
         });
     }
     
@@ -911,6 +922,16 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 (etOptions.indexOf(startTime))+1, etOptions.size()));
 
         return toBeDisplayedList;
+    }
+    
+    // method to check if the oh table is shown with full interval
+    private boolean fullInterval(){
+        AppGUIModule gui = app.getGUIModule();
+        ComboBox startTimeCB = (ComboBox) gui.getGUINode(OH_START_TIME_COMBO_BOX);
+        ComboBox endTimeCB = (ComboBox) gui.getGUINode(OH_END_TIME_COMBO_BOX);
+        
+        return (startTimeCB.getSelectionModel().getSelectedItem().equals("8:00am") &&
+                endTimeCB.getSelectionModel().getSelectedItem().equals("12:00am"));
     }
     
 }

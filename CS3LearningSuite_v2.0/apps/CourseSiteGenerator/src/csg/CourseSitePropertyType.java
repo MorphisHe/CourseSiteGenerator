@@ -1,8 +1,5 @@
 package csg;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
 /**
  * This class provides the properties that are needed to be loaded for
  * setting up To Do List Maker workspace controls including language-dependent
