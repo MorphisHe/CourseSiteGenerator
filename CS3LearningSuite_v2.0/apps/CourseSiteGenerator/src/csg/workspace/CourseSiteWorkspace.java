@@ -33,6 +33,8 @@ import csg.workspace.dialogs.TADialog;
 import csg.workspace.foolproof.CourseSiteFoolproofDesign;
 import static csg.workspace.style.OHStyle.*;
 import static djf.modules.AppGUIModule.DISABLED;
+import java.util.Calendar;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -43,7 +45,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleButton;
@@ -73,6 +74,23 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                     "4:30pm", "5:00pm", "5:30pm", "6:00pm", "6:30pm", "7:00pm", "7:30pm", "8:00pm",
                     "8:30pm", "9:00pm", "9:30pm", "10:00pm", "10:30pm", "11:00pm", "11:30pm", "12:00am"
             );
+    private static final ObservableList<String> SITE_SEMESTER
+            = FXCollections.observableArrayList(
+                    "Fall", "Spring", "Winter", 
+                    "Summer Session 1", "Summer Session 1 Extended", 
+                    "Summer Session 2", "Summer Session 2 Extended"
+            );
+    private static final ObservableList<String> SITE_SUBJECT
+            = FXCollections.observableArrayList("CSE", "ISE");
+    
+    private static final ObservableList<String> CURRENT_YEARS
+            = FXCollections.observableArrayList(
+                    Integer.toString(Calendar.getInstance().get(Calendar.YEAR)), 
+                    Integer.toString(Calendar.getInstance().get(Calendar.YEAR)+1)
+            );
+    
+    private static final ObservableList<String> SUBJECT_NUMBER
+            = FXCollections.observableArrayList("220");
 
     public CourseSiteWorkspace(CourseSiteGeneratorApp app) {
         super(app);
@@ -176,7 +194,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             controller.processToggleOfficeHours();
         });
         
-        //set cell factory for combo box action
+        //set cell factory for oh tbale time interval combo box action
         ComboBox ohStartTimeCB = (ComboBox) gui.getGUINode(OH_START_TIME_COMBO_BOX);
         ComboBox ohEndTimeCB = (ComboBox) gui.getGUINode(OH_END_TIME_COMBO_BOX);
         
@@ -216,6 +234,25 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 else controller.showFullTAandOH();
             });
             return cell ;
+        });
+        
+        //set cell factory for site page combo boxes
+        ComboBox siteSemesterCB = (ComboBox) gui.getGUINode(SITE_SEMESTER_COMBO_BOX);
+        ComboBox siteYearCB = (ComboBox) gui.getGUINode(SITE_YEAR_COMBO_BOX);
+        ComboBox siteSubjectCB = (ComboBox) gui.getGUINode(SITE_SBJ_COMBO_BOX);
+        ComboBox siteNumberCB = (ComboBox) gui.getGUINode(SITE_NUMBER_COMBO_BOX);
+        
+        siteSemesterCB.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            controller.updateExportDir("semester", oldVal, newVal);
+        });
+        siteYearCB.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            controller.updateExportDir("year", oldVal, newVal);
+        });
+        siteSubjectCB.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            controller.updateExportDir("subject", oldVal, newVal);
+        });
+        siteNumberCB.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            controller.updateExportDir("number", oldVal, newVal);
         });
 
         // DON'T LET ANYONE SORT THE TABLES
@@ -732,9 +769,9 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Label number = ohBuilder.buildLabel(SITE_NUMBER_LABEL, null, CLASS_LABEL, ENABLED);
         VBox labelVBox1 = new VBox(subject, number);
         
-        ComboBox subjectCB = ohBuilder.buildComboBox(SITE_SBJ_COMBO_BOX, null, 
+        ComboBox subjectCB = ohBuilder.buildComboBox(SITE_SBJ_COMBO_BOX, SITE_SUBJECT, 
                 CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
-        ComboBox numberCB = ohBuilder.buildComboBox(SITE_NUMBER_COMBO_BOX, null, 
+        ComboBox numberCB = ohBuilder.buildComboBox(SITE_NUMBER_COMBO_BOX, SUBJECT_NUMBER, 
                 CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
         VBox comboVBox1 = new VBox(subjectCB, numberCB);
         
@@ -742,9 +779,9 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Label year = ohBuilder.buildLabel(SITE_YEAR_LABEL, null, CLASS_LABEL, ENABLED);
         VBox labelVBox2 = new VBox(semester, year);
         
-        ComboBox yearCB = ohBuilder.buildComboBox(SITE_YEAR_COMBO_BOX, null, 
+        ComboBox yearCB = ohBuilder.buildComboBox(SITE_YEAR_COMBO_BOX, CURRENT_YEARS, 
                 CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
-        ComboBox semesterCB = ohBuilder.buildComboBox(SITE_SEMESTER_COMBO_BOX, null, 
+        ComboBox semesterCB = ohBuilder.buildComboBox(SITE_SEMESTER_COMBO_BOX, SITE_SEMESTER, 
                 CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
         VBox comboVBox2 = new VBox(semesterCB, yearCB);
         
@@ -763,7 +800,22 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         
         //fourth HBox
         Label exportDirLabel = ohBuilder.buildLabel(SITE_EXPORT_DIR_LABEL, null, CLASS_LABEL, ENABLED);
-        Label exportDir = new Label(".\\export\\CSE_219_Fall_2018\\public_html");
+        Label exportDir = ohBuilder.buildLabel(SITE_EXPORT_DIR, null, null, DISABLED);
+        //  .\\export\\CSE_219_Fall_2018\\public_html (format)
+        //  now we setting up the default export directory
+        //  we need to replace the white sapce in semester with "_"
+        String seme = (String)semesterCB.getSelectionModel().getSelectedItem();
+        if(seme.contains(" ")){
+            seme = seme.replaceAll(" ", "_");
+        }
+        exportDir.setText(
+                ".\\\\export\\\\" 
+              + subjectCB.getSelectionModel().getSelectedItem()
+              + "_" + numberCB.getSelectionModel().getSelectedItem()
+              + "_" + seme
+              + "_" + yearCB.getSelectionModel().getSelectedItem()
+              + "\\\\public_html"
+        );
         HBox fourthBox = new HBox(exportDirLabel, exportDir);
         fourthBox.setSpacing(38);
         

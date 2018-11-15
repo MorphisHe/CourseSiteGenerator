@@ -8,6 +8,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import csg.CourseSiteGeneratorApp;
+import csg.CourseSitePropertyType;
 import csg.data.OfficeHoursData;
 import csg.data.TAType;
 import csg.data.TeachingAssistantPrototype;
@@ -27,6 +28,7 @@ import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
 import java.util.HashMap;
 import javafx.collections.FXCollections;
+import javafx.scene.control.Label;
 
 
 /**
@@ -233,5 +235,66 @@ public class CourseSiteController {
         
         ohTable.setItems(data.getOfficeHours());
         taTable.setItems(data.getTeachingAssistants());
+    }
+    
+    /**
+     * this method will dynamically create the export directory
+     * @param typeOfCB : the comboBox that calls this method
+     * @param oldValue : old option in combo box, used here to check
+     * which part of export directory we need to update
+     * @param newValue : new option in combo box that we updating
+     */
+    public void updateExportDir(String typeOfCB, Object oldValue, Object newValue){
+        //  .\\export\\CSE_219_Fall_2018\\public_html (format)
+        AppGUIModule gui = app.getGUIModule();
+        
+        Label exportDir = (Label) gui.getGUINode(CourseSitePropertyType.SITE_EXPORT_DIR);
+        String oldVal = (String)oldValue;
+        String newVal = (String)newValue;
+        StringBuilder sb = new StringBuilder();
+        
+        //if oldValue and newValue is a semester value that contains white space 
+        //we transfer the white space to "_" instead
+        if(oldVal.contains(" ")) oldVal = oldVal.replaceAll(" ", "_");
+        if(newVal.contains(" ")) newVal = newVal.replaceAll(" ", "_");
+        
+        String[] temp = exportDir.getText().split("\\\\");
+        String options = temp[4]; //this is the part we working on EX: "CSE_219_Fall_2018"
+        String [] splitedOptions = options.split("_"); // we get ["Subject", "Number", "Semester", "Year"]
+        
+        //now we want to only replace the oldVal with newVal in once single correct place
+        switch (typeOfCB) {
+            case "subject":
+                splitedOptions[0] = splitedOptions[0].replace(oldVal, newVal);
+                break;
+            case "number":
+                splitedOptions[1] = splitedOptions[1].replace(oldVal, newVal);
+                break;
+            case "semester":
+                splitedOptions[2] = splitedOptions[2].replace(oldVal, newVal);
+                break;
+            case "year":
+                splitedOptions[3] = splitedOptions[3].replace(oldVal, newVal);
+                break;
+            default:
+                break;
+        }
+        
+        //add all parts to StringBuilder
+        exportDir.setText(
+                sb.append(".\\\\") //add .\\
+                  .append(temp[2]) //add export
+                  .append("\\\\")  //add \\
+                  .append(splitedOptions[0]) //add Subject
+                  .append("_")
+                  .append(splitedOptions[1]) //add Number
+                  .append("_") 
+                  .append(splitedOptions[2]) //add Semester
+                  .append("_")
+                  .append(splitedOptions[3]) //add Year
+                  .append("\\\\")  //add \\
+                  .append(temp[6]) //add public_html
+                  .toString()
+        ); 
     }
 }

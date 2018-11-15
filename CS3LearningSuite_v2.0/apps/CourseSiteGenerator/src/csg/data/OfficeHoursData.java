@@ -165,9 +165,9 @@ public class OfficeHoursData implements AppDataComponent {
         endHour = MAX_END_HOUR;
         teachingAssistants.clear();
         
-        for (TimeSlot timeSlot : officeHours) {
+        officeHours.forEach((timeSlot) -> {
             timeSlot.reset();
-        }
+        });
     }
     
     // SERVICE METHODS
@@ -195,12 +195,12 @@ public class OfficeHoursData implements AppDataComponent {
 
     public void addTA(TeachingAssistantPrototype ta, HashMap<TimeSlot, ArrayList<DayOfWeek>> officeHours) {
         addTA(ta);
-        for (TimeSlot timeSlot : officeHours.keySet()) {
+        officeHours.keySet().forEach((timeSlot) -> {
             ArrayList<DayOfWeek> days = officeHours.get(timeSlot);
-            for (DayOfWeek dow : days) {
+            days.forEach((dow) -> {
                 timeSlot.addTA(dow, ta);
-            }
-        }
+            });
+        });
     }
     
     public void removeTA(TeachingAssistantPrototype ta) {
@@ -209,9 +209,9 @@ public class OfficeHoursData implements AppDataComponent {
         allTAs.get(taType).remove(ta);
         
         // REMOVE THE TA FROM ALL OF THEIR OFFICE HOURS
-        for (TimeSlot timeSlot : officeHours) {
+        officeHours.forEach((timeSlot) -> {
             timeSlot.removeTA(ta);
-        }
+        });
         
         // AND REFRESH THE TABLES
         this.updateTAs();
@@ -219,12 +219,12 @@ public class OfficeHoursData implements AppDataComponent {
 
     public void removeTA(TeachingAssistantPrototype ta, HashMap<TimeSlot, ArrayList<DayOfWeek>> officeHours) {
         removeTA(ta);
-        for (TimeSlot timeSlot : officeHours.keySet()) {
+        officeHours.keySet().forEach((timeSlot) -> {
             ArrayList<DayOfWeek> days = officeHours.get(timeSlot);
-            for (DayOfWeek dow : days) {
+            days.forEach((dow) -> {
                 timeSlot.removeTA(dow, ta);
-            }
-        }    
+            });
+        });    
     }
     
     public DayOfWeek getColumnDayOfWeek(int columnNumber) {
@@ -281,12 +281,10 @@ public class OfficeHoursData implements AppDataComponent {
     
     public HashMap<TimeSlot, ArrayList<DayOfWeek>> getTATimeSlots(TeachingAssistantPrototype ta) {
         HashMap<TimeSlot, ArrayList<DayOfWeek>> timeSlots = new HashMap();
-        for (TimeSlot timeSlot : officeHours) {
-            if (timeSlot.hasTA(ta)) {
+        officeHours.stream().filter((timeSlot) -> (timeSlot.hasTA(ta))).forEachOrdered((timeSlot) -> {
             ArrayList<DayOfWeek> daysForTA = timeSlot.getDaysForTA(ta);
             timeSlots.put(timeSlot, daysForTA);
-            }
-        }
+        });
         return timeSlots;
     }
     
@@ -319,11 +317,7 @@ public class OfficeHoursData implements AppDataComponent {
     
     public boolean isLegalNewName(String testName) {
         if (testName.trim().length() > 0) {
-            for (TeachingAssistantPrototype testTA : this.teachingAssistants) {
-                if (testTA.getName().equals(testName))
-                    return false;
-            }
-            return true;
+            return this.teachingAssistants.stream().noneMatch((testTA) -> (testTA.getName().equals(testName)));
         }
         return false;
     }
@@ -333,11 +327,7 @@ public class OfficeHoursData implements AppDataComponent {
                 "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(email);
         if (matcher.find()) {
-            for (TeachingAssistantPrototype ta : this.teachingAssistants) {
-                if (ta.getEmail().equals(email.trim()))
-                    return false;
-            }
-            return true;
+            return this.teachingAssistants.stream().noneMatch((ta) -> (ta.getEmail().equals(email.trim())));
         }
         else return false;
     }
@@ -427,10 +417,7 @@ public class OfficeHoursData implements AppDataComponent {
         
         @Override
         public boolean hasNext() {
-            if (gradIt.hasNext() || undergradIt.hasNext())
-                return true;
-            else
-                return false;                
+            return gradIt.hasNext() || undergradIt.hasNext();                
         }
 
         @Override
