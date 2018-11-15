@@ -32,14 +32,23 @@
         <property name="SITE_SYLLUBUS_CHECK_BOX_TEXT" value="Syllubus"></property>
         <!-- SITE STYLE-->
         <property name="SITE_STYLE_LABEL_TEXT" value="Style"></property>
-        <property name="SITE_NOTE_LABEL_TEXT" value="Note: Stylesheet should be placed inside work/css to be selectable"></property>
+        <property name="SITE_NOTE_LABEL_TEXT" value="Note: "></property>
+        <property name="SITE_NOTE_DETAIL_LABEL_TEXT" value="Stylesheet should be placed inside work/css to be selectable"></property>
+        <property name="SITE_FAV_ICON_BUTTON_TEXT" value="Favicon:"></property>
+        <property name="SITE_NAVBAR_BUTTON_TEXT" value="Navbar Image:"></property>
+        <property name="SITE_LEFT_FOTTER_BUTTON_TEXT" value="Left Footer Image:"></property>
+        <property name="SITE_RIGHT_FOTTER_BUTTON_TEXT" value="Right Footer Image:"></property>
+        <property name="SITE_FONT_COLOR_LABEL_TEXT" value="Fonts and Colors Style Sheet:"></property>
+
         <!-- SITE INSTRUCTOR-->
         <property name="SITE_INSTRUCTOR_LABEL_TEXT" value="Instructor"></property>
         <property name="SITE_NAME_LABEL_TEXT" value="Name:"></property>
         <property name="SITE_EMAIL_LABEL_TEXT" value="Email:"></property>
         <property name="SITE_ROOM_LABEL_TEXT" value="Room:"></property>
         <property name="SITE_HOME_PAGE_LABEL_TEXT" value="Home Page:"></property>
-
+        <property name="SITE_OFFICE_HOURS_LABEL_TEXT" value="Office Hours"></property>
+        <property name="SITE_OFFICE_HOURS_EXPAND_BUTTON_TEXT" value="Expand"></property>
+        
         <!-- SYLLUBUS TAB-->
         <property name="SYLLUBUS_DES_LABEL_TEXT" value="Description:"></property>
         <property name="SYLLUBUS_TOPIC_LABEL_TEXT" value="Topics:"></property>

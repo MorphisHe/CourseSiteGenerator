@@ -3,6 +3,7 @@ package csg.workspace;
 import djf.components.AppWorkspaceComponent;
 import djf.modules.AppFoolproofModule;
 import djf.modules.AppGUIModule;
+import djf.modules.AppLanguageModule;
 import static djf.modules.AppGUIModule.ENABLED;
 import djf.ui.AppNodesBuilder;
 import javafx.scene.control.Button;
@@ -31,6 +32,7 @@ import csg.data.Schedule;
 import csg.workspace.controllers.CourseSiteController;
 import csg.workspace.dialogs.TADialog;
 import csg.workspace.foolproof.CourseSiteFoolproofDesign;
+import csg.workspace.style.OHStyle;
 import static csg.workspace.style.OHStyle.*;
 import static djf.modules.AppGUIModule.DISABLED;
 import java.util.Calendar;
@@ -642,39 +644,39 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         //making the blocks
         HBox box1 = ohBuilder.buildHBox(EMPTY_TEXT, null, CLASS_SITE_HBOX, ENABLED);
         initSyllubusHelper(box1, ohBuilder, 
-                SYLLUBUS_DES_TOGGLE_BUTTON, SYLLUBUS_DES_LABEL, SYLLUBUS_DES_TEXTAREA);
+                SYLLUBUS_DES_TOGGLE_BUTTON, SYLLUBUS_DES_LABEL, SYLLUBUS_DES_TEXTAREA, CLASS_LABEL);
         
         HBox box2 = ohBuilder.buildHBox(EMPTY_TEXT, null, CLASS_SITE_HBOX, ENABLED);
         initSyllubusHelper(box2, ohBuilder, 
-                SYLLUBUS_TOPIC_TOGGLE_BUTTON, SYLLUBUS_TOPIC_LABEL, SYLLUBUS_TOPIC_TEXTAREA);
+                SYLLUBUS_TOPIC_TOGGLE_BUTTON, SYLLUBUS_TOPIC_LABEL, SYLLUBUS_TOPIC_TEXTAREA, CLASS_LABEL);
         
         HBox box3 = ohBuilder.buildHBox(EMPTY_TEXT, null, CLASS_SITE_HBOX, ENABLED);
         initSyllubusHelper(box3, ohBuilder, 
-                SYLLUBUS_PREQ_TOGGLE_BUTTON, SYLLUBUS_PREQ_LABEL, SYLLUBUS_PREQ_TEXTAREA);
+                SYLLUBUS_PREQ_TOGGLE_BUTTON, SYLLUBUS_PREQ_LABEL, SYLLUBUS_PREQ_TEXTAREA, CLASS_LABEL);
         
         HBox box4 = ohBuilder.buildHBox(EMPTY_TEXT, null, CLASS_SITE_HBOX, ENABLED);
         initSyllubusHelper(box4, ohBuilder, 
-                SYLLUBUS_OUTCOME_TOGGLE_BUTTON, SYLLUBUS_OUTCOME_LABEL, SYLLUBUS_OUTCOME_TEXTAREA);
+                SYLLUBUS_OUTCOME_TOGGLE_BUTTON, SYLLUBUS_OUTCOME_LABEL, SYLLUBUS_OUTCOME_TEXTAREA, CLASS_LABEL);
         
         HBox box5 = ohBuilder.buildHBox(EMPTY_TEXT, null, CLASS_SITE_HBOX, ENABLED);
         initSyllubusHelper(box5, ohBuilder, 
-                SYLLUBUS_TEXTBOOK_TOGGLE_BUTTON, SYLLUBUS_TEXTBOOK_LABEL, SYLLUBUS_TEXTBOOK_TEXTAREA);
+                SYLLUBUS_TEXTBOOK_TOGGLE_BUTTON, SYLLUBUS_TEXTBOOK_LABEL, SYLLUBUS_TEXTBOOK_TEXTAREA, CLASS_LABEL);
         
         HBox box6 = ohBuilder.buildHBox(EMPTY_TEXT, null, CLASS_SITE_HBOX, ENABLED);
         initSyllubusHelper(box6, ohBuilder, 
-                SYLLUBUS_GRADED_COMP_TOGGLE_BUTTON, SYLLUBUS_GRADED_COMP_LABEL, SYLLUBUS_GRADED_COMP_TEXTAREA);
+                SYLLUBUS_GRADED_COMP_TOGGLE_BUTTON, SYLLUBUS_GRADED_COMP_LABEL, SYLLUBUS_GRADED_COMP_TEXTAREA, CLASS_LABEL);
         
         HBox box7 = ohBuilder.buildHBox(EMPTY_TEXT, null, CLASS_SITE_HBOX, ENABLED);
         initSyllubusHelper(box7, ohBuilder, 
-                SYLLUBUS_GRADING_NOTE_TOGGLE_BUTTON, SYLLUBUS_GRADING_NOTE_LABEL, SYLLUBUS_GRADING_NOTE_TEXTAREA);
+                SYLLUBUS_GRADING_NOTE_TOGGLE_BUTTON, SYLLUBUS_GRADING_NOTE_LABEL, SYLLUBUS_GRADING_NOTE_TEXTAREA, CLASS_LABEL);
         
         HBox box8 = ohBuilder.buildHBox(EMPTY_TEXT, null, CLASS_SITE_HBOX, ENABLED);
         initSyllubusHelper(box8, ohBuilder, 
-                SYLLUBUS_ACAD_DIS_TOGGLE_BUTTON, SYLLUBUS_ACAD_DIS_LABEL, SYLLUBUS_ACAD_DIS_TEXTAREA);
+                SYLLUBUS_ACAD_DIS_TOGGLE_BUTTON, SYLLUBUS_ACAD_DIS_LABEL, SYLLUBUS_ACAD_DIS_TEXTAREA, CLASS_LABEL);
         
         HBox box9 = ohBuilder.buildHBox(EMPTY_TEXT, null, CLASS_SITE_HBOX, ENABLED);
         initSyllubusHelper(box9, ohBuilder, 
-                SYLLUBUS_SPEC_ASSIST_TOGGLE_BUTTON, SYLLUBUS_SPEC_ASSIST_LABEL, SYLLUBUS_SPEC_ASSIST_TEXTAREA);
+                SYLLUBUS_SPEC_ASSIST_TOGGLE_BUTTON, SYLLUBUS_SPEC_ASSIST_LABEL, SYLLUBUS_SPEC_ASSIST_TEXTAREA, CLASS_LABEL);
         
         //setting arrangements
         box1.prefWidthProperty().bind(syllubusGridPane.widthProperty());
@@ -709,14 +711,15 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     private void initSyllubusHelper(HBox box, AppNodesBuilder ohBuilder,
             CourseSitePropertyType toggleButtonPropertyType,
             CourseSitePropertyType labelPropertyType,
-            CourseSitePropertyType textAreaPropertyType){
+            CourseSitePropertyType textAreaPropertyType,
+            String styleClass){
         
         VBox headBox = new VBox();
         HBox box1 = new HBox();
         HBox box2 = new HBox();
         
         ToggleButton tb = ohBuilder.buildTextToggleButton(toggleButtonPropertyType, null, CLASS_OH_BUTTON, null, ENABLED, DISABLED);
-        Label lb = ohBuilder.buildLabel(labelPropertyType, null, CLASS_LABEL, ENABLED);
+        Label lb = ohBuilder.buildLabel(labelPropertyType, null, styleClass, ENABLED);
         
         box1.getChildren().addAll(tb, lb);
         box1.setSpacing(15);
@@ -734,22 +737,64 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         tf.textProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                tf.setPrefRowCount(tf.getText().split("\n").length);
+                if(tf.getText().split("\n").length > 8){
+                    tf.setPrefRowCount(tf.getText().split("\n").length);
+                }
             }
         });
         
         //set toggle button on action
+        //expands and contracts the text area
+        //also change the text of button
+        //hard coding this to making it language dependent
         tb.setOnAction(e ->{
+            String currentLanguage = app.getLanguageModule().getCurrentLanguage();
             if (tb.isSelected()){
                 headBox.getChildren().add(box2);
+                if(currentLanguage.equals("English")){
+                    tb.setText("Contract");
+                }
+                else{
+                    tb.setText("收缩");
+                }
             }
             else{
                 headBox.getChildren().remove(1);
+                if(currentLanguage.equals("English")){
+                    tb.setText("Expand");
+                }
+                else{
+                    tb.setText("扩展");
+                }
             }
         });
+        
+        //adding listener to text of toggle button, so that it change text as language change
+        tb.textProperty().addListener(new ChangeListener(){
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                String currentLanguage = app.getLanguageModule().getCurrentLanguage();
+                if (tb.isSelected()) {
+                    if (currentLanguage.equals("English")) {
+                        tb.setText("Contract");
+                    } else {
+                        tb.setText("收缩");
+                    }
+                } else {
+                    if (currentLanguage.equals("English")) {
+                        tb.setText("Expand");
+                    } else {
+                        tb.setText("扩展");
+                    }
+                }
+            }
+        });
+        
     }
     
     private void initSitePage(AppNodesBuilder ohBuilder, TabPane tabPane){
+        AppGUIModule gui = app.getGUIModule();
+        
         GridPane siteGridPane = new GridPane();
         
         //adding a scroll pane on this page
@@ -843,11 +888,37 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Label styleLabel = ohBuilder.buildLabel(SITE_STYLE_LABEL, null, CLASS_HEADER_LABEL, ENABLED);
         HBox firstStyleBox = new HBox(styleLabel);
         
-        //second style HBox
-        Label noteLabel = ohBuilder.buildLabel(SITE_NOTE_LABEL, null, CLASS_LABEL, ENABLED);
-        HBox secondStyleBox = new HBox(noteLabel);
+        //third style HBox
+        VBox buttonBox = new VBox();
+        VBox imageBox = new VBox();
+        HBox thirdStyleBox = new HBox(buttonBox, imageBox);
+        Button favIcon = ohBuilder.buildTextButton(SITE_FAV_ICON_BUTTON, buttonBox, CLASS_OH_BUTTON, ENABLED);
+        Button navBar = ohBuilder.buildTextButton(SITE_NAVBAR_BUTTON, buttonBox, CLASS_OH_BUTTON, ENABLED);
+        Button leftFotter = ohBuilder.buildTextButton(SITE_LEFT_FOTTER_BUTTON, buttonBox, CLASS_OH_BUTTON, ENABLED);
+        Button rightFotter = ohBuilder.buildTextButton(SITE_RIGHT_FOTTER_BUTTON, buttonBox, CLASS_OH_BUTTON, ENABLED);
+        ohBuilder.buildLabel(SITE_FONT_COLOR_LABEL, buttonBox, CLASS_LABEL, ENABLED);
+        ohBuilder.buildComboBox(SITE_CSS_COMBO_BOX, SITE_SEMESTER, EMPTY_TEXT, imageBox, CLASS_COMBO_BOX,ENABLED, EDITABLE, FIRST_OPTION);
         
-        biggestStyleBox.getChildren().addAll(firstStyleBox, secondStyleBox);
+        //make sure all button in button box is same size
+        favIcon.setMinWidth(175);
+        navBar.setMinWidth(175);
+        leftFotter.setMinWidth(175);
+        rightFotter.setMinWidth(175);
+        
+        //allignment for thrid style HBox
+        buttonBox.setSpacing(15);
+        imageBox.setSpacing(15);
+        thirdStyleBox.setSpacing(50);
+        buttonBox.setAlignment(Pos.CENTER_LEFT);
+        imageBox.setAlignment(Pos.CENTER_LEFT);
+        
+        //second style HBox
+        Label note = ohBuilder.buildLabel(SITE_NOTE_LABEL, null, CLASS_WARNING_HEADER_LABEL, ENABLED);
+        Label noteDetail = ohBuilder.buildLabel(SITE_NOTE_DETAIL_LABEL, null, CLASS_WARNING_DETAIL_LABEL, ENABLED);
+        HBox secondStyleBox = new HBox(note, noteDetail);
+        secondStyleBox.setAlignment(Pos.CENTER_LEFT);
+        
+        biggestStyleBox.getChildren().addAll(firstStyleBox, thirdStyleBox, secondStyleBox);
         biggestStyleBox.setSpacing(20.0);
         style.getChildren().add(biggestStyleBox);
         
@@ -865,21 +936,18 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Label email = ohBuilder.buildLabel(SITE_EMAIL_LABEL, null, CLASS_LABEL, ENABLED);
         VBox insLabelVBox1 = new VBox(name, email);
         
-        ComboBox nameCB = ohBuilder.buildComboBox(SITE_NAME_COMBO_BOX, null, 
-                CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
-        ComboBox emailCB = ohBuilder.buildComboBox(SITE_EMAIL_COMBO_BOX, null, 
-                CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
-        VBox insComboVBox1 = new VBox(nameCB, emailCB);
+        TextField insNameTF = ohBuilder.buildTextField(SITE_NAME_TEXT_FIELD, null, CLASS_OH_TEXT_FIELD, ENABLED);
+        TextField insEmailTF = ohBuilder.buildTextField(SITE_EMAIL_TEXT_FIELD, null, CLASS_OH_TEXT_FIELD, ENABLED);
+        VBox insComboVBox1 = new VBox(insNameTF, insEmailTF);
         
         Label roomLabel = ohBuilder.buildLabel(SITE_ROOM_LABEL, null, CLASS_LABEL, ENABLED);
         Label homePageLabel = ohBuilder.buildLabel(SITE_HOME_PAGE_LABEL, null, CLASS_LABEL, ENABLED);
         VBox insLabelVBox2 = new VBox(roomLabel, homePageLabel);
         
-        ComboBox roomCB = ohBuilder.buildComboBox(SITE_ROOM_COMBO_BOX, null, 
-                CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
-        ComboBox homePageCB = ohBuilder.buildComboBox(SITE_HOME_PAGE_COMBO_BOX, null, 
-                CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
-        VBox insComboVBox2 = new VBox(roomCB, homePageCB);
+        TextField insRoomTF = ohBuilder.buildTextField(SITE_ROOM_TEXT_FIELD, null, CLASS_OH_TEXT_FIELD, ENABLED);
+        TextField insPageTF = ohBuilder.buildTextField(SITE_HOME_PAGE_TEXT_FIELD, null, CLASS_OH_TEXT_FIELD, ENABLED);
+        
+        VBox insComboVBox2 = new VBox(insRoomTF, insPageTF);
         
         insLabelVBox1.setSpacing(20.0);
         insComboVBox1.setSpacing(10.0);
@@ -888,7 +956,14 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         HBox secondInsBox = new HBox(insLabelVBox1, insComboVBox1, insLabelVBox2, insComboVBox2);
         secondInsBox.setSpacing(50);
         
-        biggestInsBox.getChildren().addAll(firstInsBox, secondInsBox);
+        //third HBox with add oh toggle and oh label
+        HBox insAddOHbuttonBox = new HBox();
+        initSyllubusHelper(insAddOHbuttonBox, ohBuilder, 
+                SITE_OFFICE_HOURS_EXPAND_BUTTON, SITE_OFFICE_HOURS_LABEL, SITE_OFFICE_HOURS_TEXT_AREA, CLASS_HEADER_LABEL);
+        ((TextArea) gui.getGUINode(SITE_OFFICE_HOURS_TEXT_AREA)).prefWidthProperty().bind(insAddOHbuttonBox.widthProperty());
+        insAddOHbuttonBox.prefWidthProperty().bind(siteGridPane.widthProperty());
+        
+        biggestInsBox.getChildren().addAll(firstInsBox, secondInsBox, insAddOHbuttonBox);
         biggestInsBox.setSpacing(20.0);
         instructor.getChildren().add(biggestInsBox);
         
@@ -898,10 +973,6 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         GridPane.setRowIndex(style, 2);
         GridPane.setRowIndex(instructor, 3);
         banner.prefWidthProperty().bind(siteGridPane.widthProperty());
-        banner.prefHeightProperty().bind(siteScroll.heightProperty().multiply(3.0 / 10.0));
-        page.prefHeightProperty().bind(siteScroll.heightProperty().multiply(1.0 / 10.0));
-        style.prefHeightProperty().bind(siteScroll.heightProperty().multiply(4.0 / 10.0));
-        instructor.prefHeightProperty().bind(siteScroll.heightProperty().multiply(2.0 / 10.0));
         
         siteGridPane.setVgap(5);
         

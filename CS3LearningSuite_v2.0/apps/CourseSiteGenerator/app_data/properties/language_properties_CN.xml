@@ -32,13 +32,21 @@
         <property name="SITE_SYLLUBUS_CHECK_BOX_TEXT" value="课程概括"></property>
         <!-- SITE STYLE-->
         <property name="SITE_STYLE_LABEL_TEXT" value="主题"></property>
-        <property name="SITE_NOTE_LABEL_TEXT" value="注意: 主题文件需要先加入到 work／css 才可以被选择"></property>
+        <property name="SITE_NOTE_LABEL_TEXT" value="注意: "></property>
+        <property name="SITE_NOTE_DETAIL_LABEL_TEXT" value="主题文件需要先加入到 work／css 才可以被选择"></property>
+        <property name="SITE_FAV_ICON_BUTTON_TEXT" value="图标:"></property>
+        <property name="SITE_NAVBAR_BUTTON_TEXT" value="侧栏图片:"></property>
+        <property name="SITE_LEFT_FOTTER_BUTTON_TEXT" value="左页脚图片:"></property>
+        <property name="SITE_RIGHT_FOTTER_BUTTON_TEXT" value="右页脚图片:"></property>
+        <property name="SITE_FONT_COLOR_LABEL_TEXT" value="字体和颜色搭配css:"></property>
         <!-- SITE INSTRUCTOR-->
         <property name="SITE_INSTRUCTOR_LABEL_TEXT" value="教授"></property>
         <property name="SITE_NAME_LABEL_TEXT" value="名字:"></property>
         <property name="SITE_EMAIL_LABEL_TEXT" value="邮箱:"></property>
         <property name="SITE_ROOM_LABEL_TEXT" value="教室号码:"></property>
         <property name="SITE_HOME_PAGE_LABEL_TEXT" value="主页地址:"></property>
+        <property name="SITE_OFFICE_HOURS_LABEL_TEXT" value="办公时间"></property>
+        <property name="SITE_OFFICE_HOURS_EXPAND_BUTTON_TEXT" value="扩展"></property>
 
         <!-- SYLLUBUS TAB-->
         <property name="SYLLUBUS_DES_LABEL_TEXT" value="介绍:"></property>

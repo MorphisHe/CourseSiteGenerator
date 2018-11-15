@@ -54,5 +54,7 @@ public class OHStyle {
     public static final String CLASS_TEXT_AREA = "csg_textarea";
     public static final String CLASS_SCROLL_PANE = "csg_scroll_pane";
     public static final String CLASS_DATE_PICKER = "csg_data_picker";
+    public static final String CLASS_WARNING_HEADER_LABEL = "csg_warning_header_label";
+    public static final String CLASS_WARNING_DETAIL_LABEL = "csg_warning_detail_label";
     
 }

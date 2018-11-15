@@ -244,6 +244,20 @@ b.oh_text_field, .oh_text_field_error {
     -fx-font-family: "Segoe UI Semibold";
 }
 
+.csg_warning_header_label{
+    -fx-font-weight: bold;
+    -fx-font-size: 15pt;
+    -fx-text-fill: red;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+.csg_warning_detail_label{
+    -fx-font-weight: bold;
+    -fx-font-size: 10pt;
+    -fx-text-fill: red;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
 .csg_combo_box{
     -fx-background-color: white;
 }
