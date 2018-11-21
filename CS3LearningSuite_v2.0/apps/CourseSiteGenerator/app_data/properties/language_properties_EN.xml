@@ -222,7 +222,7 @@
         <property name="CSG_TA_DIALOG_OK_BUTTON_TEXT" value="Ok"></property>
         <property name="CSG_TA_DIALOG_CANCEL_BUTTON_TEXT" value="Cancel"></property>
         <property name="CSG_DELETE_TA_BUTTON_TEXT" value="Delete TA"></property>
-        
+
 
         <!-- TO SWITCH BACK TO ANOTHER LANGUAGE -->
         <property name="LANGUAGE_DIALOG_TITLE" value="App Language Selection"></property>

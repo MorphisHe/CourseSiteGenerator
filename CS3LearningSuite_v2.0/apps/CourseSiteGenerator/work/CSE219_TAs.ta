@@ -2,6 +2,28 @@
 {
     "startHour":"8",
     "endHour":"23",
+    "oh_start_interval":"8:00am",
+    "oh_end_interval":"12:00am",
+    "instructor":{
+        "name":"Richard McKenna",
+        "email":"richard@cs.stonybrook.edu",
+        "room":"New CS 216",
+        "link":"http://www.cs.stonybrook.edu/~richard",
+        "hours":[
+            {
+                "day":"Tuesday",
+                "time":"1:00pm-2:20pm"
+            },
+            {
+                "day":"Wednesday",
+                "time":"2pm-3pm"
+            },
+            {
+                "day":"Thursday",
+                "time":"1:00pm-2:20pm"
+            }
+        ]
+    },
     "grad_tas":[
         {
             "name":"Aarin Chase",
@@ -189,6 +211,11 @@
         },
         {
             "time":"9_30am",
+            "day":"TUESDAY",
+            "name":"Zengxian Lin"
+        },
+        {
+            "time":"9_30am",
             "day":"WEDNESDAY",
             "name":"Zengxian Lin"
         },
@@ -200,6 +227,11 @@
         {
             "time":"10_00am",
             "day":"MONDAY",
+            "name":"Melanie Logan"
+        },
+        {
+            "time":"10_00am",
+            "day":"TUESDAY",
             "name":"Melanie Logan"
         },
         {
@@ -842,5 +874,138 @@
             "day":"FRIDAY",
             "name":"Stephen Chen"
         }
+    ],
+    "subject":"ISE",
+    "number":"220",
+    "semester":"Winter",
+    "year":"2019",
+    "title":"Computer Science III",
+    "logos":{
+        "favicon":{
+            "href":"./images/SBUShieldFavicon.ico",
+            "src":"halloween.png"
+        },
+        "navbar":{
+            "href":"http://www.stonybrook.edu",
+            "src":"Navbar_SeaWolf.png"
+        },
+        "bottom_left":{
+            "href":"http://www.cs.stonybrook.edu",
+            "src":"Left_Footer_Image_SeaWolf.png"
+        },
+        "bottom_right":{
+            "href":"http://www.cs.stonybrook.edu",
+            "src":"Right_Footer_Image_SeaWolf.png"
+        }
+    },
+    "css":"sea_wolf.css",
+    "pages":[
+        {
+            "name":"Home",
+            "link":"index.html"
+        },
+        {
+            "name":"Syllabus",
+            "link":"syllabus.html"
+        },
+        {
+            "name":"Schedule",
+            "link":"schedule.html"
+        },
+        {
+            "name":"HWs",
+            "link":"hws.html"
+        }
+    ],
+    "description":"Development of the basic concepts and techniques from Computer Science I and II into practical programming skills that include a systematic approach to program design, coding, testing, and debugging. Application of these skills to the construction of robust programs of thousands of lines of source code. Use of programming environments and tools to aid in the software development process.",
+    "topics":[
+        "Programming style and its impact on readability reliability maintainability and portability.",
+        "Decomposing problems into modular designs with simple narrow interfaces.",
+        "Determining the proper objects in an object-oriented design.",
+        "Selecting appropriate algorithms and data structures.",
+        "Reusing code including external libraries designed and built by others.",
+        "Learning systematic testing and debugging techniques.",
+        "Maintaining a repository of code during incremental development of a software project.",
+        "Learning how to use threads to synchronize several tasks.",
+        "Improving program performance.",
+        "Making effective use of a programming environment including:<br /><ul><li>Syntax-directed editor</li><li>Build tools</li><li>Debugging tools</li><li>Testing tools</li><li>Source code management tools</li><li>Profiling tools</li></ul>"
+    ],
+    "prerequisites":"You must have taken CSE 214 and received a grade of 'C' or better in order to take this course. In more detail, you are expected to have the following knowledge and skills at the beginning of the course:<br /><ul><li>Ability to write programs of a few hundred lines of code in the Java programming language.</li><li>Understanding of fundamental data structures, including lists, binary trees, hash tables, and graphs, and the ability to employ these data structures in the form provided by the standard Java API.</li><li>Ability to construct simple command-based user interfaces, and to use files for the input and output of data.</li><li>Mastery of basic mathematical and geometric reasoning using pre-calculus concepts.</li></ul>",
+    "outcomes":[
+        "Ability to systematically design code debug and test programs of about two thousand lines of code.",
+        "Sensitivity to the issues of programming style and modularity and their relationship to the construction and evolution of robust software.",
+        "Knowledge of basic ideas and techniques of object-oriented programming.",
+        "Familiarity with the capabilities and use of programming tools such as syntax-directed editors debuggers execution profilers documentation generators and revison-control systems."
+    ],
+    "textbooks":[
+        {
+            "title":"Head First Object Oriented Analysis and Design,",
+            "link":"http://proquestcombo.safaribooksonline.com.proxy.library.stonybrook.edu/0596008678,",
+            "photo":"./images/HeadFirstOOAAD.jpg,",
+            "authors":[
+                "Brett McLaughlin",
+                "Gary Pollice",
+                "David West"
+            ],
+            "publisher":"O'Reilly Media Inc.,",
+            "year":"2006"
+        },
+        {
+            "title":"Head First Design Patterns,",
+            "link":"http://proquestcombo.safaribooksonline.com.proxy.library.stonybrook.edu/0596007124,",
+            "photo":"./images/HeadFirstDesignPatterns.gif,",
+            "authors":[
+                "Eric T Freeman",
+                "Elisabeth Robson",
+                "Bert Bates",
+                "Kathy Sierra"
+            ],
+            "publisher":"O'Reilly Media Inc.,",
+            "year":"2004"
+        }
+    ],
+    "gradedComponents":[
+        {
+            "name":"Recitations",
+            "description":"Students will attend weekly recitations that will introduce use of essential development tools and will require completion of an exercise for submission.",
+            "weight":"10"
+        },
+        {
+            "name":"Homework Assignments",
+            "description":"The assignments will develop a students ability to design and implement object-oriented systems. Grading will be based on functionality and proper use specific tools. Submitted code that does not compile will receive no credit. Late submissions will NOT be accepted. Programming assignments will be handed in electronically, instructions for which will be provided early in the semester.",
+            "weight":"20"
+        },
+        {
+            "name":"Final Project",
+            "description":"The assignments will build to the final project, which will be a fully functioning application.",
+            "weight":"20"
+        },
+        {
+            "name":"Midterm Exam",
+            "description":"The midterm will cover all lecture, quizzes, and homework materials covered during the first 1/2 of the semester.",
+            "weight":"20"
+        },
+        {
+            "name":"Final Exam",
+            "description":"The final will be cumulative and will cover all lecture, reading, and homework material.",
+            "weight":"30"
+        }
+    ],
+    "gradingNote":"<strong>Note CEAS Policy:</strong> The Pass/No Credit (P/NC) option is not available for this course.",
+    "academicDishonesty":"You may <em>discuss</em> the homework in this course with anyone you like, however each student's submissionmust be ones own work.<br /><br />The College of Engineering and Applied Sciences regards academic dishonesty as a very serious matter, and provides for substantial penalties in such cases. For more information, obtain a copy of the CEAS guidelines on academic dishonesty from the CEAS office.<br /><br /><strong>Be advised that any evidence of academic dishonesty will be treated with utmost seriousness. If you have a situation that may tempt you into doing something academically dishonest, resist the urge and speak with your instructor during office hours for help.</strong><br /><br />",
+    "specialAssistance":"If you have a physical, psychological, medical or learning disability that may impact on your ability to carry out assigned course work, I would urge that you contact the staff at the <a href='https://www.stonybrook.edu/dss/'>Student Accessibility Support Center</a> (SASC) in the ECC building, 632-6748. SASC will review your concerns and determine with you what accommodations are necessary and appropriate. All information and documentation of disability are confidential.<br /><br /><br /><br />",
+    "startingMondayMonth":"08",
+    "startingMondayDay":"02",
+    "endingFridayMonth":"12",
+    "endingFridayDay":"31",
+    "holidays":[
+    ],
+    "lectures":[
+    ],
+    "references":[
+    ],
+    "recitations":[
+    ],
+    "hws":[
     ]
 }

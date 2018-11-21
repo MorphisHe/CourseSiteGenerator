@@ -21,24 +21,47 @@ import javax.json.JsonWriter;
 import javax.json.JsonWriterFactory;
 import javax.json.stream.JsonGenerator;
 import csg.CourseSiteGeneratorApp;
+import csg.CourseSitePropertyType;
 import csg.data.OfficeHoursData;
 import csg.data.TAType;
 import csg.data.TeachingAssistantPrototype;
 import csg.data.TimeSlot;
 import csg.data.TimeSlot.DayOfWeek;
+import djf.modules.AppGUIModule;
+import static csg.CourseSitePropertyType.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
+import csg.workspace.CourseSiteWorkspace;
+import csg.workspace.controllers.CourseSiteController;
+import static djf.AppPropertyType.SAVE_BUTTON;
+import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.image.ImageView;
+import javax.json.JsonObjectBuilder;
+
 
 /**
  * This class serves as the file component for the TA
- * manager app. It provides all saving and loading 
+ * manager App. It provides all saving and loading 
  * services for the application.
  * 
- * @author Richard McKenna
+ * @author Jiang He
  */
 public class CourseSiteFiles implements AppFileComponent {
     // THIS IS THE APP ITSELF
     CourseSiteGeneratorApp app;
     
-    // THESE ARE USED FOR IDENTIFYING JSON TYPES
+    // FOLLOWING ARE USED FOR IDENTIFYING JSON TYPES
+    
+    // JSON TYPES FOR OFFICE HOURS PAGE
     static final String JSON_GRAD_TAS = "grad_tas";
     static final String JSON_UNDERGRAD_TAS = "undergrad_tas";
     static final String JSON_NAME = "name";
@@ -54,6 +77,52 @@ public class CourseSiteFiles implements AppFileComponent {
     static final String JSON_WEDNESDAY = "wednesday";
     static final String JSON_THURSDAY = "thursday";
     static final String JSON_FRIDAY = "friday";
+    static final String JSON_INSTRUCTOR = "instructor";
+    static final String JSON_LINK = "link";
+    static final String JSON_ROOM = "room";
+    static final String JSON_HOURS = "hours";
+    static final String JSON_TIME = "time";
+    static final String JSON_OH_TABLE_START_INTERVAL = "oh_start_interval";
+    static final String JSON_OH_TABLE_END_INTERVAL = "oh_end_interval";
+    // JSON TYPES FOR SITE PAGE
+    static final String JSON_SUBJECT = "subject";
+    static final String JSON_NUMBER = "number";
+    static final String JSON_SEMESTER = "semester";
+    static final String JSON_YEAR = "year";
+    static final String JSON_TITLE = "title";
+    static final String JSON_LOGOS = "logos";
+    static final String JSON_FAB_ICON = "favicon";
+    static final String JSON_NAV_BAR = "navbar";
+    static final String JSON_BOTTOM_LEFT = "bottom_left";
+    static final String JSON_BOTTOM_RIGHT = "bottom_right";
+    static final String JSON_PAGES = "pages";
+    static final String JSON_SRC = "src";
+    static final String JSON_HREF = "href";
+    static final String JSON_CSS = "css";
+    // JSON TYPES FOR SYLLUBUS PAGE
+    static final String JSON_DESCRIPTION = "description";
+    static final String JSON_TOPICS = "topics";
+    static final String JSON_PREQ = "prerequisites";
+    static final String JSON_OUTCOMES = "outcomes";
+    static final String JSON_TEXTBOOKS = "textbooks";
+    static final String JSON_GRADED_COMP = "gradedComponents";
+    static final String JSON_GRADING_NOTE = "gradingNote";
+    static final String JSON_ACAD_DIS = "academicDishonesty";
+    static final String JSON_SPECIAL_ASIST = "specialAssistance";
+    // JSON TYPES FOR SCHEDULE PAGE
+    static final String JSON_START_MONDAY_MONTH = "startingMondayMonth";
+    static final String JSON_START_MONDAY_DAY = "startingMondayDay";
+    static final String JSON_END_FRIDAY_MONTH = "endingFridayMonth";
+    static final String JSON_END_FRIDAY_DAY = "endingFridayDay";
+    static final String JSON_HOLIDAYS = "holidays";
+    static final String JSON_MONTH = "month";
+    static final String JSON_DAY = "day";
+    // TODO
+    static final String JSON_LECTURES = "lectures";
+    static final String JSON_REFERENCES = "references";
+    static final String JSON_RECITATIONS = "recitations";
+    static final String JSON_HWS = "hws";
+    
 
     public CourseSiteFiles(CourseSiteGeneratorApp initApp) {
         app = initApp;
@@ -61,33 +130,308 @@ public class CourseSiteFiles implements AppFileComponent {
 
     @Override
     public void loadData(AppDataComponent data, String filePath) throws IOException {
-	// CLEAR THE OLD DATA OUT
-	OfficeHoursData dataManager = (OfficeHoursData)data;
-        dataManager.reset();
-
-	// LOAD THE JSON FILE WITH ALL THE DATA
-	JsonObject json = loadJSONFile(filePath);
-
-	// LOAD THE START AND END HOURS
-	String startHour = json.getString(JSON_START_HOUR);
-        String endHour = json.getString(JSON_END_HOUR);
-        dataManager.initHours(startHour, endHour);
+        JsonObject json = loadJSONFile(filePath);
+        AppGUIModule gui = app.getGUIModule();
         
-        // LOAD ALL THE GRAD TAs
-        loadTAs(dataManager, json, JSON_GRAD_TAS);
-        loadTAs(dataManager, json, JSON_UNDERGRAD_TAS);
+        // LOAD DATA FOR OFFICE HOUR PAGE
+	loadOfficeHoursPage(data, json, gui);
+        
+        // LOAD DATA FOR SITE PAGE
+        loadSitePage(json, gui);
+        
+        // LOAD DATA FOR SYLLUBUS PAGE
+        loadSyllubusPage(json, gui);
+        
+        // LOAD DATA FOR SCHEDULE PAGE
+        loadSchedulePage(json, gui);
+        
+        // DISABLE SAVE BUTTON
+        ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(true);
+    }
+    
+    @Override
+    public void saveData(AppDataComponent data, String filePath) throws IOException     {
+	// GET THE DATA
+	OfficeHoursData dataManager = (OfficeHoursData)data;
+        AppGUIModule gui = app.getGUIModule();
+        
+        // NOW BUILD THE TA JSON OBJCTS TO SAVE
+	JsonArrayBuilder gradTAsArrayBuilder = Json.createArrayBuilder();
+        JsonArrayBuilder undergradTAsArrayBuilder = Json.createArrayBuilder();
+	Iterator<TeachingAssistantPrototype> tasIterator = dataManager.teachingAssistantsIterator();
+        while (tasIterator.hasNext()) {
+            TeachingAssistantPrototype ta = tasIterator.next();
+	    JsonObject taJson = Json.createObjectBuilder()
+		    .add(JSON_NAME, ta.getName())
+		    .add(JSON_EMAIL, ta.getEmail())
+                    .add(JSON_TYPE, ta.getType()).build();
+            if (ta.getType().equals(TAType.Graduate.toString()))
+                gradTAsArrayBuilder.add(taJson);
+            else
+                undergradTAsArrayBuilder.add(taJson);
+	}
+        JsonArray gradTAsArray = gradTAsArrayBuilder.build();
+	JsonArray undergradTAsArray = undergradTAsArrayBuilder.build();
 
-        // AND THEN ALL THE OFFICE HOURS
-        JsonArray jsonOfficeHoursArray = json.getJsonArray(JSON_OFFICE_HOURS);
-        for (int i = 0; i < jsonOfficeHoursArray.size(); i++) {
-            JsonObject jsonOfficeHours = jsonOfficeHoursArray.getJsonObject(i);
-            String startTime = jsonOfficeHours.getString(JSON_START_TIME);
-            DayOfWeek dow = DayOfWeek.valueOf(jsonOfficeHours.getString(JSON_DAY_OF_WEEK));
-            String name = jsonOfficeHours.getString(JSON_NAME);
-            TeachingAssistantPrototype ta = dataManager.getTAWithName(name);
-            TimeSlot timeSlot = dataManager.getTimeSlot(startTime);
-            timeSlot.toggleTA(dow, ta);
+	// NOW BUILD THE OFFICE HOURS JSON OBJCTS TO SAVE
+	JsonArrayBuilder officeHoursArrayBuilder = Json.createArrayBuilder();
+        Iterator<TimeSlot> timeSlotsIterator = dataManager.officeHoursIterator();
+        while (timeSlotsIterator.hasNext()) {
+            TimeSlot timeSlot = timeSlotsIterator.next();
+            for (DayOfWeek dow : DayOfWeek.values()) {
+                tasIterator = timeSlot.getTAsIterator(dow);
+                while (tasIterator.hasNext()) {
+                    TeachingAssistantPrototype ta = tasIterator.next();
+                    JsonObject tsJson = Json.createObjectBuilder()
+                            .add(JSON_START_TIME, timeSlot.getStartTime().replace(":", "_"))
+                            .add(JSON_DAY_OF_WEEK, dow.toString())
+                            .add(JSON_NAME, ta.getName()).build();
+                    officeHoursArrayBuilder.add(tsJson);
+                }
+            }
+	}
+	JsonArray officeHoursArray = officeHoursArrayBuilder.build();
+        
+        // BUILD THE INSTRUCTOR OFFICE HOUR DATA
+        String[] breakDownArray = ((TextArea)gui.getGUINode(SITE_OFFICE_HOURS_TEXT_AREA))
+                .getText().replace("[", "").replace("]", "").split("\n");
+        JsonArrayBuilder insOhArrayBuilder = Json.createArrayBuilder();
+        for (String breakDownArray1 : breakDownArray) {
+            if (breakDownArray1.contains("{")) {
+                String[] temp = breakDownArray1.split(",", 2);
+                JsonObject insOHjson = Json.createObjectBuilder()
+                        .add(JSON_DAY, temp[0].split(":")[1]
+                                .replace("\"", "").trim()) //adding the day value
+                        .add(JSON_TIME, temp[1].split(":", 2)[1]
+                                .replace("\"", "").replace("}", "")
+                                .replace(",", "").trim())
+                        .build();
+                insOhArrayBuilder.add(insOHjson);
+            } 
         }
+        JsonArray insOhArray = insOhArrayBuilder.build();
+        
+        // BUILD THE INSTRUCTOR INFO
+        JsonObject instructorJson = Json.createObjectBuilder()
+                .add(JSON_NAME, ((TextField)gui.getGUINode(SITE_NAME_TEXT_FIELD)).getText())
+                .add(JSON_EMAIL, ((TextField)gui.getGUINode(SITE_EMAIL_TEXT_FIELD)).getText())
+                .add(JSON_ROOM, ((TextField)gui.getGUINode(SITE_ROOM_TEXT_FIELD)).getText())
+                .add(JSON_LINK, ((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD)).getText())
+                .add(JSON_HOURS, insOhArray)
+                .build();
+        
+        // BUILD THE SITE LOGOS DATA
+        HBox favHBox = ((HBox)gui.getGUINode(SITE_FAV_HBOX));
+        HBox navHBox = ((HBox)gui.getGUINode(SITE_NAV_HBOX));
+        HBox lfHbox = ((HBox)gui.getGUINode(SITE_LF_IMAGE_HBOX));
+        HBox rfHbox = ((HBox)gui.getGUINode(SITE_RF_IMAGE_HBOX));
+        String[] favSplit = ((ImageView)favHBox.getChildren().get(1)).getImage().impl_getUrl().split("/");
+        String[] navSplit = ((ImageView)navHBox.getChildren().get(1)).getImage().impl_getUrl().split("/");
+        String[] lfSplit = ((ImageView)lfHbox.getChildren().get(1)).getImage().impl_getUrl().split("/");
+        String[] rfSplit = ((ImageView)rfHbox.getChildren().get(1)).getImage().impl_getUrl().split("/");
+        
+        JsonObject faviconJson = Json.createObjectBuilder()
+                .add(JSON_HREF, "./images/SBUShieldFavicon.ico")
+                .add(JSON_SRC, favSplit[favSplit.length-1])
+                .build();
+        JsonObject navBarJson = Json.createObjectBuilder()
+                .add(JSON_HREF, "http://www.stonybrook.edu")
+                .add(JSON_SRC, navSplit[navSplit.length-1])
+                .build();
+        JsonObject lfImageJson = Json.createObjectBuilder()
+                .add(JSON_HREF, "http://www.cs.stonybrook.edu")
+                .add(JSON_SRC, lfSplit[lfSplit.length-1])
+                .build();
+        JsonObject rfImageJson = Json.createObjectBuilder()
+                .add(JSON_HREF, "http://www.cs.stonybrook.edu")
+                .add(JSON_SRC, rfSplit[rfSplit.length-1])
+                .build();
+        JsonObject logosJson = Json.createObjectBuilder()
+                .add(JSON_FAB_ICON, faviconJson)
+                .add(JSON_NAV_BAR, navBarJson)
+                .add(JSON_BOTTOM_LEFT, lfImageJson)
+                .add(JSON_BOTTOM_RIGHT, rfImageJson)
+                .build();
+        
+        // NOW BUILD THE PAGE DATA
+        JsonArrayBuilder sitePageArrayBuilder = Json.createArrayBuilder();
+        JsonObject homePageJson = Json.createObjectBuilder()
+                                      .add(JSON_NAME, pageIsSelected(gui, SITE_HOME_CHECK_BOX, "Home"))
+                                      .add(JSON_LINK, "index.html")
+                                      .build();
+        JsonObject syllabusPageJson = Json.createObjectBuilder()
+                                      .add(JSON_NAME, pageIsSelected(gui, SITE_SYLLUBUS_CHECK_BOX, "Syllabus"))
+                                      .add(JSON_LINK, "syllabus.html")
+                                      .build();
+        JsonObject schedulePageJson = Json.createObjectBuilder()
+                                      .add(JSON_NAME, pageIsSelected(gui, SITE_SCHEDULE_CHECK_BOX, "Schedule"))
+                                      .add(JSON_LINK, "schedule.html")
+                                      .build();
+        JsonObject hwsPageJson = Json.createObjectBuilder()
+                                      .add(JSON_NAME, pageIsSelected(gui, SITE_HWS_CHECK_BOX, "HWs"))
+                                      .add(JSON_LINK, "hws.html")
+                                      .build();
+        JsonArray sitePageJson = sitePageArrayBuilder.add(homePageJson)
+                                                     .add(syllabusPageJson)
+                                                     .add(schedulePageJson)
+                                                     .add(hwsPageJson)
+                                                     .build();
+        
+        // BUILD DATA FOR DATA PICKER
+        String[] StartDate = ((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER))
+                                             .getValue().toString().split("-");
+        String[] endDate = ((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER))
+                                             .getValue().toString().split("-");
+       
+        // BUILD THE REST TABLES THAT HAS NOT BEING IMPLEMENTED (TODO)
+        JsonArray holidayJsonArray = Json.createArrayBuilder().build();
+        JsonArray lectureJsonArray = Json.createArrayBuilder().build();
+        JsonArray referenceJsonArray = Json.createArrayBuilder().build();
+        JsonArray recitaionsJsonArray = Json.createArrayBuilder().build();
+        JsonArray hwsJsonArray = Json.createArrayBuilder().build();
+        
+	// THEN PUT IT ALL TOGETHER IN A JsonObject
+        JsonObject fullJsonData = Json.createObjectBuilder()
+                                      .add(JSON_START_HOUR, "" + dataManager.getStartHour())
+                                      .add(JSON_END_HOUR, "" + dataManager.getEndHour())
+                                      .add(JSON_OH_TABLE_START_INTERVAL, ((ComboBox)gui.getGUINode(OH_START_TIME_COMBO_BOX)).getValue().toString())
+                                      .add(JSON_OH_TABLE_END_INTERVAL, ((ComboBox)gui.getGUINode(OH_END_TIME_COMBO_BOX)).getValue().toString())
+                                      .add(JSON_INSTRUCTOR, instructorJson)
+                                      .add(JSON_GRAD_TAS, gradTAsArray)
+                                      .add(JSON_UNDERGRAD_TAS, undergradTAsArray)
+                                      .add(JSON_OFFICE_HOURS, officeHoursArray) //above inclusive are oh page
+                                      .add(JSON_SUBJECT, ((ComboBox) gui.getGUINode(SITE_SBJ_COMBO_BOX)) //subject combobox item
+                                                    .getSelectionModel().getSelectedItem().toString())
+                                      .add(JSON_NUMBER, ((ComboBox) gui.getGUINode(SITE_NUMBER_COMBO_BOX)) //number combobox item
+                                                    .getSelectionModel().getSelectedItem().toString())
+                                      .add(JSON_SEMESTER, ((ComboBox) gui.getGUINode(SITE_SEMESTER_COMBO_BOX)) //semester combobox item
+                                                    .getSelectionModel().getSelectedItem().toString())
+                                      .add(JSON_YEAR, ((ComboBox) gui.getGUINode(SITE_YEAR_COMBO_BOX)) //year combobox item
+                                                    .getSelectionModel().getSelectedItem().toString())
+                                      .add(JSON_TITLE, ((TextField) gui.getGUINode(SITE_TITLE_TEXT_FIELD)).getText()) //title text field
+                                      .add(JSON_LOGOS, logosJson) //adding the logo data
+                                      .add(JSON_CSS, ((ComboBox)gui.getGUINode(SITE_CSS_COMBO_BOX)) //css combo box value
+                                              .getSelectionModel().getSelectedItem().toString())
+                                      .add(JSON_PAGES, sitePageJson) //adding the site page checkbox data
+                                      .add(JSON_DESCRIPTION, ((TextArea)gui.getGUINode(SYLLUBUS_DES_TEXTAREA)).getText().replace("\"", "")) //syllabus des
+                                      .add(JSON_TOPICS, stringToJsonArray(gui, SYLLUBUS_TOPIC_TEXTAREA)) //syllabus topics
+                                      .add(JSON_PREQ, ((TextArea)gui.getGUINode(SYLLUBUS_PREQ_TEXTAREA)).getText().replace("\"", "")) //syllabus prerequisites
+                                      .add(JSON_OUTCOMES, stringToJsonArray(gui, SYLLUBUS_OUTCOME_TEXTAREA)) //syllabus outcomes
+                                      .add(JSON_TEXTBOOKS, StringToArrayOfDic(gui, SYLLUBUS_TEXTBOOK_TEXTAREA)) //syllabus textbook
+                                      .add(JSON_GRADED_COMP, StringToArrayOfDic(gui, SYLLUBUS_GRADED_COMP_TEXTAREA)) //syllabus graded components
+                                      .add(JSON_GRADING_NOTE, ((TextArea)gui.getGUINode(SYLLUBUS_GRADING_NOTE_TEXTAREA)).getText().replace("\"", "")) //syllabus grading note
+                                      .add(JSON_ACAD_DIS, ((TextArea)gui.getGUINode(SYLLUBUS_ACAD_DIS_TEXTAREA)).getText().replace("\"", "")) //syllabus academic dishonesty
+                                      .add(JSON_SPECIAL_ASIST, ((TextArea)gui.getGUINode(SYLLUBUS_SPEC_ASSIST_TEXTAREA)).getText().replace("\"", "")) //syllabus special assistance
+                                      .add(JSON_START_MONDAY_MONTH, StartDate[1]) //schedule page date picker starting month
+                                      .add(JSON_START_MONDAY_DAY, StartDate[2]) //schedule page date picker starting day
+                                      .add(JSON_END_FRIDAY_MONTH, endDate[1]) //schedule page date picker ending month
+                                      .add(JSON_END_FRIDAY_DAY, endDate[2]) //schedule page date picker ending day
+                                      .add(JSON_HOLIDAYS, holidayJsonArray) //todo
+                                      .add(JSON_LECTURES, lectureJsonArray) //todo
+                                      .add(JSON_REFERENCES, referenceJsonArray) //todo
+                                      .add(JSON_RECITATIONS, recitaionsJsonArray) //todo
+                                      .add(JSON_HWS, hwsJsonArray) //todo
+                                      .build();
+        
+        // AND NOW OUTPUT IT TO A JSON FILE WITH PRETTY PRINTING
+	Map<String, Object> properties = new HashMap<>(1);
+	properties.put(JsonGenerator.PRETTY_PRINTING, true);
+	JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+	StringWriter sw = new StringWriter();
+        try (JsonWriter jsonWriter = writerFactory.createWriter(sw)) {
+            jsonWriter.writeObject(fullJsonData);
+        }
+
+	// INIT THE WRITER
+	OutputStream os = new FileOutputStream(filePath);
+	JsonWriter jsonFileWriter = Json.createWriter(os);
+	jsonFileWriter.writeObject(fullJsonData);
+	String prettyPrinted = sw.toString();
+        try (PrintWriter pw = new PrintWriter(filePath)) {
+            pw.write(prettyPrinted);
+        }
+    }
+    
+    /**
+     * this is helper method for saving the site page data
+     * @param gui : gui for getting the node
+     * @param nodeId : node id for gui
+     * @param nameOfPage : value to be return for JsonObject
+     * @return 
+     */
+    private String pageIsSelected(AppGUIModule gui, CourseSitePropertyType nodeId, String nameOfPage){
+        CheckBox cb = ((CheckBox)gui.getGUINode(nodeId));
+        return cb.isSelected() ? nameOfPage : "";
+    }
+    
+    /**
+     * This method is helper method for saving syllabus page data
+     * will return the text in text area in the JsonArray form
+     * @param gui : gui to get the node
+     * @param nodeId : id for gui to get specific node
+     * @return 
+     */
+    private JsonArray stringToJsonArray(AppGUIModule gui, CourseSitePropertyType nodeId){
+        JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+        String[] blockOfString = ((TextArea)gui.getGUINode(nodeId)).getText().split("\n");
+        
+        for(String line : blockOfString){
+            if(!line.contains("[") && !line.contains("]")){
+                jsonArrayBuilder.add(line.replaceAll("\"", "")
+                                         .replaceAll("\t", "")
+                                         .replaceAll(",", ""));
+            }
+        }
+        
+        return ((JsonArray)jsonArrayBuilder.build());
+    }
+    
+    private JsonArray StringToArrayOfDic(AppGUIModule gui, CourseSitePropertyType nodeId){
+        JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+        String[] blockString = ((TextArea)gui.getGUINode(nodeId)).getText().split("\n");
+        String keyOfArray = null; //this will hold the key of array inside the json array
+        JsonArrayBuilder jsonSubArrayBuilder = Json.createArrayBuilder();
+        JsonObjectBuilder jsonTempObject = Json.createObjectBuilder();
+        boolean inArray = false; //this boolean keep track of weather we are looping in a sub array
+        
+        for(String line : blockString){
+            if(!line.startsWith("[") && !line.startsWith("]")){ //line cant start with [ ]
+                if(!line.contains("{") && !line.contains("}")){ //line cant contain {
+                    
+                    if(line.contains("[")){ //contain [ means it is the first line of array
+                        keyOfArray = line.split(":")[0].replaceAll("\"", "").replaceAll("\t", "");
+                        inArray = true;
+                        continue;
+                    }
+                    
+                    if(line.contains("]")){ //end of sub array
+                        inArray = false; //set inArray false;
+                        jsonTempObject.add(keyOfArray, ((JsonArray)jsonSubArrayBuilder.build()));
+                        continue;
+                    }
+                    
+                    if(inArray){ //when we inside the sub array
+                        String[] temp = line.split(",");
+                        for(String element : temp){ 
+                            jsonSubArrayBuilder.add(element.replaceAll("\"", "")
+                                               .replaceAll("\t", ""));
+                        }
+                    }
+                    else{ //not inside the sub array
+                        String[] temp = line.split(":", 2);
+                        if(temp.length > 1)
+                        jsonTempObject.add(temp[0].replaceAll("\"", "").replaceAll("\t", "")
+                                , temp[1].replaceAll("\"", "").replaceAll("\t", ""));
+                    }
+                }
+                else if(line.contains("}")){
+                    jsonArrayBuilder.add(jsonTempObject.build());
+                    jsonTempObject = Json.createObjectBuilder();
+                }
+            }
+        }
+        
+        return ((JsonArray)jsonArrayBuilder.build());
     }
     
     private void loadTAs(OfficeHoursData data, JsonObject json, String tas) {
@@ -104,83 +448,335 @@ public class CourseSiteFiles implements AppFileComponent {
       
     // HELPER METHOD FOR LOADING DATA FROM A JSON FORMAT
     private JsonObject loadJSONFile(String jsonFilePath) throws IOException {
-	InputStream is = new FileInputStream(jsonFilePath);
-	JsonReader jsonReader = Json.createReader(is);
-	JsonObject json = jsonReader.readObject();
-	jsonReader.close();
-	is.close();
+        JsonObject json;
+        try (InputStream is = new FileInputStream(jsonFilePath); 
+                JsonReader jsonReader = Json.createReader(is)) {
+            json = jsonReader.readObject();
+        }
 	return json;
     }
-
-    @Override
-    public void saveData(AppDataComponent data, String filePath) throws IOException {
-	// GET THE DATA
-	OfficeHoursData dataManager = (OfficeHoursData)data;
-
-	// NOW BUILD THE TA JSON OBJCTS TO SAVE
-	JsonArrayBuilder gradTAsArrayBuilder = Json.createArrayBuilder();
-        JsonArrayBuilder undergradTAsArrayBuilder = Json.createArrayBuilder();
-	Iterator<TeachingAssistantPrototype> tasIterator = dataManager.teachingAssistantsIterator();
-        while (tasIterator.hasNext()) {
-            TeachingAssistantPrototype ta = tasIterator.next();
-	    JsonObject taJson = Json.createObjectBuilder()
-		    .add(JSON_NAME, ta.getName())
-		    .add(JSON_EMAIL, ta.getEmail())
-                    .add(JSON_TYPE, ta.getType().toString()).build();
-            if (ta.getType().equals(TAType.Graduate.toString()))
-                gradTAsArrayBuilder.add(taJson);
-            else
-                undergradTAsArrayBuilder.add(taJson);
-	}
-        JsonArray gradTAsArray = gradTAsArrayBuilder.build();
-	JsonArray undergradTAsArray = undergradTAsArrayBuilder.build();
-
-	// NOW BUILD THE OFFICE HOURS JSON OBJCTS TO SAVE
-	JsonArrayBuilder officeHoursArrayBuilder = Json.createArrayBuilder();
-        Iterator<TimeSlot> timeSlotsIterator = dataManager.officeHoursIterator();
-        while (timeSlotsIterator.hasNext()) {
-            TimeSlot timeSlot = timeSlotsIterator.next();
-            for (int i = 0; i < DayOfWeek.values().length; i++) {
-                DayOfWeek dow = DayOfWeek.values()[i];
-                tasIterator = timeSlot.getTAsIterator(dow);
-                while (tasIterator.hasNext()) {
-                    TeachingAssistantPrototype ta = tasIterator.next();
-                    JsonObject tsJson = Json.createObjectBuilder()
-                        .add(JSON_START_TIME, timeSlot.getStartTime().replace(":", "_"))
-                        .add(JSON_DAY_OF_WEEK, dow.toString())
-                        .add(JSON_NAME, ta.getName()).build();
-                    officeHoursArrayBuilder.add(tsJson);
+    
+    /**
+     * THIS METHOD TRANSFERS JSON ARRAY TO STRINGS 
+     * THEN PUT THE STRINGS IN TEXTAREA IN JSON FORMAT
+     * @param arr : Json Array
+     * @param csPropertyType : nodeId for text area
+     * @param arrOfDic : boolean to show if the json arr is in dic format
+     */
+    private void loadJsonArr(JsonArray arr, CourseSitePropertyType csPropertyType, boolean arrOfdic) {
+        AppGUIModule gui = app.getGUIModule();
+        StringBuilder sb = new StringBuilder();
+        boolean inBlockOfDic = false;
+        
+        sb.append("[\n");
+        //if this json arr is a arr of dictionaries
+        //then we need to break down the format more
+        if (arrOfdic) {
+            for (int i = 0; i < arr.size(); i++) { //looping json arr
+                
+                String[] list = arr.get(i).toString().split(",");
+                sb.append("\t{\n");
+                
+                for(int j = 0; j < list.length; j++){ //looping arr that that is correctly formated json style            
+                    if(list[j].contains("[")){ //if this element of arr is a block of data
+                        inBlockOfDic = true;
+                        String[] temp = list[j].split("\\[");
+                        sb.append("\t\t")
+                          .append(temp[0])
+                          .append("\t[\n")
+                          .append("\t\t\t")
+                          .append(temp[1])
+                          .append(",\n");
+                    }
+                    else if(list[j].contains("]")){
+                        inBlockOfDic = false;
+                        sb.append("\t\t\t")
+                          .append(list[j].split("\\]")[0]);
+                        if(i != list.length - 1){
+                            sb.append("\n\t\t],\n");
+                        }
+                        else{
+                            sb.append("\n\t\t]\n");
+                        }
+                    }
+                    else if(inBlockOfDic){
+                        sb.append("\t\t\t")
+                          .append(list[j].replaceAll("\\{", ""))
+                          .append(",\n");
+                    }
+                    else {
+                        if (j != list.length - 1) {
+                            if(!list[j].endsWith("\"")){
+                                sb.append("\t\t")
+                                  .append(list[j].replaceAll("\\{", ""))
+                                  .append(list[j+1].replaceAll("\\{", ""))
+                                  .append(",\n");
+                                j++;
+                            } 
+                            else{
+                                sb.append("\t\t")
+                                  .append(list[j].replaceAll("\\{", ""))
+                                  .append(",\n");
+                            }
+                        } else {
+                            sb.append("\t\t")
+                              .append(list[j].replaceAll("\\}", ""))
+                              .append("\n");
+                        }
+                    } 
+                }
+                if(i == arr.size() -1){
+                    sb.append("\t}\n");
+                }
+                else sb.append("\t},\n");
+            }
+        } 
+        // if not a arr of dictionaries then do it simply
+        else {
+            for (int i = 0; i < arr.size(); i++) {
+                if (i != arr.size() - 1) {
+                    sb.append("\t")
+                      .append(arr.get(i))
+                      .append(",\n");
+                } else {
+                    sb.append("\t")
+                      .append(arr.get(i))
+                      .append("\n");
                 }
             }
-	}
-	JsonArray officeHoursArray = officeHoursArrayBuilder.build();
-        
-	// THEN PUT IT ALL TOGETHER IN A JsonObject
-	JsonObject dataManagerJSO = Json.createObjectBuilder()
-		.add(JSON_START_HOUR, "" + dataManager.getStartHour())
-		.add(JSON_END_HOUR, "" + dataManager.getEndHour())
-                .add(JSON_GRAD_TAS, gradTAsArray)
-                .add(JSON_UNDERGRAD_TAS, undergradTAsArray)
-                .add(JSON_OFFICE_HOURS, officeHoursArray)
-		.build();
-	
-	// AND NOW OUTPUT IT TO A JSON FILE WITH PRETTY PRINTING
-	Map<String, Object> properties = new HashMap<>(1);
-	properties.put(JsonGenerator.PRETTY_PRINTING, true);
-	JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
-	StringWriter sw = new StringWriter();
-	JsonWriter jsonWriter = writerFactory.createWriter(sw);
-	jsonWriter.writeObject(dataManagerJSO);
-	jsonWriter.close();
+        }
+        sb.append("]");
 
-	// INIT THE WRITER
-	OutputStream os = new FileOutputStream(filePath);
-	JsonWriter jsonFileWriter = Json.createWriter(os);
-	jsonFileWriter.writeObject(dataManagerJSO);
-	String prettyPrinted = sw.toString();
-	PrintWriter pw = new PrintWriter(filePath);
-	pw.write(prettyPrinted);
-	pw.close();
+        ((TextArea)gui.getGUINode(csPropertyType)).setText(sb.toString());
+    }
+    
+    //this method is only for loading the syllabus grading component part
+    private void loadSyllabusGradeComp(JsonArray arr, CourseSitePropertyType csPropertyType){
+        AppGUIModule gui = app.getGUIModule();
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("[\n");
+
+        for (int i = 0; i < arr.size(); i++) { //looping json arr
+            String[] temp = arr.get(i).toString().split(",");
+            
+            sb.append("\t{\n");
+            
+            for(int j = 0; j < temp.length; j++){
+                if(j > 0 && j < temp.length - 1){
+                    if(temp[j].contains(":")){
+                        sb.append("\t\t")
+                          .append(temp[j]);
+                    }
+                    else{
+                        sb.append(",")
+                          .append(temp[j]);
+                    }
+                }
+                if(j == 0){
+                    if(i != 0){
+                        sb.append("\n");
+                    }
+                    sb.append("\t\t")
+                      .append(temp[j].replaceAll("\\{", ""))
+                      .append("\n");
+                }
+                if(j == temp.length - 1){
+                    sb.append("\n\t\t")
+                      .append(temp[j].replaceAll("\\}", ""));
+                }
+            }
+            
+            sb.append("\n\t}\n");
+        }
+        
+        sb.append("]");
+
+        ((TextArea)gui.getGUINode(csPropertyType)).setText(sb.toString());
+    }
+    
+    /**
+     * this method is for loading the site page icons
+     * @param jsonLogos : json logo object for convinence
+     * @param csPropertyType : nodeId for the correct hbox to render image
+     * @param gui : gui to get the object with nodeId
+     * @param typeOfImage : this tells what image we rendering to, can be fav, nav, lf image, rf image
+     * corresponding to (1, 2, 3, 4)
+     */
+    private void loadSiteIcons(JsonObject jsonLogos, String fileNameId,
+            CourseSitePropertyType csPropertyType, AppGUIModule gui, int typeOfImage){
+        //get the image path set up
+        String jsonFav = jsonLogos.getJsonObject(fileNameId).getJsonString(JSON_SRC).toString().replaceAll("\"", "");
+        
+        //lets see which part of image we rendering
+        String typePath;
+        switch (typeOfImage) {
+            case 1:
+                typePath = ((CourseSiteWorkspace)app.getWorkspaceComponent()).getFavPath();
+                break;
+            case 2:
+                typePath = ((CourseSiteWorkspace)app.getWorkspaceComponent()).getNavPath();
+                break;
+            case 3:
+                typePath = ((CourseSiteWorkspace)app.getWorkspaceComponent()).getLFpath();
+                break;
+            default:   
+                typePath = ((CourseSiteWorkspace)app.getWorkspaceComponent()).getRFpath();
+                break;
+        }
+        String path = (typePath + "/" + jsonFav);
+        
+        //maing the image view object
+        Image icon = new Image(new File(path).toURI().toString());
+        ImageView imageView = new ImageView(icon);
+        
+        //rendering the image view to gui
+        ((HBox)gui.getGUINode(csPropertyType)).getChildren().set(1, imageView);
+    }
+    
+    private void loadOfficeHoursPage(AppDataComponent data, JsonObject json, AppGUIModule gui) throws IOException{
+        // CLEAR THE OLD DATA OUT
+	OfficeHoursData dataManager = (OfficeHoursData)data;
+        dataManager.reset();
+        CourseSiteController controller = new CourseSiteController((CourseSiteGeneratorApp) app);
+        CourseSiteWorkspace workspace = (CourseSiteWorkspace) app.getWorkspaceComponent();
+
+	// LOAD THE START AND END HOURS
+	String startHour = json.getString(JSON_START_HOUR);
+        String endHour = json.getString(JSON_END_HOUR);
+        dataManager.initHours(startHour, endHour);
+        
+        // LOAD ALL THE GRAD TAs
+        loadTAs(dataManager, json, JSON_GRAD_TAS);
+        loadTAs(dataManager, json, JSON_UNDERGRAD_TAS);
+        
+        // LOAD THE INSTRUCTOR INFORMATIONS
+        loadJsonArr(json.getJsonObject(JSON_INSTRUCTOR).getJsonArray(JSON_HOURS), SITE_OFFICE_HOURS_TEXT_AREA, false);
+        ((TextField)gui.getGUINode(SITE_NAME_TEXT_FIELD))
+                .setText(json.getJsonObject(JSON_INSTRUCTOR).getString(JSON_NAME));
+        ((TextField)gui.getGUINode(SITE_EMAIL_TEXT_FIELD))
+                .setText(json.getJsonObject(JSON_INSTRUCTOR).getString(JSON_EMAIL));
+        ((TextField)gui.getGUINode(SITE_ROOM_TEXT_FIELD))
+                .setText(json.getJsonObject(JSON_INSTRUCTOR).getString(JSON_ROOM));
+        ((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD))
+                .setText(json.getJsonObject(JSON_INSTRUCTOR).getString(JSON_LINK));
+
+        // AND THEN ALL THE OFFICE HOURS
+        JsonArray jsonOfficeHoursArray = json.getJsonArray(JSON_OFFICE_HOURS);
+        for (int i = 0; i < jsonOfficeHoursArray.size(); i++) {
+            JsonObject jsonOfficeHours = jsonOfficeHoursArray.getJsonObject(i);
+            String startTime = jsonOfficeHours.getString(JSON_START_TIME);
+            DayOfWeek dow = DayOfWeek.valueOf(jsonOfficeHours.getString(JSON_DAY_OF_WEEK));
+            String name = jsonOfficeHours.getString(JSON_NAME);
+            TeachingAssistantPrototype ta = dataManager.getTAWithName(name);
+            TimeSlot timeSlot = dataManager.getTimeSlot(startTime);
+            timeSlot.toggleTA(dow, ta);
+        }
+        
+        // LOAD THE START AND END TIME INTERVAL TO COMBOBOX
+        ComboBox ohStartTimeCB = ((ComboBox)gui.getGUINode(OH_START_TIME_COMBO_BOX));
+        ComboBox ohEndTimeCB = ((ComboBox)gui.getGUINode(OH_END_TIME_COMBO_BOX));
+        ohStartTimeCB.getSelectionModel().select(json.getString(JSON_OH_TABLE_START_INTERVAL));
+        ohEndTimeCB.getSelectionModel().select(json.getString(JSON_OH_TABLE_END_INTERVAL));
+        // CHANGE THE TABLES PRESENTATION WHEN LOADED TIME INTERVALS
+        String CBstartTime = (String) ohStartTimeCB.getSelectionModel().getSelectedItem();
+        String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
+        controller.processOHdisplay(CBstartTime, CBendTime);
+        ohStartTimeCB.setItems(workspace.getStList(CBendTime, workspace.getOhStartTime(), workspace.getOhEndTime()));
+        if (!workspace.fullInterval()) {
+            controller.processTAdisplay();
+        } else {
+            controller.showFullTAandOH();
+        }
+    }
+    
+    private void loadSitePage(JsonObject json, AppGUIModule gui) throws IOException{
+        // LOAD THE DATA FOR COMBO BOX
+        ((ComboBox) gui.getGUINode(SITE_SBJ_COMBO_BOX)).getSelectionModel()
+                .select(((String)json.getJsonString(JSON_SUBJECT).toString()).replaceAll("\"", ""));
+        ((ComboBox) gui.getGUINode(SITE_NUMBER_COMBO_BOX)).getSelectionModel()
+                .select(((String)json.getJsonString(JSON_NUMBER).toString()).replaceAll("\"", ""));
+        ((ComboBox) gui.getGUINode(SITE_SEMESTER_COMBO_BOX)).getSelectionModel()
+                .select(((String)json.getJsonString(JSON_SEMESTER).toString()).replaceAll("\"", ""));
+        ((ComboBox) gui.getGUINode(SITE_YEAR_COMBO_BOX)).getSelectionModel()
+                .select(json.getJsonString(JSON_YEAR).toString().replaceAll("\"", ""));
+        ((TextField) gui.getGUINode(SITE_TITLE_TEXT_FIELD))
+                .setText(json.getJsonString(JSON_TITLE).toString().replaceAll("\"", ""));
+        
+        // LOAD THE IMAGE DATA
+        JsonObject jsonIcons = json.getJsonObject(JSON_LOGOS);
+        loadSiteIcons(jsonIcons, JSON_FAB_ICON, SITE_FAV_HBOX, gui, 1);
+        loadSiteIcons(jsonIcons, JSON_NAV_BAR, SITE_NAV_HBOX, gui, 2);
+        loadSiteIcons(jsonIcons, JSON_BOTTOM_LEFT, SITE_LF_IMAGE_HBOX, gui, 3);
+        loadSiteIcons(jsonIcons, JSON_BOTTOM_RIGHT, SITE_RF_IMAGE_HBOX, gui, 4);
+        
+        // LOAD THE CHECK BOX DATA
+        JsonArray jsonSiteCB = json.getJsonArray(JSON_PAGES);
+        if(!jsonSiteCB.getString(0, JSON_NAME).isEmpty()){
+            ((CheckBox)gui.getGUINode(SITE_HOME_CHECK_BOX)).setSelected(true);
+        }
+        if(!jsonSiteCB.getString(1, JSON_NAME).isEmpty()){
+            ((CheckBox)gui.getGUINode(SITE_SYLLUBUS_CHECK_BOX)).setSelected(true);
+        }
+        if(!jsonSiteCB.getString(2, JSON_NAME).isEmpty()){
+            ((CheckBox)gui.getGUINode(SITE_SCHEDULE_CHECK_BOX)).setSelected(true);
+        }
+        if(!jsonSiteCB.getString(3, JSON_NAME).isEmpty()){
+            ((CheckBox)gui.getGUINode(SITE_HWS_CHECK_BOX)).setSelected(true);
+        }
+        
+        // LOAD CSS COMBO BOX DATA
+        ((ComboBox)gui.getGUINode(SITE_CSS_COMBO_BOX)).getSelectionModel().select(json.getString(JSON_CSS));
+        
+    }
+    
+    private void loadSyllubusPage(JsonObject json, AppGUIModule gui) throws IOException{
+        //Load Description data
+        ((TextArea)gui.getGUINode(SYLLUBUS_DES_TEXTAREA)).setText(json.getJsonString(JSON_DESCRIPTION).toString());
+        
+        //Load topics data
+        loadJsonArr(json.getJsonArray(JSON_TOPICS), SYLLUBUS_TOPIC_TEXTAREA, false);
+        
+        //Load prerequisites data
+        ((TextArea)gui.getGUINode(SYLLUBUS_PREQ_TEXTAREA)).setText(json.getJsonString(JSON_PREQ).toString());
+        
+        //Load outcomes data
+        loadJsonArr(json.getJsonArray(JSON_OUTCOMES), SYLLUBUS_OUTCOME_TEXTAREA, false);
+        
+        //Load textbooks data
+        loadJsonArr(json.getJsonArray(JSON_TEXTBOOKS), SYLLUBUS_TEXTBOOK_TEXTAREA, true);
+        
+        //Load graded components data
+        loadSyllabusGradeComp(json.getJsonArray(JSON_GRADED_COMP), SYLLUBUS_GRADED_COMP_TEXTAREA);
+        
+        //Load grading note data
+        ((TextArea)gui.getGUINode(SYLLUBUS_GRADING_NOTE_TEXTAREA)).setText(json.getJsonString(JSON_GRADING_NOTE).toString());
+        
+        //Load academic dsihonesty data
+        ((TextArea)gui.getGUINode(SYLLUBUS_ACAD_DIS_TEXTAREA)).setText(json.getJsonString(JSON_ACAD_DIS).toString());
+        
+        //Load special asistance data
+        ((TextArea)gui.getGUINode(SYLLUBUS_SPEC_ASSIST_TEXTAREA)).setText(json.getJsonString(JSON_SPECIAL_ASIST).toString());
+    }
+    
+    // METHOD TO CREATE A DATE OBBJECT FOR DATE PICKER
+    public static final LocalDate loadedDate(String dateString) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+        LocalDate localDate = LocalDate.parse(dateString, formatter);
+        return localDate;
+    }
+    
+    private void loadSchedulePage(JsonObject json, AppGUIModule gui) throws IOException{
+        //Loading the data picker time
+        String startingMonday = json.getJsonString(JSON_START_MONDAY_MONTH).toString().replaceAll("\"", "") + "-" 
+                + json.getJsonString(JSON_START_MONDAY_DAY).toString().replaceAll("\"", "") + "-" 
+                + Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
+        String endingFriday = json.getJsonString(JSON_END_FRIDAY_MONTH).toString().replaceAll("\"", "") + "-" 
+                + json.getJsonString(JSON_END_FRIDAY_DAY).toString().replaceAll("\"", "") + "-" 
+                + Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
+        
+        ((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER)).setValue(loadedDate(startingMonday));
+        ((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER)).setValue(loadedDate(endingFriday));
     }
     
     // IMPORTING/EXPORTING DATA IS USED WHEN WE READ/WRITE DATA IN AN

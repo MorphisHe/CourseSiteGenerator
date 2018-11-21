@@ -3,7 +3,6 @@ package csg.workspace;
 import djf.components.AppWorkspaceComponent;
 import djf.modules.AppFoolproofModule;
 import djf.modules.AppGUIModule;
-import djf.modules.AppLanguageModule;
 import static djf.modules.AppGUIModule.ENABLED;
 import djf.ui.AppNodesBuilder;
 import javafx.scene.control.Button;
@@ -29,14 +28,16 @@ import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
 import csg.data.Schedule;
+import csg.transactions.ComboBox_Transaction;
+import csg.transactions.TimeInterval_Transaction;
 import csg.workspace.controllers.CourseSiteController;
 import csg.workspace.dialogs.TADialog;
 import csg.workspace.foolproof.CourseSiteFoolproofDesign;
-import csg.workspace.style.OHStyle;
 import static csg.workspace.style.OHStyle.*;
+import static djf.AppPropertyType.SAVE_BUTTON;
 import static djf.modules.AppGUIModule.DISABLED;
+import java.io.File;
 import java.util.Calendar;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -44,13 +45,17 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
 
 /**
  *
@@ -58,18 +63,21 @@ import javafx.scene.layout.GridPane;
  */
 public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     
+    //these are the properties for combo box setting
     private static final boolean EDITABLE = true;
     private static final boolean NOT_EDITABLE = false;
     private static final String FIRST_OPTION = "first";
     private static final String LAST_OPTION = "last";
-    private static final ObservableList<String> OH_START_TIME
+    
+    //following are the options for combo boxes
+    public static final ObservableList<String> OH_START_TIME
             = FXCollections.observableArrayList(
                     "8:00am", "8:30am", "9:00am", "9:30am", "10:00am", "10:30am", "11:00am", "11:30am", "12:00pm",
                     "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm",
                     "4:30pm", "5:00pm", "5:30pm", "6:00pm", "6:30pm", "7:00pm", "7:30pm", "8:00pm",
                     "8:30pm", "9:00pm", "9:30pm", "10:00pm", "10:30pm", "11:00pm", "11:30pm"
             );
-    private static final ObservableList<String> OH_END_TIME
+    public static final ObservableList<String> OH_END_TIME
             = FXCollections.observableArrayList(
                     "8:30am", "9:00am", "9:30am", "10:00am", "10:30am", "11:00am", "11:30am", "12:00pm",
                     "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm",
@@ -92,7 +100,20 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             );
     
     private static final ObservableList<String> SUBJECT_NUMBER
-            = FXCollections.observableArrayList("220");
+            = FXCollections.observableArrayList("219", "220");
+    
+    private static final ObservableList<String> SITE_CSS
+            = FXCollections.observableArrayList("sea_wolf.css", "hallo_ween.css");
+    
+    //these are the file path for site style editing
+    private final String FAV_ICON_PATH = "/Users/turtle714804947/repos/"
+            + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/fav_icon";
+    private final String NAV_BAR_PATH = "/Users/turtle714804947/repos/"
+            + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/nav_bar";
+    private final String LEFT_FOOTER_IMAGE_PATH = "/Users/turtle714804947/repos/"
+            + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/left_footer_image";
+    private final String RIGHT_FOOTER_IMAGE_PATH = "/Users/turtle714804947/repos/"
+            + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/right_footer_image";
 
     public CourseSiteWorkspace(CourseSiteGeneratorApp app) {
         super(app);
@@ -108,6 +129,30 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
 
         // INIT DIALOGS
         initDialogs();
+    }
+    
+    public String getFavPath(){
+        return FAV_ICON_PATH;
+    }
+    
+    public String getNavPath(){
+        return NAV_BAR_PATH;
+    }
+    
+    public String getLFpath(){
+        return LEFT_FOOTER_IMAGE_PATH;
+    }
+    
+    public String getRFpath(){
+        return RIGHT_FOOTER_IMAGE_PATH;
+    }
+    
+    public ObservableList<String> getOhStartTime(){
+        return OH_START_TIME;
+    }
+    
+    public ObservableList<String> getOhEndTime(){
+        return OH_END_TIME;
     }
     
     private void initLayout(){
@@ -256,7 +301,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         siteNumberCB.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
             controller.updateExportDir("number", oldVal, newVal);
         });
-
+        
         // DON'T LET ANYONE SORT THE TABLES
         TableView tasTableView = (TableView) gui.getGUINode(CSG_TAS_TABLE_VIEW);
         for (int i = 0; i < officeHoursTableView.getColumns().size(); i++) {
@@ -273,7 +318,38 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             }
             controller.processSelectTA();
         });
-
+        
+        //set action for the site style buttons
+        Button favIcon = (Button) gui.getGUINode(SITE_FAV_ICON_BUTTON);
+        Button navBar = (Button) gui.getGUINode(SITE_NAVBAR_BUTTON);
+        Button leftFotter = (Button) gui.getGUINode(SITE_LEFT_FOTTER_BUTTON);
+        Button rightFotter = (Button) gui.getGUINode(SITE_RIGHT_FOTTER_BUTTON);
+        
+        FileChooser favIconChooser = new FileChooser();
+        favIconChooser.setInitialDirectory(new File(FAV_ICON_PATH));
+        favIcon.setOnAction((e) -> {
+            controller.processEditSiteStyle(favIconChooser, SITE_FAV_HBOX);
+        });
+        
+        FileChooser navBarChooser = new FileChooser();
+        navBarChooser.setInitialDirectory(new File(NAV_BAR_PATH));
+        navBar.setOnAction((e) -> {
+            controller.processEditSiteStyle(navBarChooser, SITE_NAV_HBOX);
+        });
+        
+        FileChooser lfImageChooser = new FileChooser();
+        lfImageChooser.setInitialDirectory(new File(LEFT_FOOTER_IMAGE_PATH));
+        leftFotter.setOnAction((e) -> {
+            controller.processEditSiteStyle(lfImageChooser, SITE_LF_IMAGE_HBOX);
+        });
+        
+        FileChooser rfImageChooser = new FileChooser();
+        rfImageChooser.setInitialDirectory(new File(RIGHT_FOOTER_IMAGE_PATH));
+        rightFotter.setOnAction((e) -> {
+            controller.processEditSiteStyle(rfImageChooser, SITE_RF_IMAGE_HBOX);
+        });
+        
+        //set actions for ta type radio buttons
         RadioButton allRadio = (RadioButton) gui.getGUINode(CSG_ALL_RADIO_BUTTON);
         allRadio.setOnAction(e -> {
             controller.processSelectAllTAs();
@@ -293,6 +369,8 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             if(!fullInterval()) controller.processTAdisplay();
             else controller.showFullTAandOH();
         });
+        
+        
     }
     
     private void initSchedulePage(AppNodesBuilder ohBuilder, TabPane tabPane){
@@ -888,29 +966,55 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Label styleLabel = ohBuilder.buildLabel(SITE_STYLE_LABEL, null, CLASS_HEADER_LABEL, ENABLED);
         HBox firstStyleBox = new HBox(styleLabel);
         
-        //third style HBox
-        VBox buttonBox = new VBox();
-        VBox imageBox = new VBox();
-        HBox thirdStyleBox = new HBox(buttonBox, imageBox);
-        Button favIcon = ohBuilder.buildTextButton(SITE_FAV_ICON_BUTTON, buttonBox, CLASS_OH_BUTTON, ENABLED);
-        Button navBar = ohBuilder.buildTextButton(SITE_NAVBAR_BUTTON, buttonBox, CLASS_OH_BUTTON, ENABLED);
-        Button leftFotter = ohBuilder.buildTextButton(SITE_LEFT_FOTTER_BUTTON, buttonBox, CLASS_OH_BUTTON, ENABLED);
-        Button rightFotter = ohBuilder.buildTextButton(SITE_RIGHT_FOTTER_BUTTON, buttonBox, CLASS_OH_BUTTON, ENABLED);
-        ohBuilder.buildLabel(SITE_FONT_COLOR_LABEL, buttonBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildComboBox(SITE_CSS_COMBO_BOX, SITE_SEMESTER, EMPTY_TEXT, imageBox, CLASS_COMBO_BOX,ENABLED, EDITABLE, FIRST_OPTION);
+        //the HBoxes for edit site style button, image, label, combo box
+        HBox favBox = ohBuilder.buildHBox(SITE_FAV_HBOX, null, EMPTY_TEXT, ENABLED);
+        HBox navBox = ohBuilder.buildHBox(SITE_NAV_HBOX, null, EMPTY_TEXT, ENABLED);
+        HBox lfImageBox = ohBuilder.buildHBox(SITE_LF_IMAGE_HBOX, null, EMPTY_TEXT, ENABLED);
+        HBox rfImageBox = ohBuilder.buildHBox(SITE_RF_IMAGE_HBOX, null, EMPTY_TEXT, ENABLED);
+        HBox styleSheetBox = new HBox();
+        //default images
+        Image fabIconImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
+                + "apps/CourseSiteGenerator/images/fav_icon/Favicon_SeaWolf.png").toURI().toString());
+        Image navBarImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
+                + "apps/CourseSiteGenerator/images/nav_bar/NavBar_SeaWolf.png").toURI().toString());
+        Image leftFooterImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
+                + "apps/CourseSiteGenerator/images/left_footer_image/Left_Footer_Image_SeaWolf.png").toURI().toString());
+        Image rightFooterImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
+                + "apps/CourseSiteGenerator/images/right_footer_image/Right_Footer_Image_SeaWolf.png").toURI().toString());
+        ImageView fabIconImageView = new ImageView(fabIconImage);
+        ImageView navBarImageView = new ImageView(navBarImage);
+        ImageView leftFooterImageView = new ImageView(leftFooterImage);
+        ImageView rightFooterImageView = new ImageView(rightFooterImage);
+        //adding button and images to HBox
+        Button favIcon = ohBuilder.buildTextButton(SITE_FAV_ICON_BUTTON, favBox, CLASS_OH_BUTTON, ENABLED);
+        favBox.getChildren().add(fabIconImageView);
+        Button navBar = ohBuilder.buildTextButton(SITE_NAVBAR_BUTTON, navBox, CLASS_OH_BUTTON, ENABLED);
+        navBox.getChildren().add(navBarImageView);
+        Button leftFooter = ohBuilder.buildTextButton(SITE_LEFT_FOTTER_BUTTON, lfImageBox, CLASS_OH_BUTTON, ENABLED);
+        lfImageBox.getChildren().add(leftFooterImageView);
+        Button rightFooter = ohBuilder.buildTextButton(SITE_RIGHT_FOTTER_BUTTON, rfImageBox, CLASS_OH_BUTTON, ENABLED);
+        rfImageBox.getChildren().add(rightFooterImageView);
+        ohBuilder.buildLabel(SITE_FONT_COLOR_LABEL, styleSheetBox, CLASS_LABEL, ENABLED);
+        ohBuilder.buildComboBox(SITE_CSS_COMBO_BOX, SITE_CSS, EMPTY_TEXT, styleSheetBox, CLASS_COMBO_BOX,ENABLED, EDITABLE, FIRST_OPTION);
         
         //make sure all button in button box is same size
         favIcon.setMinWidth(175);
         navBar.setMinWidth(175);
-        leftFotter.setMinWidth(175);
-        rightFotter.setMinWidth(175);
+        leftFooter.setMinWidth(175);
+        rightFooter.setMinWidth(175);
         
-        //allignment for thrid style HBox
-        buttonBox.setSpacing(15);
-        imageBox.setSpacing(15);
-        thirdStyleBox.setSpacing(50);
-        buttonBox.setAlignment(Pos.CENTER_LEFT);
-        imageBox.setAlignment(Pos.CENTER_LEFT);
+        //allignment for style HBoxs
+        favBox.setAlignment(Pos.CENTER_LEFT);
+        navBox.setAlignment(Pos.CENTER_LEFT);
+        lfImageBox.setAlignment(Pos.CENTER_LEFT);
+        rfImageBox.setAlignment(Pos.CENTER_LEFT);
+        styleSheetBox.setAlignment(Pos.CENTER_LEFT);
+        favBox.setSpacing(50);
+        navBox.setSpacing(50);
+        lfImageBox.setSpacing(50);
+        rfImageBox.setSpacing(50);
+        styleSheetBox.setSpacing(50);
+        
         
         //second style HBox
         Label note = ohBuilder.buildLabel(SITE_NOTE_LABEL, null, CLASS_WARNING_HEADER_LABEL, ENABLED);
@@ -918,7 +1022,8 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         HBox secondStyleBox = new HBox(note, noteDetail);
         secondStyleBox.setAlignment(Pos.CENTER_LEFT);
         
-        biggestStyleBox.getChildren().addAll(firstStyleBox, thirdStyleBox, secondStyleBox);
+        biggestStyleBox.getChildren().addAll(firstStyleBox, favBox, navBox, 
+                lfImageBox, rfImageBox, styleSheetBox, secondStyleBox);
         biggestStyleBox.setSpacing(20.0);
         style.getChildren().add(biggestStyleBox);
         
@@ -986,11 +1091,95 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         AppFoolproofModule foolproofSettings = app.getFoolproofModule();
         foolproofSettings.registerModeSettings(CSG_FOOLPROOF_SETTINGS,
                 new CourseSiteFoolproofDesign((CourseSiteGeneratorApp) app));
+        initSimpleFoolProof();
     }
     
     private void initDialogs() {
         TADialog taDialog = new TADialog((CourseSiteGeneratorApp) app);
         app.getGUIModule().addDialog(CSG_TA_EDIT_DIALOG, taDialog);
+    }
+    
+    private void initSimpleFoolProof(){
+        AppGUIModule gui = app.getGUIModule();
+        
+        ((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        
+        ((CheckBox)gui.getGUINode(SITE_HOME_CHECK_BOX)).setOnAction(e ->{
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        ((CheckBox)gui.getGUINode(SITE_HWS_CHECK_BOX)).setOnAction(e ->{
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        ((CheckBox)gui.getGUINode(SITE_SCHEDULE_CHECK_BOX)).setOnAction(e ->{
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        ((CheckBox)gui.getGUINode(SITE_SYLLUBUS_CHECK_BOX)).setOnAction(e ->{
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        
+        ((ComboBox)gui.getGUINode(SITE_CSS_COMBO_BOX)).setOnAction(e ->{
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        
+        ((TextField)gui.getGUINode(SITE_NAME_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        ((TextField)gui.getGUINode(SITE_EMAIL_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        ((TextField)gui.getGUINode(SITE_ROOM_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        ((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        ((TextArea)gui.getGUINode(SITE_OFFICE_HOURS_TEXT_AREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        
+        ((TextArea)gui.getGUINode(SYLLUBUS_DES_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        ((TextArea)gui.getGUINode(SYLLUBUS_TOPIC_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        ((TextArea)gui.getGUINode(SYLLUBUS_PREQ_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        ((TextArea)gui.getGUINode(SYLLUBUS_OUTCOME_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        ((TextArea)gui.getGUINode(SYLLUBUS_TEXTBOOK_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        ((TextArea)gui.getGUINode(SYLLUBUS_GRADED_COMP_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        ((TextArea)gui.getGUINode(SYLLUBUS_GRADING_NOTE_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        ((TextArea)gui.getGUINode(SYLLUBUS_ACAD_DIS_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        ((TextArea)gui.getGUINode(SYLLUBUS_SPEC_ASSIST_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        }); 
+        
+        ((ComboBox)gui.getGUINode(OH_START_TIME_COMBO_BOX)).setOnAction(e ->{
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        ((ComboBox)gui.getGUINode(OH_END_TIME_COMBO_BOX)).setOnAction(e ->{
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        
+        ((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER)).setOnAction(e ->{
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
+        ((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER)).setOnAction(e ->{
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+        });
     }
     
     private void setupOfficeHoursColumn(Object columnId, TableView tableView, String styleClass, String columnDataProperty) {
@@ -1026,7 +1215,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     }
 
     // method which returns start time sublist we need for oh time range comboBox
-    private ObservableList<String> getStList(String endTime, 
+    public ObservableList<String> getStList(String endTime, 
             ObservableList<String> stOptions, ObservableList<String> etOptions) {
         
         ObservableList<String> toBeDisplayedList = FXCollections.<String>observableArrayList();
@@ -1037,7 +1226,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     }
     
     // method which returns end time sublist we need for oh time range comboBox
-    private ObservableList<String> getEtList(String startTime, ObservableList<String> etOptions) {
+    public ObservableList<String> getEtList(String startTime, ObservableList<String> etOptions) {
 
         ObservableList<String> toBeDisplayedList = FXCollections.<String>observableArrayList();
         
@@ -1048,7 +1237,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     }
     
     // method to check if the oh table is shown with full interval
-    private boolean fullInterval(){
+    public boolean fullInterval(){
         AppGUIModule gui = app.getGUIModule();
         ComboBox startTimeCB = (ComboBox) gui.getGUINode(OH_START_TIME_COMBO_BOX);
         ComboBox endTimeCB = (ComboBox) gui.getGUINode(OH_END_TIME_COMBO_BOX);

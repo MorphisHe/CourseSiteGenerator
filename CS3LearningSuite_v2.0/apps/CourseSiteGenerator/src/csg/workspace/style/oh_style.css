@@ -182,11 +182,15 @@ b.oh_text_field, .oh_text_field_error {
 }
 .oh_dialog_header{
     -fx-font-weight: bold;
-    -fx-font-size: 18pt
+    -fx-font-size: 18pt;
+    -fx-text-fill: green;
+    -fx-font-family: "Segoe UI Semibold";
 }
 .oh_dialog_prompt{
     -fx-font-weight: bold;
     -fx-font-size: 14pt;
+    -fx-text-fill: darkorange;
+    -fx-font-family: "Segoe UI Semibold";
 }
 .oh_dialog_text_field{
     -fx-min-width:450px;
@@ -200,9 +204,7 @@ b.oh_text_field, .oh_text_field_error {
     -fx-font-size: 14pt;
     -fx-font-weight: bold;
 }
-.oh_dialog_box{
-    
-}
+
 .oh_dialog_button{
     -fx-min-width:100px;
     -fx-max-width:100px;
@@ -210,6 +212,10 @@ b.oh_text_field, .oh_text_field_error {
     -fx-max-height:50px;
     -fx-font-weight: bold;
     -fx-font-size: 16pt;
+    -fx-text-fill: white;
+    -fx-font-family: "Arial Narrow";
+    -fx-background-color: linear-gradient(#61a2b1, #2A5058);
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );  
 }
 
 .tooltip {

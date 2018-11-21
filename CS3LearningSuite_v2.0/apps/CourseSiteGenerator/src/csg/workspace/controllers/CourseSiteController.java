@@ -26,9 +26,16 @@ import static csg.CourseSitePropertyType.CSG_FOOLPROOF_SETTINGS;
 import static csg.CourseSitePropertyType.CSG_TA_EDIT_DIALOG;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
+import static djf.AppPropertyType.SAVE_BUTTON;
+import java.io.File;
 import java.util.HashMap;
 import javafx.collections.FXCollections;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
 
 
 /**
@@ -73,11 +80,7 @@ public class CourseSiteController {
             data.removeTA(taToDelete);
         }
     }
-
-    public void processVerifyTA() {
-
-    }
-
+    
     public void processToggleOfficeHours() {
         AppGUIModule gui = app.getGUIModule();
         TableView<TimeSlot> officeHoursTableView = (TableView) gui.getGUINode(CSG_OFFICE_HOURS_TABLE_VIEW);
@@ -120,6 +123,19 @@ public class CourseSiteController {
                 EditTA_Transaction transaction = new EditTA_Transaction(taToEdit, editTA.getName(), editTA.getEmail(), editTA.getType());
                 app.processTransaction(transaction);
             }
+        }
+    }
+    
+    public void processEditSiteStyle(FileChooser fileChooser, CourseSitePropertyType nodeId){
+        AppGUIModule gui = app.getGUIModule();
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            Image image = new Image(selectedFile.toURI().toString());
+            ImageView fabIconImageView = new ImageView(image);
+
+            HBox box = (HBox) gui.getGUINode(nodeId);
+            box.getChildren().set(1, fabIconImageView);
+            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
         }
     }
 
@@ -238,7 +254,7 @@ public class CourseSiteController {
     }
     
     /**
-     * this method will dynamically create the export directory
+     * this method will dynamically update the export directory
      * @param typeOfCB : the comboBox that calls this method
      * @param oldValue : old option in combo box, used here to check
      * which part of export directory we need to update
@@ -296,5 +312,7 @@ public class CourseSiteController {
                   .append(temp[6]) //add public_html
                   .toString()
         ); 
+        
+        ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
     }
 }

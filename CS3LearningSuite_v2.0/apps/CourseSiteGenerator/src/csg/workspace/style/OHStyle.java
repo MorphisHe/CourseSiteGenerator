@@ -36,7 +36,7 @@ public class OHStyle {
     public static final String CLASS_OH_DAY_OF_WEEK_COLUMN = "oh_day_of_week_column";
     
     // FOR THE DIALOG
-    public static final String CLASS_OH_DIALOG_GRID_PANE = "oh_dialog_grid_pane";
+    public static final String CLASS_OH_DIALOG_GRID_PANE = "oh_dialog_grid_pane"; 
     public static final String CLASS_OH_DIALOG_HEADER = "oh_dialog_header"; 
     public static final String CLASS_OH_DIALOG_PROMPT = "oh_dialog_prompt"; 
     public static final String CLASS_OH_DIALOG_TEXT_FIELD = "oh_dialog_text_field";

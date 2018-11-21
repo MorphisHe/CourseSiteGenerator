@@ -6,7 +6,7 @@ import csg.data.TeachingAssistantPrototype;
 
 /**
  *
- * @author McKillaGorilla
+ * @author Jiang He
  */
 public class AddTA_Transaction implements jTPS_Transaction {
     OfficeHoursData data;

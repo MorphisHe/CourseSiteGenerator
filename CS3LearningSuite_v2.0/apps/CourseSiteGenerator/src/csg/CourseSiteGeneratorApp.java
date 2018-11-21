@@ -8,7 +8,6 @@ import djf.components.AppWorkspaceComponent;
 import java.util.Locale;
 import csg.data.OfficeHoursData;
 import csg.files.CourseSiteFiles;
-import csg.clipboard.CourseSiteClipboard;
 import csg.workspace.CourseSiteWorkspace;
 import static javafx.application.Application.launch;
 
@@ -29,7 +28,7 @@ public class CourseSiteGeneratorApp extends AppTemplate {
 
     @Override
     public AppClipboardComponent buildClipboardComponent(AppTemplate app) {
-        return new CourseSiteClipboard(this);
+        return null;
     }
 
     @Override

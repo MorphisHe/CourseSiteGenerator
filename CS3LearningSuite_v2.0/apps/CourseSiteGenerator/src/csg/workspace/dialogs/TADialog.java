@@ -24,8 +24,7 @@ import csg.transactions.EditTA_Transaction;
 import csg.workspace.foolproof.CourseSiteFoolproofDesign;
 
 /**
- *
- * @author McKillaGorilla
+ * @author Jiang He
  */
 public class TADialog extends Stage {
     CourseSiteGeneratorApp app;
@@ -74,7 +73,9 @@ public class TADialog extends Stage {
         okCancelBox.setAlignment(Pos.CENTER);
         Button okButton = guiBuilder.buildTextButton(CSG_TA_DIALOG_OK_BUTTON, okCancelBox, CLASS_OH_DIALOG_BUTTON, !ENABLED);
         Button cancelButton = guiBuilder.buildTextButton(CSG_TA_DIALOG_CANCEL_BUTTON, okCancelBox, CLASS_OH_DIALOG_BUTTON, ENABLED);
-       
+        okCancelBox.setSpacing(40);
+        okCancelBox.prefWidthProperty().bind(gridPane.widthProperty());
+        
         // AND SETUP THE EVENT HANDLERS
         nameTextField.setOnAction(e->{
             processCompleteWork();
@@ -85,6 +86,7 @@ public class TADialog extends Stage {
         okButton.setOnAction(e->{
             processCompleteWork();
         });
+        
         // VERIFY ENTERED TEXT
         nameTextField.textProperty().addListener(e->{
             processDataChange();
@@ -98,7 +100,6 @@ public class TADialog extends Stage {
         undergradRadioButton.setOnAction(e->{
             processDataChange();
         });
-        
         cancelButton.setOnAction(e->{
             editTA = null;
             this.hide();
