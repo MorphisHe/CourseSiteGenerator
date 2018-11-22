@@ -28,6 +28,8 @@ import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
 import static djf.AppPropertyType.SAVE_BUTTON;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
@@ -287,17 +289,42 @@ public class CourseSiteController {
                 splitedOptions[1] = splitedOptions[1].replace(oldVal, newVal);
                 break;
             case "semester":
-                splitedOptions[2] = splitedOptions[2].replace(oldVal, newVal);
+                //special case because semester can take up to more than 1 array space
+                if(splitedOptions.length > 4){
+                    String[] newArray = {splitedOptions[0], splitedOptions[1], newVal, 
+                                         splitedOptions[splitedOptions.length-1]};
+                    splitedOptions = newArray;
+                }
+                else{
+                    splitedOptions[2] = splitedOptions[2].replace(oldVal, newVal);
+                }
                 break;
             case "year":
-                splitedOptions[3] = splitedOptions[3].replace(oldVal, newVal);
+                splitedOptions[splitedOptions.length-1] = splitedOptions[splitedOptions.length-1].replace(oldVal, newVal);
                 break;
             default:
                 break;
         }
         
         //add all parts to StringBuilder
-        exportDir.setText(
+        //if the string is longer than 4
+        if(splitedOptions.length > 4){
+            sb.append(".\\\\") //add .\\
+              .append(temp[2]) //add export
+              .append("\\\\")  //add \\
+              .append(splitedOptions[0]) //add Subject
+              .append("_")
+              .append(splitedOptions[1]); //add Number
+            //this loop to get all semester pieces into string builder
+            for(int i = 2; i < splitedOptions.length; i++){
+                sb.append("_").append(splitedOptions[i]);
+            }
+            sb.append("\\\\").append(temp[6]);
+            exportDir.setText(sb.toString());
+        }
+        //if it is just 4 element in the array
+        else{
+            exportDir.setText(
                 sb.append(".\\\\") //add .\\
                   .append(temp[2]) //add export
                   .append("\\\\")  //add \\
@@ -307,11 +334,12 @@ public class CourseSiteController {
                   .append("_") 
                   .append(splitedOptions[2]) //add Semester
                   .append("_")
-                  .append(splitedOptions[3]) //add Year
+                  .append(splitedOptions[splitedOptions.length-1]) //add Year
                   .append("\\\\")  //add \\
                   .append(temp[6]) //add public_html
                   .toString()
-        ); 
+            ); 
+        }
         
         ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
     }

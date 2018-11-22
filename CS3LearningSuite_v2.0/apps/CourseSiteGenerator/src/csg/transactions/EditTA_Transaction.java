@@ -1,12 +1,11 @@
 package csg.transactions;
 
-import java.time.LocalDate;
 import jtps.jTPS_Transaction;
 import csg.data.TeachingAssistantPrototype;
 
 /**
  *
- * @author McKillaGorilla
+ * @author Jiang He
  */
 public class EditTA_Transaction implements jTPS_Transaction {
     TeachingAssistantPrototype taToEdit;

@@ -28,7 +28,7 @@ import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
 import csg.data.Schedule;
-import csg.transactions.ComboBox_Transaction;
+import csg.transactions.CourseInfoComboBox_Transaction;
 import csg.transactions.TimeInterval_Transaction;
 import csg.workspace.controllers.CourseSiteController;
 import csg.workspace.dialogs.TADialog;
@@ -38,6 +38,7 @@ import static djf.AppPropertyType.SAVE_BUTTON;
 import static djf.modules.AppGUIModule.DISABLED;
 import java.io.File;
 import java.util.Calendar;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -68,6 +69,8 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     private static final boolean NOT_EDITABLE = false;
     private static final String FIRST_OPTION = "first";
     private static final String LAST_OPTION = "last";
+    private static String oldValue = null;
+    private static String newValue = null;
     
     //following are the options for combo boxes
     public static final ObservableList<String> OH_START_TIME
@@ -284,23 +287,10 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         });
         
         //set cell factory for site page combo boxes
-        ComboBox siteSemesterCB = (ComboBox) gui.getGUINode(SITE_SEMESTER_COMBO_BOX);
-        ComboBox siteYearCB = (ComboBox) gui.getGUINode(SITE_YEAR_COMBO_BOX);
-        ComboBox siteSubjectCB = (ComboBox) gui.getGUINode(SITE_SBJ_COMBO_BOX);
-        ComboBox siteNumberCB = (ComboBox) gui.getGUINode(SITE_NUMBER_COMBO_BOX);
-        
-        siteSemesterCB.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            controller.updateExportDir("semester", oldVal, newVal);
-        });
-        siteYearCB.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            controller.updateExportDir("year", oldVal, newVal);
-        });
-        siteSubjectCB.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            controller.updateExportDir("subject", oldVal, newVal);
-        });
-        siteNumberCB.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            controller.updateExportDir("number", oldVal, newVal);
-        });
+        initCourseInfoComboBox((ComboBox) gui.getGUINode(SITE_SEMESTER_COMBO_BOX), "semester", controller);
+        initCourseInfoComboBox((ComboBox) gui.getGUINode(SITE_YEAR_COMBO_BOX), "year", controller);
+        initCourseInfoComboBox((ComboBox) gui.getGUINode(SITE_SBJ_COMBO_BOX), "subject", controller);
+        initCourseInfoComboBox((ComboBox) gui.getGUINode(SITE_NUMBER_COMBO_BOX), "number", controller);
         
         // DON'T LET ANYONE SORT THE TABLES
         TableView tasTableView = (TableView) gui.getGUINode(CSG_TAS_TABLE_VIEW);
@@ -370,6 +360,34 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             else controller.showFullTAandOH();
         });
         
+        
+    }
+    
+    //this method is helper method for initController, deals with site page banner combo boxes
+    private void initCourseInfoComboBox(ComboBox cb, String typeOfCb, CourseSiteController controller){
+        //this sets a listener on the couse info comboBoxes to catch new and old values
+        cb.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            oldValue = oldVal.toString();
+            newValue = newVal.toString();
+            controller.updateExportDir(typeOfCb, oldVal, newVal);
+        });
+        
+        //this sets up cell factory to catch mouse event on comboBox
+        cb.setCellFactory(lv -> {
+            ListCell<String> cell = new ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                }
+            };
+            cell.setOnMousePressed(e -> {
+                CourseInfoComboBox_Transaction cbTransaction = new CourseInfoComboBox_Transaction(
+                        cb, oldValue, newValue, typeOfCb, controller);
+                app.processTransaction(cbTransaction);
+            });
+            return cell ;
+        });
         
     }
     

@@ -5,8 +5,6 @@
  */
 package csg.transactions;
 
-import csg.CourseSiteGeneratorApp;
-import csg.workspace.CourseSiteWorkspace;
 import csg.workspace.controllers.CourseSiteController;
 import javafx.scene.control.ComboBox;
 import jtps.jTPS_Transaction;
@@ -15,29 +13,32 @@ import jtps.jTPS_Transaction;
  *
  * @author turtle714804947
  */
-public class ComboBox_Transaction implements jTPS_Transaction{
+public class CourseInfoComboBox_Transaction implements jTPS_Transaction{
     ComboBox cb;
     String oldValue;
     String newValue;
+    String partOfDir;
     CourseSiteController controller;
     
-    public ComboBox_Transaction(ComboBox cb, String oldValue, String newValue, CourseSiteController controller) {
+    public CourseInfoComboBox_Transaction(ComboBox cb, String oldValue, String newValue,
+            String partOfDir, CourseSiteController controller) {
         this.cb = cb;
         this.oldValue = oldValue;
         this.newValue = newValue;
+        this.partOfDir = partOfDir;
         this.controller = controller;
     }
 
     @Override
     public void doTransaction() {
         cb.getSelectionModel().select(newValue);
-        controller.updateExportDir("semester", oldValue, newValue);
+        controller.updateExportDir(partOfDir, oldValue, newValue);
     }
 
     @Override
     public void undoTransaction() {
         cb.getSelectionModel().select(oldValue);
-        controller.updateExportDir("semester", oldValue, newValue);
+        controller.updateExportDir(partOfDir, newValue, oldValue);
     }
     
 }
