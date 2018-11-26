@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package csg.transactions;
 
 import csg.CourseSiteGeneratorApp;
@@ -38,7 +33,7 @@ public class TimeInterval_Transaction implements jTPS_Transaction{
 
     @Override
     public void doTransaction() {
-        cb2.setItems(workspace.getEtList(CBstartTime, workspace.getOhEndTime()));
+        cb2.setItems(workspace.getEtList(CBstartTime, controller.getOhEndTime()));
         controller.processOHdisplay(CBstartTime, CBendTime);
         if (!workspace.fullInterval()) {
             controller.processTAdisplay();
@@ -49,7 +44,7 @@ public class TimeInterval_Transaction implements jTPS_Transaction{
 
     @Override
     public void undoTransaction() {
-        cb2.setItems(workspace.getEtList(CBstartTime, workspace.getOhEndTime()));
+        cb2.setItems(workspace.getEtList(CBstartTime, controller.getOhEndTime()));
         controller.processOHdisplay(CBstartTime, CBendTime);
         if (!workspace.fullInterval()) {
             controller.processTAdisplay();

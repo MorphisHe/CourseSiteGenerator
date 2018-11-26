@@ -1,1 +1,1 @@
-CSE219_TAs-work/CSE219_TAs.ta
+CSE219_TAs-work/CSE219_TAs.json

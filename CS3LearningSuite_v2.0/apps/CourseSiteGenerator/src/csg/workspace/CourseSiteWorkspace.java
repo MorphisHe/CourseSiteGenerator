@@ -28,6 +28,7 @@ import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
 import csg.data.Schedule;
+import csg.files.CourseSiteFiles;
 import csg.transactions.CourseInfoComboBox_Transaction;
 import csg.transactions.TimeInterval_Transaction;
 import csg.workspace.controllers.CourseSiteController;
@@ -37,8 +38,10 @@ import static csg.workspace.style.OHStyle.*;
 import static djf.AppPropertyType.SAVE_BUTTON;
 import static djf.modules.AppGUIModule.DISABLED;
 import java.io.File;
-import java.util.Calendar;
-import javafx.application.Platform;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -71,43 +74,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     private static final String LAST_OPTION = "last";
     private static String oldValue = null;
     private static String newValue = null;
-    
-    //following are the options for combo boxes
-    public static final ObservableList<String> OH_START_TIME
-            = FXCollections.observableArrayList(
-                    "8:00am", "8:30am", "9:00am", "9:30am", "10:00am", "10:30am", "11:00am", "11:30am", "12:00pm",
-                    "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm",
-                    "4:30pm", "5:00pm", "5:30pm", "6:00pm", "6:30pm", "7:00pm", "7:30pm", "8:00pm",
-                    "8:30pm", "9:00pm", "9:30pm", "10:00pm", "10:30pm", "11:00pm", "11:30pm"
-            );
-    public static final ObservableList<String> OH_END_TIME
-            = FXCollections.observableArrayList(
-                    "8:30am", "9:00am", "9:30am", "10:00am", "10:30am", "11:00am", "11:30am", "12:00pm",
-                    "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm",
-                    "4:30pm", "5:00pm", "5:30pm", "6:00pm", "6:30pm", "7:00pm", "7:30pm", "8:00pm",
-                    "8:30pm", "9:00pm", "9:30pm", "10:00pm", "10:30pm", "11:00pm", "11:30pm", "12:00am"
-            );
-    private static final ObservableList<String> SITE_SEMESTER
-            = FXCollections.observableArrayList(
-                    "Fall", "Spring", "Winter", 
-                    "Summer Session 1", "Summer Session 1 Extended", 
-                    "Summer Session 2", "Summer Session 2 Extended"
-            );
-    private static final ObservableList<String> SITE_SUBJECT
-            = FXCollections.observableArrayList("CSE", "ISE");
-    
-    private static final ObservableList<String> CURRENT_YEARS
-            = FXCollections.observableArrayList(
-                    Integer.toString(Calendar.getInstance().get(Calendar.YEAR)), 
-                    Integer.toString(Calendar.getInstance().get(Calendar.YEAR)+1)
-            );
-    
-    private static final ObservableList<String> SUBJECT_NUMBER
-            = FXCollections.observableArrayList("219", "220");
-    
-    private static final ObservableList<String> SITE_CSS
-            = FXCollections.observableArrayList("sea_wolf.css", "hallo_ween.css");
-    
+
     //these are the file path for site style editing
     private final String FAV_ICON_PATH = "/Users/turtle714804947/repos/"
             + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/fav_icon";
@@ -150,14 +117,6 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         return RIGHT_FOOTER_IMAGE_PATH;
     }
     
-    public ObservableList<String> getOhStartTime(){
-        return OH_START_TIME;
-    }
-    
-    public ObservableList<String> getOhEndTime(){
-        return OH_END_TIME;
-    }
-    
     private void initLayout(){
         // FIRST LOAD THE FONT FAMILIES FOR THE COMBO BOX
         PropertiesManager.getPropertiesManager();
@@ -175,6 +134,13 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         ohBuilder.buildTab(CSG_MEETING_TIME_TAB_BUTTON, tabPane, CLASS_TOGGLE_BUTTON, ENABLED, false);
         ohBuilder.buildTab(CSG_OFFICE_HOUR_TAB_BUTTON, tabPane, CLASS_TOGGLE_BUTTON, ENABLED, false);
         ohBuilder.buildTab(CSG_SCHEDULE_TAB_BUTTON, tabPane, CLASS_TOGGLE_BUTTON, ENABLED, false);
+        
+        //init combo box data first in CourseSiteFile
+        try {
+            ((CourseSiteFiles)app.getFileComponent()).loadComboBoxData();
+        } catch (IOException ex) {
+            Logger.getLogger(CourseSiteWorkspace.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         //making site page
         initSitePage(ohBuilder, tabPane);
@@ -259,7 +225,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             cell.setOnMousePressed(e -> {
                 String CBstartTime = (String) ohStartTimeCB.getSelectionModel().getSelectedItem();
                 String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
-                ohEndTimeCB.setItems(getEtList(CBstartTime, OH_END_TIME));
+                ohEndTimeCB.setItems(getEtList(CBstartTime, controller.getOhEndTime()));
                 controller.processOHdisplay(CBstartTime, CBendTime);
                 if(!fullInterval()) controller.processTAdisplay();
                 else controller.showFullTAandOH();
@@ -279,7 +245,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 String CBstartTime = (String) ohStartTimeCB.getSelectionModel().getSelectedItem();
                 String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
                 controller.processOHdisplay(CBstartTime, CBendTime);
-                ohStartTimeCB.setItems(getStList(CBendTime, OH_START_TIME, OH_END_TIME));
+                ohStartTimeCB.setItems(getStList(CBendTime, controller.getOhStartTime(), controller.getOhEndTime()));
                 if(!fullInterval()) controller.processTAdisplay();
                 else controller.showFullTAandOH();
             });
@@ -359,8 +325,6 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             if(!fullInterval()) controller.processTAdisplay();
             else controller.showFullTAandOH();
         });
-        
-        
     }
     
     //this method is helper method for initController, deals with site page banner combo boxes
@@ -370,6 +334,48 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             oldValue = oldVal.toString();
             newValue = newVal.toString();
             controller.updateExportDir(typeOfCb, oldVal, newVal);
+        });
+        
+        //TODO NEED TO ADD THE NEW VALUE TO THE SPECIFIC OBSERVABLE LIST< THEN TRY THIS AGAIN TO DEBUG
+        //this adds a listener to the comboBoxes focus property
+        //so when the combo box loses focus, we create a transaction
+        cb.focusedProperty().addListener((ObservableValue<? extends Boolean> obs, Boolean oldVal, Boolean newVal) -> {
+            if(!newVal){
+                //happens when lose focus
+                newValue = cb.getEditor().getText();
+                if (!newValue.equals(oldValue)) {
+                    //if the new value is not in the observable list
+                    if (!controller.checkValInObvList(typeOfCb, newValue)) {
+                        CourseSiteFiles files = (CourseSiteFiles) app.getFileComponent();
+
+                        try {
+                            files.addToObvList(typeOfCb, newValue, controller);
+                        } catch (IOException ex) {
+                            System.out.println(Arrays.toString(ex.getStackTrace()));
+                        }
+                    }
+                    CourseInfoComboBox_Transaction cbTransaction = new CourseInfoComboBox_Transaction(
+                                cb, oldValue, newValue, typeOfCb, controller);
+                    app.processTransaction(cbTransaction);
+                }
+            }
+            else{
+                //happens when gain focus
+                oldValue = cb.getEditor().getText();
+            }
+        });
+        
+    }
+    
+    //this method is helper method for initController, deals with the office hour page time interval combo boxes
+    private void initTimeIntervalCB(ComboBox ohStartTimeCB, ComboBox ohEndTimeCB,
+                                    String typeOfCb, CourseSiteController controller){
+        ComboBox cb = typeOfCb.equals("start") ? ohStartTimeCB : ohEndTimeCB;
+        
+        //this sets a listener on the couse info comboBoxes to catch new and old values
+        cb.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            oldValue = oldVal.toString();
+            newValue = newVal.toString();
         });
         
         //this sets up cell factory to catch mouse event on comboBox
@@ -382,13 +388,30 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 }
             };
             cell.setOnMousePressed(e -> {
-                CourseInfoComboBox_Transaction cbTransaction = new CourseInfoComboBox_Transaction(
-                        cb, oldValue, newValue, typeOfCb, controller);
-                app.processTransaction(cbTransaction);
+                String CBstartTime = (String) ohStartTimeCB.getSelectionModel().getSelectedItem();
+                String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
+                ohEndTimeCB.setItems(getEtList(CBstartTime, controller.getOhEndTime()));
+                controller.processOHdisplay(CBstartTime, CBendTime);
+                if(!fullInterval()) controller.processTAdisplay();
+                else controller.showFullTAandOH();
             });
             return cell ;
         });
         
+        cb.setCellFactory(lv -> {
+            ListCell<String> cell = new ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                }
+            };
+            cell.setOnMousePressed(e -> {
+                TimeInterval_Transaction tiTransaction = new TimeInterval_Transaction(app, cb, cb, LAST_OPTION, newValue);
+                app.processTransaction(tiTransaction);
+            });
+            return cell ;
+        });
     }
     
     private void initSchedulePage(AppNodesBuilder ohBuilder, TabPane tabPane){
@@ -633,6 +656,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     }
     
     private void initOfficeHourPage(AppNodesBuilder ohBuilder, TabPane tabPane){
+        CourseSiteController controller = new CourseSiteController((CourseSiteGeneratorApp) app);
         GridPane ohGridPane = new GridPane();
         VBox mainBox = ohBuilder.buildVBox(CSG_OH_VBOX, null, CLASS_SITE_HBOX, ENABLED);
         
@@ -687,10 +711,10 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         ohBuilder.buildLabel(CSG_OFFICE_HOURS_HEADER_LABEL, ohHeaderBox, CLASS_HEADER_LABEL, ENABLED);
         HBox ohTimeBox = new HBox();
         ohBuilder.buildLabel(OH_START_TIME_LABEL, ohTimeBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildComboBox(OH_START_TIME_COMBO_BOX, OH_START_TIME, null, ohTimeBox, 
+        ohBuilder.buildComboBox(OH_START_TIME_COMBO_BOX, controller.getOhStartTime(), null, ohTimeBox, 
                 CLASS_COMBO_BOX, ENABLED, NOT_EDITABLE, FIRST_OPTION);
         ohBuilder.buildLabel(OH_END_TIME_LABEL, ohTimeBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildComboBox(OH_END_TIME_COMBO_BOX, OH_END_TIME, EMPTY_TEXT, ohTimeBox, 
+        ohBuilder.buildComboBox(OH_END_TIME_COMBO_BOX, controller.getOhEndTime(), EMPTY_TEXT, ohTimeBox, 
                 CLASS_COMBO_BOX, ENABLED, NOT_EDITABLE, LAST_OPTION);
         
         //setting arrangement for oh header
@@ -889,6 +913,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     }
     
     private void initSitePage(AppNodesBuilder ohBuilder, TabPane tabPane){
+        CourseSiteController controller = new CourseSiteController((CourseSiteGeneratorApp) app);
         AppGUIModule gui = app.getGUIModule();
         
         GridPane siteGridPane = new GridPane();
@@ -910,9 +935,9 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Label number = ohBuilder.buildLabel(SITE_NUMBER_LABEL, null, CLASS_LABEL, ENABLED);
         VBox labelVBox1 = new VBox(subject, number);
         
-        ComboBox subjectCB = ohBuilder.buildComboBox(SITE_SBJ_COMBO_BOX, SITE_SUBJECT, 
+        ComboBox subjectCB = ohBuilder.buildComboBox(SITE_SBJ_COMBO_BOX, controller.getSiteSubject(), 
                 CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
-        ComboBox numberCB = ohBuilder.buildComboBox(SITE_NUMBER_COMBO_BOX, SUBJECT_NUMBER, 
+        ComboBox numberCB = ohBuilder.buildComboBox(SITE_NUMBER_COMBO_BOX, controller.getSubjectNum(), 
                 CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
         VBox comboVBox1 = new VBox(subjectCB, numberCB);
         
@@ -920,9 +945,10 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Label year = ohBuilder.buildLabel(SITE_YEAR_LABEL, null, CLASS_LABEL, ENABLED);
         VBox labelVBox2 = new VBox(semester, year);
         
-        ComboBox yearCB = ohBuilder.buildComboBox(SITE_YEAR_COMBO_BOX, CURRENT_YEARS, 
-                CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
-        ComboBox semesterCB = ohBuilder.buildComboBox(SITE_SEMESTER_COMBO_BOX, SITE_SEMESTER, 
+        ComboBox yearCB = ohBuilder.buildComboBox(SITE_YEAR_COMBO_BOX, controller.getCurrentYears(), 
+                CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, NOT_EDITABLE, FIRST_OPTION);
+        yearCB.setMinWidth(225);
+        ComboBox semesterCB = ohBuilder.buildComboBox(SITE_SEMESTER_COMBO_BOX, controller.getSiteSemester(), 
                 CLASS_OH_PROMPT, null, CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
         VBox comboVBox2 = new VBox(semesterCB, yearCB);
         
@@ -1013,7 +1039,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Button rightFooter = ohBuilder.buildTextButton(SITE_RIGHT_FOTTER_BUTTON, rfImageBox, CLASS_OH_BUTTON, ENABLED);
         rfImageBox.getChildren().add(rightFooterImageView);
         ohBuilder.buildLabel(SITE_FONT_COLOR_LABEL, styleSheetBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildComboBox(SITE_CSS_COMBO_BOX, SITE_CSS, EMPTY_TEXT, styleSheetBox, CLASS_COMBO_BOX,ENABLED, EDITABLE, FIRST_OPTION);
+        ohBuilder.buildComboBox(SITE_CSS_COMBO_BOX, controller.getSiteCss(), EMPTY_TEXT, styleSheetBox, CLASS_COMBO_BOX,ENABLED, NOT_EDITABLE, FIRST_OPTION);
         
         //make sure all button in button box is same size
         favIcon.setMinWidth(175);
@@ -1264,4 +1290,4 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 endTimeCB.getSelectionModel().getSelectedItem().equals("12:00am"));
     }
     
-}
+    }

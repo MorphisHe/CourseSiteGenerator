@@ -1,0 +1,26 @@
+
+{
+    "subjectNumber":[
+        "219",
+        "220",
+        "305"
+    ],
+    "siteSubject":[
+        "CSE",
+        "ISE",
+        "ITS"
+    ],
+    "siteSemester":[
+        "Fall",
+        "Spring",
+        "Winter",
+        "Summer Session 1",
+        "Summer Session 1 Extended",
+        "Summer Session 2",
+        "Summer Session 2 Extended"
+    ],
+    "siteCss":[
+        "sea_wolf.css",
+        "hallo_ween.css"
+    ]
+}

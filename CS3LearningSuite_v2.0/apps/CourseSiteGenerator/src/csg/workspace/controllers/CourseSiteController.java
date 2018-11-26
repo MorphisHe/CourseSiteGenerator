@@ -28,8 +28,7 @@ import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
 import static djf.AppPropertyType.SAVE_BUTTON;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
@@ -47,9 +46,90 @@ import javafx.stage.FileChooser;
 public class CourseSiteController {
 
     CourseSiteGeneratorApp app;
+    
+    //following are the options for combo boxes
+    public static final ObservableList<String> OH_START_TIME
+            = FXCollections.observableArrayList(
+                    "8:00am", "8:30am", "9:00am", "9:30am", "10:00am", "10:30am", "11:00am", "11:30am", "12:00pm",
+                    "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm",
+                    "4:30pm", "5:00pm", "5:30pm", "6:00pm", "6:30pm", "7:00pm", "7:30pm", "8:00pm",
+                    "8:30pm", "9:00pm", "9:30pm", "10:00pm", "10:30pm", "11:00pm", "11:30pm"
+            );
+    
+    public static final ObservableList<String> OH_END_TIME
+            = FXCollections.observableArrayList(
+                    "8:30am", "9:00am", "9:30am", "10:00am", "10:30am", "11:00am", "11:30am", "12:00pm",
+                    "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm",
+                    "4:30pm", "5:00pm", "5:30pm", "6:00pm", "6:30pm", "7:00pm", "7:30pm", "8:00pm",
+                    "8:30pm", "9:00pm", "9:30pm", "10:00pm", "10:30pm", "11:00pm", "11:30pm", "12:00am"
+            );
+    
+    private static final ObservableList<String> SITE_SEMESTER
+            = FXCollections.observableArrayList();
+   
+    private static final ObservableList<String> SITE_SUBJECT
+            = FXCollections.observableArrayList();
+    
+    private static final ObservableList<String> CURRENT_YEARS
+            = FXCollections.observableArrayList(
+                    Integer.toString(Calendar.getInstance().get(Calendar.YEAR)), 
+                    Integer.toString(Calendar.getInstance().get(Calendar.YEAR)+1)
+            );
+    
+    private static final ObservableList<String> SUBJECT_NUMBER
+            = FXCollections.observableArrayList();
+    
+    private static final ObservableList<String> SITE_CSS
+            = FXCollections.observableArrayList();
 
+    //CONSTRUCTOR
     public CourseSiteController(CourseSiteGeneratorApp initApp) {
         app = initApp;
+    }
+    
+    //GETTERS FOR OBSERVABLE_LIST
+    public ObservableList<String> getSiteSemester(){
+        return SITE_SEMESTER;
+    }
+    
+    public ObservableList<String> getSiteSubject(){
+        return SITE_SUBJECT;
+    }
+    
+    public ObservableList<String> getSubjectNum(){
+        return SUBJECT_NUMBER;
+    }
+    
+    public ObservableList<String> getSiteCss(){
+        return SITE_CSS;
+    }
+    
+    public ObservableList<String> getOhStartTime(){
+        return OH_START_TIME;
+    }
+    
+    public ObservableList<String> getOhEndTime(){
+        return OH_END_TIME;
+    }
+    
+    public ObservableList<String> getCurrentYears(){
+        return CURRENT_YEARS;
+    }
+    
+    //method to check if a value is in specific oberservable list
+    public boolean checkValInObvList(String typeOfList, String valueToCheck){
+        switch(typeOfList){
+            case "semester" :
+                return SITE_SEMESTER.contains(valueToCheck);
+            
+            case "subject" : 
+                return SITE_SUBJECT.contains(valueToCheck);
+            
+            case "number" : 
+                return SUBJECT_NUMBER.contains(valueToCheck);
+                
+            default: return false;
+        }
     }
 
     public void processAddTA() {

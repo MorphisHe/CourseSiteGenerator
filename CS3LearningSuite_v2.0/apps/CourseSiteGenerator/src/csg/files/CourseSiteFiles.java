@@ -38,14 +38,18 @@ import csg.workspace.CourseSiteWorkspace;
 import csg.workspace.controllers.CourseSiteController;
 import static djf.AppPropertyType.SAVE_BUTTON;
 import java.io.File;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.image.ImageView;
 import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 
 
 /**
@@ -58,6 +62,10 @@ import javax.json.JsonObjectBuilder;
 public class CourseSiteFiles implements AppFileComponent {
     // THIS IS THE APP ITSELF
     CourseSiteGeneratorApp app;
+    
+    // PATH FOR COMBO BOX DATA FILE
+    static final String CB_DATA_FILE_PATH = "/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/cb_data/cb_data.json";
+   
     
     // FOLLOWING ARE USED FOR IDENTIFYING JSON TYPES
     
@@ -122,6 +130,11 @@ public class CourseSiteFiles implements AppFileComponent {
     static final String JSON_REFERENCES = "references";
     static final String JSON_RECITATIONS = "recitations";
     static final String JSON_HWS = "hws";
+    // JSON TYPES FOR COMBO BOX DATA
+    static final String JSON_SITE_SEMESTER = "siteSemester";
+    static final String JSON_SITE_SUBJECT = "siteSubject";
+    static final String JSON_SUBJECT_NUM = "subjectNumber";
+    static final String JSON_SITE_CSS = "siteCss";
     
 
     public CourseSiteFiles(CourseSiteGeneratorApp initApp) {
@@ -682,7 +695,7 @@ public class CourseSiteFiles implements AppFileComponent {
         String CBstartTime = (String) ohStartTimeCB.getSelectionModel().getSelectedItem();
         String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
         controller.processOHdisplay(CBstartTime, CBendTime);
-        ohStartTimeCB.setItems(workspace.getStList(CBendTime, workspace.getOhStartTime(), workspace.getOhEndTime()));
+        ohStartTimeCB.setItems(workspace.getStList(CBendTime, controller.getOhStartTime(), controller.getOhEndTime()));
         if (!workspace.fullInterval()) {
             controller.processTAdisplay();
         } else {
@@ -777,6 +790,151 @@ public class CourseSiteFiles implements AppFileComponent {
         
         ((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER)).setValue(loadedDate(startingMonday));
         ((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER)).setValue(loadedDate(endingFriday));
+    }
+    
+    public void loadComboBoxData() throws IOException{
+        JsonObject json = loadJSONFile(CB_DATA_FILE_PATH);
+        CourseSiteController controller = new CourseSiteController((CourseSiteGeneratorApp) app);
+        
+        // GET ALL JSON ARRAYS
+        JsonArray siteSemesterArray = json.getJsonArray(JSON_SITE_SEMESTER);
+        JsonArray siteSubjectArray = json.getJsonArray(JSON_SITE_SUBJECT);
+        JsonArray siteSubjectNumArray = json.getJsonArray(JSON_SUBJECT_NUM);
+        JsonArray siteCssArray = json.getJsonArray(JSON_SITE_CSS);
+        
+        // ADDING DATA TO SITE SEMESTER COMBO BOX
+        for (int i = 0; i < siteSemesterArray.size(); i++) {
+            controller.getSiteSemester();
+            ((ObservableList<String>) controller.getSiteSemester()).add(siteSemesterArray.getString(i));
+        }
+        
+        // ADDING DATA TO SITE SUBJECT COMBO BOX
+        for (int i = 0; i < siteSubjectArray.size(); i++) {
+            controller.getSiteSubject().add(siteSubjectArray.getString(i));
+        }
+        
+        // ADDING DATA TO SUBJECT NUMBER COMBO BOX
+        for (int i = 0; i < siteSubjectNumArray.size(); i++) {
+            controller.getSubjectNum().add(siteSubjectNumArray.getString(i));
+        }
+        
+        // ADDING DATA TO SITE CSS COMBO BOX
+        for (int i = 0; i < siteCssArray.size(); i++) {
+            controller.getSiteCss().add(siteCssArray.getString(i));
+        }
+    }
+    
+    //method to add a new value to specific observable list
+    public void addToObvList(String typeOfList, String valueToAdd, CourseSiteController controller) throws IOException{
+        
+        JsonObject json = loadJSONFile(CB_DATA_FILE_PATH);
+        JsonObjectBuilder fullJsonData = Json.createObjectBuilder();
+        JsonArrayBuilder builder = Json.createArrayBuilder();
+        
+        switch(typeOfList){
+            case "semester" :
+                //add to the comboBox first
+                controller.getSiteSemester().add(valueToAdd);
+                
+                //update the json file
+                JsonArray arraySeme = json.getJsonArray(JSON_SITE_SEMESTER);
+                
+                for(int i = 0; i < arraySeme.size(); i++){
+                    builder.add(arraySeme.get(i));
+                }
+
+                fullJsonData.add(JSON_SITE_SEMESTER, builder.add(valueToAdd).build());
+                
+                //fill out rest of the unchanged data
+                fillRestCBfile(typeOfList, fullJsonData, json);
+                break;
+            
+            case "subject" : 
+                //add to the comboBox first
+                controller.getSiteSubject().add(valueToAdd);
+                
+                //update the json file
+                JsonArray arraySubject = json.getJsonArray(JSON_SITE_SUBJECT);
+                
+                for(int i = 0; i < arraySubject.size(); i++){
+                    builder.add(arraySubject.get(i));
+                }
+                
+                fullJsonData.add(JSON_SITE_SUBJECT, builder.add(valueToAdd).build());
+                
+                //fill out rest of the unchanged data
+                fillRestCBfile(typeOfList, fullJsonData, json);
+                break;
+            
+            case "number" : 
+                //add to the comboBox first
+                controller.getSubjectNum().add(valueToAdd);
+                
+                //update the json file
+                JsonArray arraySubjectNum = json.getJsonArray(JSON_SUBJECT_NUM);
+                
+                for(int i = 0; i < arraySubjectNum.size(); i++){
+                    builder.add(arraySubjectNum.get(i));
+                }
+                
+                fullJsonData.add(JSON_SUBJECT_NUM, builder.add(valueToAdd).build());
+                
+                //fill out rest of the unchanged data
+                fillRestCBfile(typeOfList, fullJsonData, json);
+                break;
+                
+            default: break;
+        }
+        
+        // AND NOW OUTPUT IT TO A JSON FILE WITH PRETTY PRINTING
+	Map<String, Object> properties = new HashMap<>(1);
+	properties.put(JsonGenerator.PRETTY_PRINTING, true);
+	JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+	StringWriter sw = new StringWriter();
+        try (JsonWriter jsonWriter = writerFactory.createWriter(sw)) {
+            jsonWriter.writeObject(fullJsonData.build());
+        }
+
+	// INIT THE WRITER
+	OutputStream os = new FileOutputStream(CB_DATA_FILE_PATH);
+	JsonWriter jsonFileWriter = Json.createWriter(os);
+	jsonFileWriter.writeObject(fullJsonData.build());
+	String prettyPrinted = sw.toString();
+        try (PrintWriter pw = new PrintWriter(CB_DATA_FILE_PATH)) {
+            pw.write(prettyPrinted);
+        }
+    }
+    
+    /**
+     * this method helps fill out the rest of the unchanged json file in combo box data json file
+     * @param typeOfCBtoSkip : the type of combo box data that we skipping, b/c it is changing
+     * @param fullJsonObject : the json object builder
+     * @param json : json object file
+     */
+    private void fillRestCBfile(String typeOfCBtoSkip, 
+            JsonObjectBuilder fullJsonObject, JsonObject json){
+     
+        switch(typeOfCBtoSkip){
+            case "semester" :
+                fullJsonObject.add(JSON_SITE_SUBJECT, json.getJsonArray(JSON_SITE_SUBJECT));
+                fullJsonObject.add(JSON_SUBJECT_NUM, json.getJsonArray(JSON_SUBJECT_NUM));
+                fullJsonObject.add(JSON_SITE_CSS, json.getJsonArray(JSON_SITE_CSS));
+                break;
+            
+            case "subject" : 
+                fullJsonObject.add(JSON_SITE_SEMESTER, json.getJsonArray(JSON_SITE_SEMESTER));
+                fullJsonObject.add(JSON_SUBJECT_NUM, json.getJsonArray(JSON_SUBJECT_NUM));
+                fullJsonObject.add(JSON_SITE_CSS, json.getJsonArray(JSON_SITE_CSS));
+                break;
+            
+            case "number" : 
+                fullJsonObject.add(JSON_SITE_SUBJECT, json.getJsonArray(JSON_SITE_SUBJECT));
+                fullJsonObject.add(JSON_SITE_SEMESTER, json.getJsonArray(JSON_SITE_SEMESTER));
+                fullJsonObject.add(JSON_SITE_CSS, json.getJsonArray(JSON_SITE_CSS));
+                break;
+                
+            default: break;
+        }
     }
     
     // IMPORTING/EXPORTING DATA IS USED WHEN WE READ/WRITE DATA IN AN

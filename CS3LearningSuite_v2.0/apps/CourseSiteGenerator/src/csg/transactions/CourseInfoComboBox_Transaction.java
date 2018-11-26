@@ -10,8 +10,7 @@ import javafx.scene.control.ComboBox;
 import jtps.jTPS_Transaction;
 
 /**
- *
- * @author turtle714804947
+ * @author Jiang He
  */
 public class CourseInfoComboBox_Transaction implements jTPS_Transaction{
     ComboBox cb;
