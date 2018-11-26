@@ -214,43 +214,8 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         ComboBox ohStartTimeCB = (ComboBox) gui.getGUINode(OH_START_TIME_COMBO_BOX);
         ComboBox ohEndTimeCB = (ComboBox) gui.getGUINode(OH_END_TIME_COMBO_BOX);
         
-        ohStartTimeCB.setCellFactory(lv -> {
-            ListCell<String> cell = new ListCell<String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty ? null : item);
-                }
-            };
-            cell.setOnMousePressed(e -> {
-                String CBstartTime = (String) ohStartTimeCB.getSelectionModel().getSelectedItem();
-                String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
-                ohEndTimeCB.setItems(getEtList(CBstartTime, controller.getOhEndTime()));
-                controller.processOHdisplay(CBstartTime, CBendTime);
-                if(!fullInterval()) controller.processTAdisplay();
-                else controller.showFullTAandOH();
-            });
-            return cell ;
-        });
-        
-        ohEndTimeCB.setCellFactory(lv -> {
-            ListCell<String> cell = new ListCell<String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty ? null : item);
-                }
-            };
-            cell.setOnMousePressed(e -> {
-                String CBstartTime = (String) ohStartTimeCB.getSelectionModel().getSelectedItem();
-                String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
-                controller.processOHdisplay(CBstartTime, CBendTime);
-                ohStartTimeCB.setItems(getStList(CBendTime, controller.getOhStartTime(), controller.getOhEndTime()));
-                if(!fullInterval()) controller.processTAdisplay();
-                else controller.showFullTAandOH();
-            });
-            return cell ;
-        });
+        initTimeIntervalCB(ohStartTimeCB, ohEndTimeCB, "start");
+        initTimeIntervalCB(ohStartTimeCB, ohEndTimeCB, "end");
         
         //set cell factory for site page combo boxes
         initCourseInfoComboBox((ComboBox) gui.getGUINode(SITE_SEMESTER_COMBO_BOX), "semester", controller);
@@ -336,7 +301,6 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             controller.updateExportDir(typeOfCb, oldVal, newVal);
         });
         
-        //TODO NEED TO ADD THE NEW VALUE TO THE SPECIFIC OBSERVABLE LIST< THEN TRY THIS AGAIN TO DEBUG
         //this adds a listener to the comboBoxes focus property
         //so when the combo box loses focus, we create a transaction
         cb.focusedProperty().addListener((ObservableValue<? extends Boolean> obs, Boolean oldVal, Boolean newVal) -> {
@@ -368,14 +332,16 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     }
     
     //this method is helper method for initController, deals with the office hour page time interval combo boxes
-    private void initTimeIntervalCB(ComboBox ohStartTimeCB, ComboBox ohEndTimeCB,
-                                    String typeOfCb, CourseSiteController controller){
+    private void initTimeIntervalCB(ComboBox ohStartTimeCB, ComboBox ohEndTimeCB, String typeOfCb){
+        //see which type of combo box we working on
         ComboBox cb = typeOfCb.equals("start") ? ohStartTimeCB : ohEndTimeCB;
         
         //this sets a listener on the couse info comboBoxes to catch new and old values
         cb.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            oldValue = oldVal.toString();
-            newValue = newVal.toString();
+            try{
+                oldValue = oldVal.toString();
+            }
+            catch(NullPointerException e){}
         });
         
         //this sets up cell factory to catch mouse event on comboBox
@@ -388,26 +354,12 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 }
             };
             cell.setOnMousePressed(e -> {
-                String CBstartTime = (String) ohStartTimeCB.getSelectionModel().getSelectedItem();
-                String CBendTime = (String) ohEndTimeCB.getSelectionModel().getSelectedItem();
-                ohEndTimeCB.setItems(getEtList(CBstartTime, controller.getOhEndTime()));
-                controller.processOHdisplay(CBstartTime, CBendTime);
-                if(!fullInterval()) controller.processTAdisplay();
-                else controller.showFullTAandOH();
-            });
-            return cell ;
-        });
-        
-        cb.setCellFactory(lv -> {
-            ListCell<String> cell = new ListCell<String>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty ? null : item);
-                }
-            };
-            cell.setOnMousePressed(e -> {
-                TimeInterval_Transaction tiTransaction = new TimeInterval_Transaction(app, cb, cb, LAST_OPTION, newValue);
+                TimeInterval_Transaction tiTransaction = new TimeInterval_Transaction(
+                                                             (CourseSiteGeneratorApp) app,
+                                                             ohStartTimeCB, ohEndTimeCB,
+                                                             ohStartTimeCB.getSelectionModel().getSelectedItem().toString(),
+                                                             ohEndTimeCB.getSelectionModel().getSelectedItem().toString(),
+                                                             oldValue, typeOfCb);
                 app.processTransaction(tiTransaction);
             });
             return cell ;

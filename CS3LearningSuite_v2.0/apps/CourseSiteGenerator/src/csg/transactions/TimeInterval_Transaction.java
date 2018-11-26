@@ -10,10 +10,12 @@ import jtps.jTPS_Transaction;
  * @author Jiang He
  */
 public class TimeInterval_Transaction implements jTPS_Transaction{
-    ComboBox cb;
-    ComboBox cb2;
+    ComboBox ohStartTimeCB;
+    ComboBox ohEndTimeCB;
     String CBstartTime;
     String CBendTime;
+    String oldValue;
+    String typeOfCB;
     CourseSiteGeneratorApp app;
     CourseSiteController controller;
     CourseSiteWorkspace workspace;
@@ -21,10 +23,13 @@ public class TimeInterval_Transaction implements jTPS_Transaction{
     public TimeInterval_Transaction(
             CourseSiteGeneratorApp app,
             ComboBox cb, ComboBox cb2, 
-            String CBstartTime, String CBendTime) {
+            String CBstartTime, String CBendTime, 
+            String oldValue, String typeOfCB) {
         this.app = app;
-        this.cb = cb;
-        this.cb2 = cb2;
+        this.ohStartTimeCB = cb;
+        this.ohEndTimeCB = cb2;
+        this.oldValue = oldValue;
+        this.typeOfCB = typeOfCB;
         this.CBstartTime = CBstartTime;
         this.CBendTime = CBendTime;
         controller = new CourseSiteController((CourseSiteGeneratorApp) app);
@@ -33,23 +38,40 @@ public class TimeInterval_Transaction implements jTPS_Transaction{
 
     @Override
     public void doTransaction() {
-        cb2.setItems(workspace.getEtList(CBstartTime, controller.getOhEndTime()));
-        controller.processOHdisplay(CBstartTime, CBendTime);
-        if (!workspace.fullInterval()) {
-            controller.processTAdisplay();
-        } else {
-            controller.showFullTAandOH();
+        if (typeOfCB.equals("start")) {
+            ohStartTimeCB.getSelectionModel().select(CBstartTime);
+            ohEndTimeCB.setItems(workspace.getEtList(CBstartTime, controller.getOhEndTime()));
+            controller.processOHdisplay(CBstartTime, CBendTime);
+            if (!workspace.fullInterval())  controller.processTAdisplay();
+            else    controller.showFullTAandOH();
+        }
+        else{
+            ohEndTimeCB.getSelectionModel().select(CBendTime);
+            controller.processOHdisplay(CBstartTime, CBendTime);
+            ohStartTimeCB.setItems(workspace.getStList(CBendTime, controller.getOhStartTime(), controller.getOhEndTime()));
+            if (!workspace.fullInterval())  controller.processTAdisplay();
+            else  controller.showFullTAandOH();
         }
     }
 
     @Override
     public void undoTransaction() {
-        cb2.setItems(workspace.getEtList(CBstartTime, controller.getOhEndTime()));
-        controller.processOHdisplay(CBstartTime, CBendTime);
-        if (!workspace.fullInterval()) {
-            controller.processTAdisplay();
-        } else {
-            controller.showFullTAandOH();
+        //show full time interval list first
+        controller.showFullTAandOH();
+        
+        if (typeOfCB.equals("start")) {
+            ohStartTimeCB.getSelectionModel().select(oldValue);
+            ohEndTimeCB.setItems(workspace.getEtList(oldValue, controller.getOhEndTime()));
+            controller.processOHdisplay(oldValue, CBendTime);
+            if (!workspace.fullInterval())  controller.processTAdisplay();
+            else    controller.showFullTAandOH();
+        }
+        else{
+            ohEndTimeCB.getSelectionModel().select(oldValue);
+            controller.processOHdisplay(CBstartTime, oldValue);
+            ohStartTimeCB.setItems(workspace.getStList(oldValue, controller.getOhStartTime(), controller.getOhEndTime()));
+            if (!workspace.fullInterval())  controller.processTAdisplay();
+            else  controller.showFullTAandOH();
         }
     }
 }
