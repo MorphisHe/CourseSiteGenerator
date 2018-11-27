@@ -29,7 +29,9 @@ import csg.data.Lectures;
 import csg.data.Recitations;
 import csg.data.Schedule;
 import csg.files.CourseSiteFiles;
+import csg.transactions.ComboBox_Transaction;
 import csg.transactions.CourseInfoComboBox_Transaction;
+import csg.transactions.TextField_Transaction;
 import csg.transactions.TimeInterval_Transaction;
 import csg.workspace.controllers.CourseSiteController;
 import csg.workspace.dialogs.TADialog;
@@ -223,6 +225,21 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         initCourseInfoComboBox((ComboBox) gui.getGUINode(SITE_SBJ_COMBO_BOX), "subject", controller);
         initCourseInfoComboBox((ComboBox) gui.getGUINode(SITE_NUMBER_COMBO_BOX), "number", controller);
         
+        //set cell factory for all other combo boxes
+        initComboBoxes((ComboBox) gui.getGUINode(SITE_YEAR_COMBO_BOX));
+        initComboBoxes((ComboBox) gui.getGUINode(SITE_CSS_COMBO_BOX));
+        initComboBoxes((ComboBox) gui.getGUINode(SD_TYPE_COMBO_BOX));
+        
+        //set undo redo for all text fields
+        initTextFields(((TextField)gui.getGUINode(SITE_TITLE_TEXT_FIELD)));
+        initTextFields(((TextField)gui.getGUINode(SITE_NAME_TEXT_FIELD)));
+        initTextFields(((TextField)gui.getGUINode(SITE_EMAIL_TEXT_FIELD)));
+        initTextFields(((TextField)gui.getGUINode(SITE_ROOM_TEXT_FIELD)));
+        initTextFields(((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD)));
+        initTextFields(((TextField)gui.getGUINode(SD_TITLE_TEXT_FIELD)));
+        initTextFields(((TextField)gui.getGUINode(SD_TOPIC_TEXT_FIELD)));
+        initTextFields(((TextField)gui.getGUINode(SD_LINK_TEXT_FIELD)));
+        
         // DON'T LET ANYONE SORT THE TABLES
         TableView tasTableView = (TableView) gui.getGUINode(CSG_TAS_TABLE_VIEW);
         for (int i = 0; i < officeHoursTableView.getColumns().size(); i++) {
@@ -303,31 +320,34 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         
         //this adds a listener to the comboBoxes focus property
         //so when the combo box loses focus, we create a transaction
-        cb.focusedProperty().addListener((ObservableValue<? extends Boolean> obs, Boolean oldVal, Boolean newVal) -> {
-            if(!newVal){
-                //happens when lose focus
-                newValue = cb.getEditor().getText();
-                if (!newValue.equals(oldValue)) {
-                    //if the new value is not in the observable list
-                    if (!controller.checkValInObvList(typeOfCb, newValue)) {
-                        CourseSiteFiles files = (CourseSiteFiles) app.getFileComponent();
+        //we have other combo box listener for year combo box because this combo box is not editable
+        if (!typeOfCb.equals("year")) {
+            cb.focusedProperty().addListener((ObservableValue<? extends Boolean> obs, 
+                    Boolean oldVal, Boolean newVal) -> {
+                if (!newVal) {
+                    //happens when lose focus
+                    newValue = cb.getEditor().getText();
+                    if (!newValue.equals(oldValue)) {
+                        //if the new value is not in the observable list
+                        if (!controller.checkValInObvList(typeOfCb, newValue)) {
+                            CourseSiteFiles files = (CourseSiteFiles) app.getFileComponent();
 
-                        try {
-                            files.addToObvList(typeOfCb, newValue, controller);
-                        } catch (IOException ex) {
-                            System.out.println(Arrays.toString(ex.getStackTrace()));
+                            try {
+                                files.addToObvList(typeOfCb, newValue, controller);
+                            } catch (IOException ex) {
+                                System.out.println(Arrays.toString(ex.getStackTrace()));
+                            }
                         }
-                    }
-                    CourseInfoComboBox_Transaction cbTransaction = new CourseInfoComboBox_Transaction(
+                        CourseInfoComboBox_Transaction cbTransaction = new CourseInfoComboBox_Transaction(
                                 cb, oldValue, newValue, typeOfCb, controller);
-                    app.processTransaction(cbTransaction);
+                        app.processTransaction(cbTransaction);
+                    }
+                } else {
+                    //happens when gain focus
+                    oldValue = cb.getEditor().getText();
                 }
-            }
-            else{
-                //happens when gain focus
-                oldValue = cb.getEditor().getText();
-            }
-        });
+            });
+        }
         
     }
     
@@ -363,6 +383,50 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 app.processTransaction(tiTransaction);
             });
             return cell ;
+        });
+    }
+    
+    //this method is helper method for initController, deals with all other combo boxes
+    private void initComboBoxes(ComboBox cb){
+        //this sets a listener on the couse info comboBoxes to catch new and old values
+        cb.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            oldValue = oldVal.toString();
+            newValue = newVal.toString();
+        });
+        
+        //this sets up cell factory to catch mouse event on comboBox
+        cb.setCellFactory(lv -> {
+            ListCell<String> cell = new ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty ? null : item);
+                }
+            };
+            cell.setOnMousePressed(e -> {
+                ComboBox_Transaction cbTransaction = new ComboBox_Transaction(cb, oldValue, newValue);
+                app.processTransaction(cbTransaction);
+            });
+            return cell ;
+        });
+    }
+    
+    //this method is helper method for initController, deals with all textField undo redo
+    private void initTextFields(TextField tf){
+        tf.focusedProperty().addListener((ObservableValue<? extends Boolean> obs,
+                Boolean oldVal, Boolean newVal) -> {
+            if (!newVal) {
+                //happens when lose focus
+                newValue = tf.getText();
+                if(!newValue.equals(oldValue)){
+                    TextField_Transaction tfTransaction = new TextField_Transaction(tf, oldValue, newValue);
+                    app.processTransaction(tfTransaction);
+                }
+            }
+            else{
+                //happens when gain focus
+                oldValue = tf.getText();
+            }
         });
     }
     
@@ -417,26 +481,54 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         HBox editHeaderBox = new HBox();
         ohBuilder.buildLabel(SD_ADD_EDIT_LABEL, editHeaderBox, CLASS_HEADER_LABEL, ENABLED);
         //main manipulation of edit
-        HBox mainBox = new HBox();
-        VBox labelBox = new VBox();
-        VBox typingBox = new VBox();
+        VBox mainBox = new VBox();
+        
+        HBox typeBox1 = new HBox();
+        HBox typeBox2 = new HBox();
+        HBox typeBox = new HBox(typeBox1, typeBox2);
+        typeBox1.prefWidthProperty().bind(typeBox.widthProperty().multiply(0.1));
+        typeBox2.prefWidthProperty().bind(typeBox.widthProperty().multiply(0.9));
+        
+        HBox dateBox1 = new HBox();
+        HBox dateBox2 = new HBox();
+        HBox dateBox = new HBox(dateBox1, dateBox2);
+        dateBox1.prefWidthProperty().bind(dateBox.widthProperty().multiply(0.1));
+        dateBox2.prefWidthProperty().bind(dateBox.widthProperty().multiply(0.9));
+        
+        HBox titleBox1 = new HBox();
+        HBox titleBox2 = new HBox();
+        HBox titleBox = new HBox(titleBox1, titleBox2);
+        titleBox1.prefWidthProperty().bind(titleBox.widthProperty().multiply(0.1));
+        titleBox2.prefWidthProperty().bind(titleBox.widthProperty().multiply(0.9));
+        
+        HBox topicBox1 = new HBox();
+        HBox topicBox2 = new HBox();
+        HBox topicBox = new HBox(topicBox1, topicBox2);
+        topicBox1.prefWidthProperty().bind(topicBox.widthProperty().multiply(0.1));
+        topicBox2.prefWidthProperty().bind(topicBox.widthProperty().multiply(0.9));
+        
+        HBox linkBox1 = new HBox();
+        HBox linkBox2 = new HBox();
+        HBox linkBox = new HBox(linkBox1, linkBox2);
+        linkBox1.prefWidthProperty().bind(linkBox.widthProperty().multiply(0.1));
+        linkBox2.prefWidthProperty().bind(linkBox.widthProperty().multiply(0.9));
         
         //labels of main edit section
-        ohBuilder.buildLabel(SD_EDIT_TYPE_LABEL, labelBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildLabel(SD_EDIT_DATE_LABEL, labelBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildLabel(SD_EDIT_TITLE_LABEL, labelBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildLabel(SD_EDIT_TOPIC_LABEL, labelBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildLabel(SD_EDIT_LINK_LABEL, labelBox, CLASS_LABEL, ENABLED);
+        ohBuilder.buildLabel(SD_EDIT_TYPE_LABEL, typeBox1, CLASS_LABEL, ENABLED);
+        ohBuilder.buildLabel(SD_EDIT_DATE_LABEL, dateBox1, CLASS_LABEL, ENABLED);
+        ohBuilder.buildLabel(SD_EDIT_TITLE_LABEL, titleBox1, CLASS_LABEL, ENABLED);
+        ohBuilder.buildLabel(SD_EDIT_TOPIC_LABEL, topicBox1, CLASS_LABEL, ENABLED);
+        ohBuilder.buildLabel(SD_EDIT_LINK_LABEL, linkBox1, CLASS_LABEL, ENABLED);
         
         //typing of main edit section
-        ohBuilder.buildComboBox(SD_TYPE_COMBO_BOX, null, EMPTY_TEXT, typingBox, 
+        ComboBox typeCB = ohBuilder.buildComboBox(SD_TYPE_COMBO_BOX, null, EMPTY_TEXT, typeBox2, 
                 CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
-        ohBuilder.buildDatePicker(SD_DATE_DATE_PICKER, typingBox, CLASS_DATE_PICKER, ENABLED);
-        ohBuilder.buildTextField(SD_TITLE_TEXT_FIELD, typingBox, CLASS_OH_TEXT_FIELD, ENABLED);
-        ohBuilder.buildTextField(SD_TOPIC_TEXT_FIELD, typingBox, CLASS_OH_TEXT_FIELD, ENABLED);
-        ohBuilder.buildTextField(SD_LINK_TEXT_FIELD, typingBox, CLASS_OH_TEXT_FIELD, ENABLED);
+        DatePicker datePicker = ohBuilder.buildDatePicker(SD_DATE_DATE_PICKER, dateBox2, CLASS_DATE_PICKER, ENABLED);
+        TextField titleTF = ohBuilder.buildTextField(SD_TITLE_TEXT_FIELD, titleBox2, CLASS_OH_TEXT_FIELD, ENABLED);
+        TextField topicTF = ohBuilder.buildTextField(SD_TOPIC_TEXT_FIELD, topicBox2, CLASS_OH_TEXT_FIELD, ENABLED);
+        TextField linkTF = ohBuilder.buildTextField(SD_LINK_TEXT_FIELD, linkBox2, CLASS_OH_TEXT_FIELD, ENABLED);
         
-        mainBox.getChildren().addAll(labelBox, typingBox);
+        mainBox.getChildren().addAll(typeBox, dateBox, titleBox, topicBox, linkBox);
         
         //button box
         HBox buttonBox = new HBox();
@@ -462,9 +554,23 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         calHeaderBox.setSpacing(15);
         calSecHeaderBox.setSpacing(20);
         tableHeaderBox.setSpacing(15);
-        labelBox.setSpacing(30);
-        typingBox.setSpacing(15);
-        mainBox.setSpacing(20);
+        typeBox1.setAlignment(Pos.CENTER_LEFT);
+        dateBox1.setAlignment(Pos.CENTER_LEFT);
+        titleBox1.setAlignment(Pos.CENTER_LEFT);
+        topicBox1.setAlignment(Pos.CENTER_LEFT);
+        linkBox1.setAlignment(Pos.CENTER_LEFT);
+        typeBox2.setAlignment(Pos.CENTER_LEFT);
+        dateBox2.setAlignment(Pos.CENTER_LEFT);
+        titleBox2.setAlignment(Pos.CENTER_LEFT);
+        topicBox2.setAlignment(Pos.CENTER_LEFT);
+        linkBox2.setAlignment(Pos.CENTER_LEFT);
+        typeCB.setMinWidth(250);
+        datePicker.setMinWidth(250);
+        titleTF.setMinWidth(250);
+        topicTF.setMinWidth(250);
+        linkTF.setMinWidth(250);
+        
+        mainBox.setSpacing(30);
         
         VBox.setVgrow(sdTable, Priority.ALWAYS);
         sdTable.prefWidthProperty().bind(sdGridPane.widthProperty());
