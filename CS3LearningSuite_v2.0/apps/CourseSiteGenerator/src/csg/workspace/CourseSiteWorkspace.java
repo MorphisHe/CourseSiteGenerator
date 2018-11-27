@@ -32,6 +32,7 @@ import csg.files.CourseSiteFiles;
 import csg.transactions.CheckBox_Transaction;
 import csg.transactions.ComboBox_Transaction;
 import csg.transactions.CourseInfoComboBox_Transaction;
+import csg.transactions.TextArea_Transaction;
 import csg.transactions.TextField_Transaction;
 import csg.transactions.TimeInterval_Transaction;
 import csg.workspace.controllers.CourseSiteController;
@@ -82,6 +83,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     
     //booleans that keep tract of all true and false action in each user interface
     private static boolean currentState = false;
+    private static boolean timerState = false;
 
     //these are the file path for site style editing
     private final String FAV_ICON_PATH = "/Users/turtle714804947/repos/"
@@ -251,6 +253,18 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         initCheckBoxes(((CheckBox)gui.getGUINode(SITE_SYLLUBUS_CHECK_BOX)));
         initCheckBoxes(((CheckBox)gui.getGUINode(SITE_SCHEDULE_CHECK_BOX)));
         initCheckBoxes(((CheckBox)gui.getGUINode(SITE_HWS_CHECK_BOX)));
+        
+        //set undo redo for all text areas
+        initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_DES_TEXTAREA)));
+        initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_TOPIC_TEXTAREA)));
+        initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_PREQ_TEXTAREA)));
+        initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_OUTCOME_TEXTAREA)));
+        initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_TEXTBOOK_TEXTAREA)));
+        initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_GRADED_COMP_TEXTAREA)));
+        initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_GRADING_NOTE_TEXTAREA)));
+        initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_ACAD_DIS_TEXTAREA)));
+        initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_SPEC_ASSIST_TEXTAREA)));
+        initTextAreas(((TextArea)gui.getGUINode(SITE_OFFICE_HOURS_TEXT_AREA)));
         
         // DON'T LET ANYONE SORT THE TABLES
         TableView tasTableView = (TableView) gui.getGUINode(CSG_TAS_TABLE_VIEW);
@@ -450,6 +464,29 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                     checkBox, currentState);
             app.processTransaction(checkBoxTransaction);
         });
+    }
+    
+    //this method is helper method for initController, deals with all text areas undo redo
+    private void initTextAreas(TextArea textArea){
+        //listenr to focused property so that we make a transaction
+        // when every the text area loses focus
+        textArea.focusedProperty().addListener((ObservableValue<? extends Boolean> obs,
+                Boolean oldVal, Boolean newVal) -> {
+            if (!newVal) {
+                //happens when lose focus
+                newValue = textArea.getText();
+                if(!newValue.equals(oldValue)){
+                    TextArea_Transaction textAreaTransaction = new TextArea_Transaction(
+                            textArea, oldValue, newValue);
+                    app.processTransaction(textAreaTransaction);
+                }
+            }
+            else{
+                //happens when gain focus
+                oldValue = textArea.getText();
+            }
+        });
+        
     }
     
     private void initSchedulePage(AppNodesBuilder ohBuilder, TabPane tabPane){
