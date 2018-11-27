@@ -29,6 +29,7 @@ import csg.data.Lectures;
 import csg.data.Recitations;
 import csg.data.Schedule;
 import csg.files.CourseSiteFiles;
+import csg.transactions.CheckBox_Transaction;
 import csg.transactions.ComboBox_Transaction;
 import csg.transactions.CourseInfoComboBox_Transaction;
 import csg.transactions.TextField_Transaction;
@@ -74,8 +75,13 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     private static final boolean NOT_EDITABLE = false;
     private static final String FIRST_OPTION = "first";
     private static final String LAST_OPTION = "last";
+    
+    //Strings that keep tract of all old and new values in each user interface
     private static String oldValue = null;
     private static String newValue = null;
+    
+    //booleans that keep tract of all true and false action in each user interface
+    private static boolean currentState = false;
 
     //these are the file path for site style editing
     private final String FAV_ICON_PATH = "/Users/turtle714804947/repos/"
@@ -239,6 +245,12 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         initTextFields(((TextField)gui.getGUINode(SD_TITLE_TEXT_FIELD)));
         initTextFields(((TextField)gui.getGUINode(SD_TOPIC_TEXT_FIELD)));
         initTextFields(((TextField)gui.getGUINode(SD_LINK_TEXT_FIELD)));
+        
+        //set undo redo for all check boxes
+        initCheckBoxes(((CheckBox)gui.getGUINode(SITE_HOME_CHECK_BOX)));
+        initCheckBoxes(((CheckBox)gui.getGUINode(SITE_SYLLUBUS_CHECK_BOX)));
+        initCheckBoxes(((CheckBox)gui.getGUINode(SITE_SCHEDULE_CHECK_BOX)));
+        initCheckBoxes(((CheckBox)gui.getGUINode(SITE_HWS_CHECK_BOX)));
         
         // DON'T LET ANYONE SORT THE TABLES
         TableView tasTableView = (TableView) gui.getGUINode(CSG_TAS_TABLE_VIEW);
@@ -411,7 +423,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         });
     }
     
-    //this method is helper method for initController, deals with all textField undo redo
+    //this method is helper method for initController, deals with all textFields undo redo
     private void initTextFields(TextField tf){
         tf.focusedProperty().addListener((ObservableValue<? extends Boolean> obs,
                 Boolean oldVal, Boolean newVal) -> {
@@ -427,6 +439,16 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 //happens when gain focus
                 oldValue = tf.getText();
             }
+        });
+    }
+    
+    //this method is helper method for initController, deals with all check boxes undo redo
+    private void initCheckBoxes(CheckBox checkBox){
+        checkBox.setOnMouseClicked(e -> {
+            currentState = checkBox.isSelected();
+            CheckBox_Transaction checkBoxTransaction = new CheckBox_Transaction(
+                    checkBox, currentState);
+            app.processTransaction(checkBoxTransaction);
         });
     }
     
