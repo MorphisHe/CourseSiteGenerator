@@ -26,6 +26,7 @@ import static csg.CourseSitePropertyType.CSG_FOOLPROOF_SETTINGS;
 import static csg.CourseSitePropertyType.CSG_TA_EDIT_DIALOG;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
+import csg.transactions.SiteIcon_Transaction;
 import static djf.AppPropertyType.SAVE_BUTTON;
 import java.io.File;
 import java.util.Calendar;
@@ -81,6 +82,11 @@ public class CourseSiteController {
     
     private static final ObservableList<String> SITE_CSS
             = FXCollections.observableArrayList();
+    
+    //ImageViews that keep tract of the old and new image displayed in site style page for undo redo
+    private static ImageView oldImageView = null;
+    private static ImageView newImageView = null;
+    
 
     //CONSTRUCTOR
     public CourseSiteController(CourseSiteGeneratorApp initApp) {
@@ -208,16 +214,25 @@ public class CourseSiteController {
         }
     }
     
+    //this method handles the site icon button actions
+    //these actions are undoable and redoable
     public void processEditSiteStyle(FileChooser fileChooser, CourseSitePropertyType nodeId){
         AppGUIModule gui = app.getGUIModule();
+        
+        HBox box = (HBox) gui.getGUINode(nodeId);
+        //save the old ImageView for undo
+        oldImageView = (ImageView) box.getChildren().get(1);
+        
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             Image image = new Image(selectedFile.toURI().toString());
-            ImageView fabIconImageView = new ImageView(image);
+            newImageView = new ImageView(image);
 
-            HBox box = (HBox) gui.getGUINode(nodeId);
-            box.getChildren().set(1, fabIconImageView);
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
+            if(!oldImageView.getImage().impl_getUrl().equals(newImageView.getImage().impl_getUrl())){
+                SiteIcon_Transaction siteIconTransaction = new SiteIcon_Transaction(
+                    box, oldImageView, newImageView);
+                app.processTransaction(siteIconTransaction);
+            }
         }
     }
 
@@ -421,6 +436,5 @@ public class CourseSiteController {
             ); 
         }
         
-        ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
     }
 }

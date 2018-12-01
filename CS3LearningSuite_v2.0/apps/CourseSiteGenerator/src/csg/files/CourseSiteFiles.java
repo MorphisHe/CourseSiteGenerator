@@ -38,18 +38,15 @@ import csg.workspace.CourseSiteWorkspace;
 import csg.workspace.controllers.CourseSiteController;
 import static djf.AppPropertyType.SAVE_BUTTON;
 import java.io.File;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.image.ImageView;
 import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
 
 
 /**

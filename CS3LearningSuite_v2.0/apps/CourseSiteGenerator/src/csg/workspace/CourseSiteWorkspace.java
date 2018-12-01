@@ -32,6 +32,7 @@ import csg.files.CourseSiteFiles;
 import csg.transactions.CheckBox_Transaction;
 import csg.transactions.ComboBox_Transaction;
 import csg.transactions.CourseInfoComboBox_Transaction;
+import csg.transactions.DatePicker_Transaction;
 import csg.transactions.TextArea_Transaction;
 import csg.transactions.TextField_Transaction;
 import csg.transactions.TimeInterval_Transaction;
@@ -39,10 +40,10 @@ import csg.workspace.controllers.CourseSiteController;
 import csg.workspace.dialogs.TADialog;
 import csg.workspace.foolproof.CourseSiteFoolproofDesign;
 import static csg.workspace.style.OHStyle.*;
-import static djf.AppPropertyType.SAVE_BUTTON;
 import static djf.modules.AppGUIModule.DISABLED;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,9 +82,12 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     private static String oldValue = null;
     private static String newValue = null;
     
+    //LocalDate object to keep track of DatePicker's changing of value
+    private static LocalDate oldDate = null;
+    private static LocalDate newDate = null;
+    
     //booleans that keep tract of all true and false action in each user interface
     private static boolean currentState = false;
-    private static boolean timerState = false;
 
     //these are the file path for site style editing
     private final String FAV_ICON_PATH = "/Users/turtle714804947/repos/"
@@ -265,6 +269,11 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_ACAD_DIS_TEXTAREA)));
         initTextAreas(((TextArea)gui.getGUINode(SYLLUBUS_SPEC_ASSIST_TEXTAREA)));
         initTextAreas(((TextArea)gui.getGUINode(SITE_OFFICE_HOURS_TEXT_AREA)));
+        
+        //set undo redo for all datePickers
+        initDatePicker((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER));
+        initDatePicker((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER));
+        initDatePicker((DatePicker)gui.getGUINode(SD_DATE_DATE_PICKER));
         
         // DON'T LET ANYONE SORT THE TABLES
         TableView tasTableView = (TableView) gui.getGUINode(CSG_TAS_TABLE_VIEW);
@@ -487,6 +496,26 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             }
         });
         
+    }
+    
+    //this method is helper method for initController, deals with all date picker undo redo
+    private void initDatePicker(DatePicker datePicker){
+        datePicker.focusedProperty().addListener((ObservableValue<? extends Boolean> obs,
+                Boolean oldVal, Boolean newVal) -> {
+            if (!newVal) {
+                //happens when lose focus
+                newDate = datePicker.getValue();
+                if(!newDate.equals(oldDate)){
+                    DatePicker_Transaction datePickerTransaction = new DatePicker_Transaction(
+                            datePicker, oldDate, newDate);
+                    app.processTransaction(datePickerTransaction);
+                }
+            }
+            else{
+                //happens when gain focus
+                oldDate = datePicker.getValue();
+            }
+        });
     }
     
     private void initSchedulePage(AppNodesBuilder ohBuilder, TabPane tabPane){
@@ -1029,7 +1058,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         
     }
     
-    private void initSitePage(AppNodesBuilder ohBuilder, TabPane tabPane){
+    private void initSitePage(AppNodesBuilder ohBuilder, TabPane tabPane)   {
         CourseSiteController controller = new CourseSiteController((CourseSiteGeneratorApp) app);
         AppGUIModule gui = app.getGUIModule();
         
@@ -1137,7 +1166,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Image fabIconImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
                 + "apps/CourseSiteGenerator/images/fav_icon/Favicon_SeaWolf.png").toURI().toString());
         Image navBarImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
-                + "apps/CourseSiteGenerator/images/nav_bar/NavBar_SeaWolf.png").toURI().toString());
+                + "apps/CourseSiteGenerator/images/nav_bar/Navbar_SeaWolf.png").toURI().toString());
         Image leftFooterImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
                 + "apps/CourseSiteGenerator/images/left_footer_image/Left_Footer_Image_SeaWolf.png").toURI().toString());
         Image rightFooterImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
@@ -1252,95 +1281,11 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         AppFoolproofModule foolproofSettings = app.getFoolproofModule();
         foolproofSettings.registerModeSettings(CSG_FOOLPROOF_SETTINGS,
                 new CourseSiteFoolproofDesign((CourseSiteGeneratorApp) app));
-        initSimpleFoolProof();
     }
     
     private void initDialogs() {
         TADialog taDialog = new TADialog((CourseSiteGeneratorApp) app);
         app.getGUIModule().addDialog(CSG_TA_EDIT_DIALOG, taDialog);
-    }
-    
-    private void initSimpleFoolProof(){
-        AppGUIModule gui = app.getGUIModule();
-        
-        ((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        
-        ((CheckBox)gui.getGUINode(SITE_HOME_CHECK_BOX)).setOnAction(e ->{
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        ((CheckBox)gui.getGUINode(SITE_HWS_CHECK_BOX)).setOnAction(e ->{
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        ((CheckBox)gui.getGUINode(SITE_SCHEDULE_CHECK_BOX)).setOnAction(e ->{
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        ((CheckBox)gui.getGUINode(SITE_SYLLUBUS_CHECK_BOX)).setOnAction(e ->{
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        
-        ((ComboBox)gui.getGUINode(SITE_CSS_COMBO_BOX)).setOnAction(e ->{
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        
-        ((TextField)gui.getGUINode(SITE_NAME_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        ((TextField)gui.getGUINode(SITE_EMAIL_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        ((TextField)gui.getGUINode(SITE_ROOM_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        ((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        ((TextArea)gui.getGUINode(SITE_OFFICE_HOURS_TEXT_AREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        
-        ((TextArea)gui.getGUINode(SYLLUBUS_DES_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        ((TextArea)gui.getGUINode(SYLLUBUS_TOPIC_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        ((TextArea)gui.getGUINode(SYLLUBUS_PREQ_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        ((TextArea)gui.getGUINode(SYLLUBUS_OUTCOME_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        ((TextArea)gui.getGUINode(SYLLUBUS_TEXTBOOK_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        ((TextArea)gui.getGUINode(SYLLUBUS_GRADED_COMP_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        ((TextArea)gui.getGUINode(SYLLUBUS_GRADING_NOTE_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        ((TextArea)gui.getGUINode(SYLLUBUS_ACAD_DIS_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        ((TextArea)gui.getGUINode(SYLLUBUS_SPEC_ASSIST_TEXTAREA)).textProperty().addListener((obs, oldVal, newVal) -> {
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        }); 
-        
-        ((ComboBox)gui.getGUINode(OH_START_TIME_COMBO_BOX)).setOnAction(e ->{
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        ((ComboBox)gui.getGUINode(OH_END_TIME_COMBO_BOX)).setOnAction(e ->{
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        
-        ((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER)).setOnAction(e ->{
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
-        ((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER)).setOnAction(e ->{
-            ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(false);
-        });
     }
     
     private void setupOfficeHoursColumn(Object columnId, TableView tableView, String styleClass, String columnDataProperty) {
