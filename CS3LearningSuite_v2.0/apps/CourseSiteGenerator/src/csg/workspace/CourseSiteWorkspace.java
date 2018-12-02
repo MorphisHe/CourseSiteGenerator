@@ -26,7 +26,6 @@ import csg.data.TeachingAssistantPrototype;
 import csg.data.TimeSlot;
 import csg.data.Labs;
 import csg.data.Lectures;
-import csg.data.OfficeHoursData;
 import csg.data.Recitations;
 import csg.data.Schedule;
 import csg.files.CourseSiteFiles;
@@ -34,6 +33,7 @@ import csg.transactions.CheckBox_Transaction;
 import csg.transactions.ComboBox_Transaction;
 import csg.transactions.CourseInfoComboBox_Transaction;
 import csg.transactions.DatePicker_Transaction;
+import csg.transactions.EditTableCell_Transaction;
 import csg.transactions.TextArea_Transaction;
 import csg.transactions.TextField_Transaction;
 import csg.transactions.TimeInterval_Transaction;
@@ -48,16 +48,12 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.AccessibleAttribute;
-import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -65,22 +61,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TablePosition;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeTableCell;
-import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import static javafx.scene.input.KeyCode.T;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
-import javafx.util.Callback;
-import javafx.util.StringConverter;
 
 /**
  *
@@ -1462,76 +1449,11 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         column.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Object, String>>() {
             @Override
             public void handle(TableColumn.CellEditEvent<Object, String> event) {
-                //check which table we working on
-                switch(typeOfTable){
-                    case "lectures" :
-                        Lectures editingLectureCell = (Lectures) table.getItems().get(event.getTablePosition().getRow());
-                        
-                        //check which column of the table we working on
-                        switch(typeOfColumnData){
-                            case "section" :
-                                editingLectureCell.setSection(event.getNewValue());
-                                break;
-                            case "days" :
-                                editingLectureCell.setDay(event.getNewValue());
-                                break;
-                            case "time" :
-                                editingLectureCell.setTime(event.getNewValue());
-                                break;
-                            case "room" :
-                                editingLectureCell.setRoom(event.getNewValue());
-                                break;
-                        }
-                        break;
-                    
-                    case "recitation" :
-                        Recitations editingRecCell = (Recitations) table.getItems().get(event.getTablePosition().getRow());
-                        
-                        //check which column of the table we working on
-                        switch(typeOfColumnData){
-                            case "section" :
-                                editingRecCell.setSection(event.getNewValue());
-                                break;
-                            case "daysTime" :
-                                editingRecCell.setDaysTime(event.getNewValue());
-                                break;
-                            case "TA1" :
-                                editingRecCell.setTA1(event.getNewValue());
-                                break;
-                            case "TA2" :
-                                editingRecCell.setTA2(event.getNewValue());
-                                break;
-                            case "room" :
-                                editingRecCell.setRoom(event.getNewValue());
-                                break;
-                        }
-                        break;
-                        
-                    case "labs" :
-                        Labs editingLabsCell = (Labs) table.getItems().get(event.getTablePosition().getRow());
-                        
-                        //check which column of the table we working on
-                        switch(typeOfColumnData){
-                            case "section" :
-                                editingLabsCell.setSection(event.getNewValue());
-                                break;
-                            case "daysTime" :
-                                editingLabsCell.setDaysTime(event.getNewValue());
-                                break;
-                            case "TA1" :
-                                editingLabsCell.setTA1(event.getNewValue());
-                                break;
-                            case "TA2" :
-                                editingLabsCell.setTA2(event.getNewValue());
-                                break;
-                            case "room" :
-                                editingLabsCell.setRoom(event.getNewValue());
-                                break;
-                        }
-                        break;
-                }
+                EditTableCell_Transaction editCell_Transaction = new EditTableCell_Transaction(
+                                            table.getItems().get(event.getTablePosition().getRow()),
+                                            event.getNewValue(), table, typeOfTable, typeOfColumnData);
+                app.processTransaction(editCell_Transaction);
             }
-            
         });
     }
     
