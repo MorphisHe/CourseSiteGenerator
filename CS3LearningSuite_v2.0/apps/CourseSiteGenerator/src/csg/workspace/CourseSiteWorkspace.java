@@ -26,6 +26,7 @@ import csg.data.TeachingAssistantPrototype;
 import csg.data.TimeSlot;
 import csg.data.Labs;
 import csg.data.Lectures;
+import csg.data.OfficeHoursData;
 import csg.data.Recitations;
 import csg.data.Schedule;
 import csg.files.CourseSiteFiles;
@@ -47,11 +48,16 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.AccessibleAttribute;
+import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -59,12 +65,22 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.control.cell.TextFieldTreeTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import static javafx.scene.input.KeyCode.T;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 /**
  *
@@ -274,6 +290,56 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         initDatePicker((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER));
         initDatePicker((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER));
         initDatePicker((DatePicker)gui.getGUINode(SD_DATE_DATE_PICKER));
+        
+        //meeting time tab button controllers
+        TableView<Lectures> lecturesTable = (TableView<Lectures>)gui.getGUINode(MT_LECTURE_TABLE_VIEW);
+        TableView<Recitations> recitationTable = (TableView<Recitations>)gui.getGUINode(MT_RECITATION_TABLE_VIEW);
+        TableView<Labs> labsTable = (TableView<Labs>)gui.getGUINode(MT_LABS_TABLE_VIEW);
+        
+        //init table function
+        controller.initTableView(lecturesTable);
+        controller.initTableView(recitationTable);
+        controller.initTableView(labsTable);
+        
+        // add a new row
+        Button addLecturesButton = (Button)gui.getGUINode(MT_ADD_LECUTURE_BUTTON);
+        Button addRecButton = (Button)gui.getGUINode(MT_ADD_RECITATION_BUTTON);
+        Button addLabsButton = (Button)gui.getGUINode(MT_ADD_LABS_BUTTON);
+        
+        (addLecturesButton).setOnAction(e -> {
+            controller.addRow(lecturesTable, "lectures");
+        });
+        (addRecButton).setOnAction(e -> {
+            controller.addRow(recitationTable, "recitation");
+        });
+        (addLabsButton).setOnAction(e -> {
+            controller.addRow(labsTable, "labs");
+        });
+        // don't let it get the focus or else the table would lose it when we click the
+        // button and we's have to request the focus on the table in the event handler
+        addLecturesButton.setFocusTraversable(false);
+        addRecButton.setFocusTraversable(false);
+        addLabsButton.setFocusTraversable(false);
+        
+        // remove selected rows button
+        Button removeLecturesButton = (Button)gui.getGUINode(MT_DELETE_LECUTURE_BUTTON);
+        Button removeRecButton = (Button)gui.getGUINode(MT_DELETE_RECITATION_BUTTON);
+        Button removeLabsButton = (Button)gui.getGUINode(MT_DELETE_LABS_BUTTON);
+        removeLecturesButton.setOnAction(e -> {
+            controller.removeSelectedRows(lecturesTable, "lectures");
+        });
+        removeRecButton.setOnAction(e -> {
+            controller.removeSelectedRows(recitationTable, "recitation");
+        });
+        removeLabsButton.setOnAction(e -> {
+            controller.removeSelectedRows(labsTable, "labs");
+        });
+        // don't let it get the focus or else the table would lose it when we click the button 
+        // and we's have to request the focus on the table in the event handler
+        removeLecturesButton.setFocusTraversable(false);
+        removeRecButton.setFocusTraversable(false);
+        removeLabsButton.setFocusTraversable(false);
+        
         
         // DON'T LET ANYONE SORT THE TABLES
         TableView tasTableView = (TableView) gui.getGUINode(CSG_TAS_TABLE_VIEW);
@@ -689,20 +755,29 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         ohBuilder.buildTextButton(MT_DELETE_LECUTURE_BUTTON, lectureHeaderBox, CLASS_OH_BUTTON, ENABLED);
         ohBuilder.buildLabel(MT_LECTURE_LABEL, lectureHeaderBox, CLASS_HEADER_LABEL, ENABLED);
         // make lecture table
-        TableView<Lectures> lectureTable = ohBuilder.buildTableView(CSG_TAS_TABLE_VIEW, null, CLASS_OH_TABLE_VIEW, ENABLED);
+        TableView<Lectures> lectureTable = ohBuilder.buildTableView(MT_LECTURE_TABLE_VIEW, null, CLASS_OH_TABLE_VIEW, ENABLED);
         lectureTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        
         TableColumn sectionColumn = ohBuilder.buildTableColumn(MT_LEC_SECTION_TABLE_COLUMN, lectureTable, CLASS_OH_COLUMN);
         TableColumn daysColumn = ohBuilder.buildTableColumn(MT_LEC_DAYS_TABLE_COLUMN, lectureTable, CLASS_OH_COLUMN);
         TableColumn timeColumn = ohBuilder.buildTableColumn(MT_LEC_TIME_TABLE_COLUMN, lectureTable, CLASS_OH_COLUMN);
         TableColumn roomColumn = ohBuilder.buildTableColumn(MT_LEC_ROOM_TABLE_COLUMN, lectureTable, CLASS_OH_COLUMN);
-        sectionColumn.setCellValueFactory(new PropertyValueFactory<>("lec section"));
-        daysColumn.setCellValueFactory(new PropertyValueFactory<>("lec days"));
-        timeColumn.setCellValueFactory(new PropertyValueFactory<>("lec time"));
-        roomColumn.setCellValueFactory(new PropertyValueFactory<>("lec room"));
+        
+        sectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
+        daysColumn.setCellValueFactory(new PropertyValueFactory<>("day"));
+        timeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
+        roomColumn.setCellValueFactory(new PropertyValueFactory<>("room"));
+        
+        setupMeetingTabColumns(sectionColumn, lectureTable, "lectures", "section");
+        setupMeetingTabColumns(daysColumn, lectureTable, "lectures", "days");
+        setupMeetingTabColumns(timeColumn, lectureTable, "lectures", "time");
+        setupMeetingTabColumns(roomColumn, lectureTable, "lectures", "room");
+
         sectionColumn.prefWidthProperty().bind(lectureTable.widthProperty().multiply(1.0 / 5.0));
         daysColumn.prefWidthProperty().bind(lectureTable.widthProperty().multiply(2.0 / 5.0));
         timeColumn.prefWidthProperty().bind(lectureTable.widthProperty().multiply(1.0 / 5.0));
         roomColumn.prefWidthProperty().bind(lectureTable.widthProperty().multiply(1.0 / 5.0));
+        lectureTable.setEditable(true);
         
         secLectureLayor.getChildren().addAll(lectureHeaderBox, lectureTable);
         lectureBox.getChildren().add(secLectureLayor);
@@ -718,21 +793,31 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         // make recitation table
         TableView<Recitations> recitationTable = ohBuilder.buildTableView(MT_RECITATION_TABLE_VIEW, null, CLASS_OH_TABLE_VIEW, ENABLED);
         recitationTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        
         TableColumn recSectionColumn = ohBuilder.buildTableColumn(MT_REC_SECTION_TABLE_COLUMN, recitationTable, CLASS_OH_COLUMN);
         TableColumn daysTimesColumn = ohBuilder.buildTableColumn(MT_REC_DAYS_TIMES_TABLE_COLUMN, recitationTable, CLASS_OH_COLUMN);
         TableColumn recRoomColumn = ohBuilder.buildTableColumn(MT_REC_ROOM_TABLE_COLUMN, recitationTable, CLASS_OH_COLUMN);
         TableColumn TA1Column = ohBuilder.buildTableColumn(MT_REC_TA1_TABLE_COLUMN, recitationTable, CLASS_OH_COLUMN);
         TableColumn TA2Column = ohBuilder.buildTableColumn(MT_REC_TA2_TABLE_COLUMN, recitationTable, CLASS_OH_COLUMN);
-        recSectionColumn.setCellValueFactory(new PropertyValueFactory<>("rec section"));
-        daysTimesColumn.setCellValueFactory(new PropertyValueFactory<>("rec days & times"));
-        TA1Column.setCellValueFactory(new PropertyValueFactory<>("rec ta1"));
-        TA2Column.setCellValueFactory(new PropertyValueFactory<>("rec ta2"));
-        recRoomColumn.setCellValueFactory(new PropertyValueFactory<>("rec room"));
+        
+        recSectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
+        daysTimesColumn.setCellValueFactory(new PropertyValueFactory<>("daysTime"));
+        TA1Column.setCellValueFactory(new PropertyValueFactory<>("TA1"));
+        TA2Column.setCellValueFactory(new PropertyValueFactory<>("TA2"));
+        recRoomColumn.setCellValueFactory(new PropertyValueFactory<>("room"));
+        
+        setupMeetingTabColumns(recSectionColumn, recitationTable, "recitation", "section");
+        setupMeetingTabColumns(daysTimesColumn, recitationTable, "recitation", "daysTime");
+        setupMeetingTabColumns(TA1Column, recitationTable, "recitation", "TA1");
+        setupMeetingTabColumns(TA2Column, recitationTable, "recitation", "TA2");
+        setupMeetingTabColumns(recRoomColumn, recitationTable, "recitation", "room");
+        
         recSectionColumn.prefWidthProperty().bind(recitationTable.widthProperty().multiply(1.0 / 6.0));
         daysTimesColumn.prefWidthProperty().bind(recitationTable.widthProperty().multiply(2.0 / 6.0));
         TA1Column.prefWidthProperty().bind(recitationTable.widthProperty().multiply(1.0 / 6.0));
         TA2Column.prefWidthProperty().bind(recitationTable.widthProperty().multiply(1.0 / 6.0));
         recRoomColumn.prefWidthProperty().bind(recitationTable.widthProperty().multiply(1.0 / 6.0));
+        recitationTable.setEditable(true);
         
         secRecitationLayor.getChildren().addAll(recitationHeaderBox, recitationTable);
         recitationBox.getChildren().add(secRecitationLayor);
@@ -748,21 +833,37 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         // make labs table
         TableView<Labs> labsTable = ohBuilder.buildTableView(MT_LABS_TABLE_VIEW, null, CLASS_OH_TABLE_VIEW, ENABLED);
         labsTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        
         TableColumn labsSectionColumn = ohBuilder.buildTableColumn(MT_LAB_SECTION_TABLE_COLUMN, labsTable, CLASS_OH_COLUMN);
         TableColumn labsDaysTimesColumn = ohBuilder.buildTableColumn(MT_LAB_DAYS_TIMES_TABLE_COLUMN, labsTable, CLASS_OH_COLUMN);
         TableColumn labsRoomColumn = ohBuilder.buildTableColumn(MT_LAB_ROOM_TABLE_COLUMN, labsTable, CLASS_OH_COLUMN);
         TableColumn labsTA1Column = ohBuilder.buildTableColumn(MT_LAB_TA1_TABLE_COLUMN, labsTable, CLASS_OH_COLUMN);
         TableColumn labsTA2Column = ohBuilder.buildTableColumn(MT_LAB_TA2_TABLE_COLUMN, labsTable, CLASS_OH_COLUMN);
-        labsSectionColumn.setCellValueFactory(new PropertyValueFactory<>("labs section"));
-        labsDaysTimesColumn.setCellValueFactory(new PropertyValueFactory<>("labs days & times"));
-        labsTA1Column.setCellValueFactory(new PropertyValueFactory<>("labs ta1"));
-        labsTA2Column.setCellValueFactory(new PropertyValueFactory<>("labs ta2"));
-        labsRoomColumn.setCellValueFactory(new PropertyValueFactory<>("labs room"));
+        
+        labsSectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
+        labsDaysTimesColumn.setCellValueFactory(new PropertyValueFactory<>("daysTime"));
+        labsTA1Column.setCellValueFactory(new PropertyValueFactory<>("TA1"));
+        labsTA2Column.setCellValueFactory(new PropertyValueFactory<>("TA2"));
+        labsRoomColumn.setCellValueFactory(new PropertyValueFactory<>("room"));
+        
+        labsSectionColumn.setCellValueFactory(new PropertyValueFactory<>("section"));
+        labsDaysTimesColumn.setCellValueFactory(new PropertyValueFactory<>("daysTime"));
+        labsTA1Column.setCellValueFactory(new PropertyValueFactory<>("TA1"));
+        labsTA2Column.setCellValueFactory(new PropertyValueFactory<>("TA2"));
+        labsRoomColumn.setCellValueFactory(new PropertyValueFactory<>("room"));
+        
+        setupMeetingTabColumns(labsSectionColumn, labsTable, "labs", "section");
+        setupMeetingTabColumns(labsDaysTimesColumn, labsTable, "labs", "daysTime");
+        setupMeetingTabColumns(labsTA1Column, labsTable, "labs", "TA1");
+        setupMeetingTabColumns(labsTA2Column, labsTable, "labs", "TA2");
+        setupMeetingTabColumns(labsRoomColumn, labsTable, "labs", "room");
+        
         labsSectionColumn.prefWidthProperty().bind(labsTable.widthProperty().multiply(1.0 / 6.0));
         labsDaysTimesColumn.prefWidthProperty().bind(labsTable.widthProperty().multiply(2.0 / 6.0));
         labsTA1Column.prefWidthProperty().bind(labsTable.widthProperty().multiply(1.0 / 6.0));
         labsTA2Column.prefWidthProperty().bind(labsTable.widthProperty().multiply(1.0 / 6.0));
         labsRoomColumn.prefWidthProperty().bind(labsTable.widthProperty().multiply(1.0 / 6.0));
+        labsTable.setEditable(true);
         
         secLabsLayor.getChildren().addAll(labsHeaderBox, labsTable);
         labsBox.getChildren().addAll(secLabsLayor);
@@ -1352,4 +1453,86 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 endTimeCB.getSelectionModel().getSelectedItem().equals("12:00am"));
     }
     
+    private void setupMeetingTabColumns(TableColumn column, TableView table, 
+                                        String typeOfTable, String typeOfColumnData){
+        //set column cell editable when double clikced
+        column.setCellFactory(TextFieldTableCell.forTableColumn());
+        
+        //setup edit commit action
+        column.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<Object, String>>() {
+            @Override
+            public void handle(TableColumn.CellEditEvent<Object, String> event) {
+                //check which table we working on
+                switch(typeOfTable){
+                    case "lectures" :
+                        Lectures editingLectureCell = (Lectures) table.getItems().get(event.getTablePosition().getRow());
+                        
+                        //check which column of the table we working on
+                        switch(typeOfColumnData){
+                            case "section" :
+                                editingLectureCell.setSection(event.getNewValue());
+                                break;
+                            case "days" :
+                                editingLectureCell.setDay(event.getNewValue());
+                                break;
+                            case "time" :
+                                editingLectureCell.setTime(event.getNewValue());
+                                break;
+                            case "room" :
+                                editingLectureCell.setRoom(event.getNewValue());
+                                break;
+                        }
+                        break;
+                    
+                    case "recitation" :
+                        Recitations editingRecCell = (Recitations) table.getItems().get(event.getTablePosition().getRow());
+                        
+                        //check which column of the table we working on
+                        switch(typeOfColumnData){
+                            case "section" :
+                                editingRecCell.setSection(event.getNewValue());
+                                break;
+                            case "daysTime" :
+                                editingRecCell.setDaysTime(event.getNewValue());
+                                break;
+                            case "TA1" :
+                                editingRecCell.setTA1(event.getNewValue());
+                                break;
+                            case "TA2" :
+                                editingRecCell.setTA2(event.getNewValue());
+                                break;
+                            case "room" :
+                                editingRecCell.setRoom(event.getNewValue());
+                                break;
+                        }
+                        break;
+                        
+                    case "labs" :
+                        Labs editingLabsCell = (Labs) table.getItems().get(event.getTablePosition().getRow());
+                        
+                        //check which column of the table we working on
+                        switch(typeOfColumnData){
+                            case "section" :
+                                editingLabsCell.setSection(event.getNewValue());
+                                break;
+                            case "daysTime" :
+                                editingLabsCell.setDaysTime(event.getNewValue());
+                                break;
+                            case "TA1" :
+                                editingLabsCell.setTA1(event.getNewValue());
+                                break;
+                            case "TA2" :
+                                editingLabsCell.setTA2(event.getNewValue());
+                                break;
+                            case "room" :
+                                editingLabsCell.setRoom(event.getNewValue());
+                                break;
+                        }
+                        break;
+                }
+            }
+            
+        });
     }
+    
+}

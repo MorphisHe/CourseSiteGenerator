@@ -140,11 +140,6 @@
         <property name="EXPORT_BUTTON_TOOLTIP" value="弹出课表"></property>
         <property name="EXIT_BUTTON_TOOLTIP" value="退出"></property>
 
-        <!-- CLIPBOARD TOOLBAR TOOLTIPS -->
-        <property name="CUT_BUTTON_TOOLTIP" value="剪切"></property>
-        <property name="COPY_BUTTON_TOOLTIP" value="复制"></property>
-        <property name="PASTE_BUTTON_TOOLTIP" value="粘贴"></property>
-
         <!-- UNDO TOOLBAR TOOLTIPS -->
         <property name="UNDO_BUTTON_TOOLTIP" value="后退"></property>
         <property name="REDO_BUTTON_TOOLTIP" value="前进"></property>
@@ -235,7 +230,6 @@
         <property_options name="LANGUAGE_OPTIONS">
             <option>英语</option>
             <option>中文</option>
-            <option>克林贡语</option>
         </property_options>
     </property_options_list>
 </properties>

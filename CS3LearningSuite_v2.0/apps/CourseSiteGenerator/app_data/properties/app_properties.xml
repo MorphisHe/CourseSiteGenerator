@@ -9,7 +9,7 @@
 <properties>
     <property_list>        
         <!-- DESKTOP JAVA FRAMEWORK CONTROLS SETTINGS -->
-        <property name="APP_TITLE"	    value="Office Hours"></property>
+        <property name="APP_TITLE"	    value="Course Site Generator"></property>
         <property name="APP_BANNER"         value="OfficeHoursWelcomeBanner.png"></property>
 	<property name="APP_LOGO"	    value="OfficeHoursLogo.png"></property>
         <property name="APP_EXPORT_PAGE"    value="index.html"></property>
@@ -73,14 +73,12 @@
         <!-- ENGLISH IS THE DEFAULT -->
         <property name="DEFAULT_LANGUAGE"               value="English"></property>
         <property name="ENGLISH_ABBREVIATION"           value="EN"></property>
-        <property name="KLINGON_ABBREVIATION"           value="TLH"></property>
         <property name="CHINESE_ABBREVIATION"           value="CN"></property>
 
     </property_list>
     <property_options_list>
         <property_options name="LANGUAGE_OPTIONS">
             <option>English</option>
-            <option>Klingon</option>
             <option>Chinese</option>
         </property_options>
     </property_options_list>

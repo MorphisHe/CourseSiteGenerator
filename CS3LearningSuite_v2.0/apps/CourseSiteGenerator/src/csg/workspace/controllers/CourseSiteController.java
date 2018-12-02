@@ -26,16 +26,22 @@ import static csg.CourseSitePropertyType.CSG_FOOLPROOF_SETTINGS;
 import static csg.CourseSitePropertyType.CSG_TA_EDIT_DIALOG;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
+import csg.data.Labs;
+import csg.data.Lectures;
+import csg.data.Recitations;
+import csg.transactions.AddTableRow_Transaction;
+import csg.transactions.DeleteTableRow_Transaction;
 import csg.transactions.SiteIcon_Transaction;
-import static djf.AppPropertyType.SAVE_BUTTON;
 import java.io.File;
 import java.util.Calendar;
 import java.util.HashMap;
 import javafx.collections.FXCollections;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 
@@ -259,7 +265,7 @@ public class CourseSiteController {
     
     /**
      * This method is to set display for office hour after start time and end time
-     * is picked. Will only show the rows within the picked time interval
+     * that is picked. Will only show the rows within the picked time interval
      * @param startTime : starting time of the office hour
      * @param endTime : ending time of the office hour
      */
@@ -436,5 +442,96 @@ public class CourseSiteController {
             ); 
         }
         
+    }
+    
+    /**
+     * Insert a new default row to the table, select a cell of it and scroll to it. 
+     * @param table : The TableView object that we are working on
+     * @param dataType : type of data to add to the table
+     */
+    public void addRow(TableView table, String dataType) {
+        
+        // get current position
+        TablePosition pos = table.getFocusModel().getFocusedCell();
+
+        // clear current selection
+        table.getSelectionModel().clearSelection();
+
+        // create new record and add it to the model
+        Object dataToAdd = null;
+        
+        switch(dataType){
+            case "lectures" :
+                dataToAdd = new Lectures("？", "？", "？", "？");
+                break;
+            
+            case "recitation" :
+                dataToAdd = new Recitations("？", "？", "？", "？", "?");
+                break;
+                
+            case "labs" :
+                dataToAdd = new Labs("？", "？", "？", "？", "?");
+                break;
+            
+            default: break;
+        }
+        
+        //making the transaction
+        AddTableRow_Transaction addRowTransaction= new AddTableRow_Transaction(dataToAdd, table);
+        app.processTransaction(addRowTransaction);
+
+        // get last row
+        int row = table.getItems().size() - 1;
+        table.getSelectionModel().select(row, pos.getTableColumn());
+
+        // scroll to new row
+        table.scrollTo(dataToAdd);
+
+    }
+    
+    /**
+     * Remove all selected rows.
+     * @param table : the TableView object that we working on
+     * @param typeOfData : the type of data of the line we removing, this param is made of undo and redo
+     */
+    public void removeSelectedRows(TableView table, String typeOfData) {
+        DeleteTableRow_Transaction deleteTableRow_Transaction = new DeleteTableRow_Transaction(
+                                 table.getSelectionModel().getSelectedItem(), table, typeOfData,
+                                 table.getSelectionModel().getFocusedIndex());
+        app.processTransaction(deleteTableRow_Transaction);
+
+        // table selects by index, so we have to clear the selection or else items with that index would be selected 
+        table.getSelectionModel().selectBelowCell();
+    }
+    
+    // method to setup how table views work
+    public void initTableView(TableView table) {
+        
+        // switch to edit mode on keypress
+        // this must be KeyEvent.KEY_PRESSED so that the key gets forwarded to the 
+        // editing cell; it wouldn't be forwarded on KEY_RELEASED
+        table.addEventFilter(KeyEvent.KEY_PRESSED, (KeyEvent event) -> {
+            if (event.getCode() == KeyCode.ENTER) {
+            //event.consume()
+            //don't consume the event or else the values won't be updated;
+                return;
+            }
+
+            // switch to edit mode on keypress, but only if we aren't already in edit mode
+            if (table.getEditingCell() == null) {
+                if (event.getCode().isLetterKey() || event.getCode().isDigitKey()) {
+                    
+                    TablePosition focusedCellPosition = table.getFocusModel().getFocusedCell();
+                    table.edit(focusedCellPosition.getRow(), focusedCellPosition.getTableColumn());
+                    
+                }
+            }
+        });
+
+        // single cell selection mode
+        table.getSelectionModel().setCellSelectionEnabled(true);
+        
+        // select first cell
+        table.getSelectionModel().selectFirst();
     }
 }

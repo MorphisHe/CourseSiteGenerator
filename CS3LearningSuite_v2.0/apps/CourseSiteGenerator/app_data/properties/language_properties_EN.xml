@@ -121,9 +121,9 @@
 
 
         <!-- WELCOME DIALOG TEXT -->
-        <property name="WELCOME_DIALOG_TITLE" value="Welcome to Office Hours"></property>
+        <property name="WELCOME_DIALOG_TITLE" value="Welcome to Course Site Generator"></property>
         <property name="WELCOME_DIALOG_RECENT_WORK_LABEL" value="Recent Work"></property>
-        <property name="WELCOME_DIALOG_NEW_BUTTON_TEXT" value="Create New Office Hours"></property>
+        <property name="WELCOME_DIALOG_NEW_BUTTON_TEXT" value="Create New Workspace"></property>
 
         <!-- GENERIC APP ERROR MESSAGES -->
         <property name="APP_ERROR_TITLE" value="Application Error"></property>
@@ -134,17 +134,12 @@
         <property name="PROPERTIES_ERROR_CONTENT" value="There was an Error Loading a Properties File"></property>
 
         <!-- FILE TOOLBAR TOOLTIPS -->
-        <property name="NEW_BUTTON_TOOLTIP" value="New Office Hours"></property>
-        <property name="LOAD_BUTTON_TOOLTIP" value="Load Office Hours"></property>
-        <property name="CLOSE_BUTTON_TOOLTIP" value="Close Office Hours"></property>
-        <property name="SAVE_BUTTON_TOOLTIP" value="Save Office Hours"></property>
-        <property name="EXPORT_BUTTON_TOOLTIP" value="Export Office Hours"></property>
+        <property name="NEW_BUTTON_TOOLTIP" value="New Workspace"></property>
+        <property name="LOAD_BUTTON_TOOLTIP" value="Load Workspace"></property>
+        <property name="CLOSE_BUTTON_TOOLTIP" value="Close Workspace"></property>
+        <property name="SAVE_BUTTON_TOOLTIP" value="Save Workspace"></property>
+        <property name="EXPORT_BUTTON_TOOLTIP" value="Export Work"></property>
         <property name="EXIT_BUTTON_TOOLTIP" value="Exit"></property>
-
-        <!-- CLIPBOARD TOOLBAR TOOLTIPS -->
-        <property name="CUT_BUTTON_TOOLTIP" value="Cut"></property>
-        <property name="COPY_BUTTON_TOOLTIP" value="Copy"></property>
-        <property name="PASTE_BUTTON_TOOLTIP" value="Paste"></property>
 
         <!-- UNDO TOOLBAR TOOLTIPS -->
         <property name="UNDO_BUTTON_TOOLTIP" value="Undo"></property>
@@ -178,8 +173,8 @@
         <property name="SAVE_VERIFY_CONTENT" value="Would you like to save your unsaved work first?"></property>
 
         <!-- ABOUT DIALOG -->
-        <property name="ABOUT_TITLE" value="About OH"></property>
-        <property name="ABOUT_CONTENT" value="OH, the Office Hours Manager - Debugging Enterprises - © 2018"></property>
+        <property name="ABOUT_TITLE" value="About CSG"></property>
+        <property name="ABOUT_CONTENT" value="CSG, the Office Hours Manager - Debugging Enterprises - © 2018"></property>
 
 
         <!-- ENGLISH LANGUAGE SETTINGS SPECIFICALLY FOR TDLM CONTROLS -->
@@ -239,7 +234,6 @@
         <property_options name="LANGUAGE_OPTIONS">
             <option>English</option>
             <option>Chinese</option>
-            <option>Klingon</option>
         </property_options>
     </property_options_list>
 </properties>

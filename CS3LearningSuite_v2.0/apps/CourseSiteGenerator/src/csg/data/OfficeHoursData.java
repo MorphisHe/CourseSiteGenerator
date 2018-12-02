@@ -13,6 +13,9 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
 import csg.CourseSiteGeneratorApp;
 import csg.data.TimeSlot.DayOfWeek;
+import static csg.CourseSitePropertyType.MT_RECITATION_TABLE_VIEW;
+import static csg.CourseSitePropertyType.MT_LABS_TABLE_VIEW;
+import static csg.CourseSitePropertyType.MT_LECTURE_TABLE_VIEW;
 import static csg.CourseSitePropertyType.CSG_ALL_RADIO_BUTTON;
 import static csg.CourseSitePropertyType.CSG_GRAD_RADIO_BUTTON;
 import static csg.CourseSitePropertyType.CSG_TAS_TABLE_VIEW;
@@ -36,7 +39,11 @@ public class OfficeHoursData implements AppDataComponent {
     // NOTE THAT THIS DATA STRUCTURE WILL DIRECTLY STORE THE
     // DATA IN THE ROWS OF THE TABLE VIEW
     ObservableList<TeachingAssistantPrototype> teachingAssistants;
-    ObservableList<TimeSlot> officeHours;    
+    ObservableList<TimeSlot> officeHours;
+    ObservableList<Lectures> lectures;
+    ObservableList<Recitations> recitations;
+    ObservableList<Labs> labs;
+    
     
     // HOLDER FOR FULL TAS TABLE
     ObservableList<TeachingAssistantPrototype> tempTAS;
@@ -49,8 +56,8 @@ public class OfficeHoursData implements AppDataComponent {
     int endHour;
     
     // DEFAULT VALUES FOR START AND END HOURS IN MILITARY HOURS
-    public static final int MIN_START_HOUR = 9;
-    public static final int MAX_END_HOUR = 20;
+    public static final int MIN_START_HOUR = 8;
+    public static final int MAX_END_HOUR = 23;
 
     /**
      * This constructor will setup the required data structures for
@@ -78,6 +85,17 @@ public class OfficeHoursData implements AppDataComponent {
         endHour = MAX_END_HOUR;
         
         resetOfficeHours();
+        
+        // GET THE LIST OF SCHEDULE DATA TO THE TABLES
+        // RECITATION DATA
+        TableView<Recitations> recTableView = (TableView)gui.getGUINode(MT_RECITATION_TABLE_VIEW);
+        recitations = recTableView.getItems();
+        // LECTURE DATA
+        TableView<Lectures> lecTableView = (TableView)gui.getGUINode(MT_LECTURE_TABLE_VIEW);
+        lectures = lecTableView.getItems();
+        // LABS DATA
+        TableView<Labs> labsTableView = (TableView)gui.getGUINode(MT_LABS_TABLE_VIEW);
+        labs = labsTableView.getItems();
     }
     
     // ACCESSOR METHODS
@@ -96,6 +114,10 @@ public class OfficeHoursData implements AppDataComponent {
     
     public ObservableList<TeachingAssistantPrototype> getTeachingAssistants(){
         return teachingAssistants;
+    }
+    
+    public ObservableList<Lectures> getLectures(){
+        return lectures;
     }
     
     public ObservableList<TeachingAssistantPrototype> getTempTAs(){
@@ -182,6 +204,10 @@ public class OfficeHoursData implements AppDataComponent {
             endHour = initEndHour;
         }
         resetOfficeHours();
+    }
+    
+    public void addLecture(Lectures lecture){
+        lectures.add(lecture);
     }
     
     public void addTA(TeachingAssistantPrototype ta) {
