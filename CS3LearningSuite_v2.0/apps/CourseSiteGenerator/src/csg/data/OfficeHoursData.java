@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
 import csg.CourseSiteGeneratorApp;
-import csg.CourseSitePropertyType;
 import csg.data.TimeSlot.DayOfWeek;
 import static csg.CourseSitePropertyType.MT_RECITATION_TABLE_VIEW;
 import static csg.CourseSitePropertyType.MT_LABS_TABLE_VIEW;
@@ -144,6 +143,10 @@ public class OfficeHoursData implements AppDataComponent {
         Collections.sort(teachingAssistants);
     }
     
+    public void sortScheduleTable(){
+        Collections.sort(schedule);
+    }
+    
     private void resetOfficeHours() {
         //THIS WILL STORE OUR OFFICE HOURS
         AppGUIModule gui = app.getGUIModule();
@@ -192,6 +195,10 @@ public class OfficeHoursData implements AppDataComponent {
         startHour = MIN_START_HOUR;
         endHour = MAX_END_HOUR;
         teachingAssistants.clear();
+        lectures.clear();
+        recitations.clear();
+        labs.clear();
+        schedule.clear();
         
         officeHours.forEach((timeSlot) -> {
             timeSlot.reset();
@@ -214,6 +221,19 @@ public class OfficeHoursData implements AppDataComponent {
     
     public void addLecture(Lectures lecture){
         lectures.add(lecture);
+    }
+    
+    public void addRecitation(Recitations recitation){
+        recitations.add(recitation);
+    }
+    
+    public void addLab(Labs lab){
+        labs.add(lab);
+    }
+    
+    public void addSchedule(Schedule schedules){
+        this.schedule.add(schedules);
+        sortScheduleTable();
     }
     
     public void addTA(TeachingAssistantPrototype ta) {
@@ -439,6 +459,22 @@ public class OfficeHoursData implements AppDataComponent {
 
     public Iterator<TeachingAssistantPrototype> teachingAssistantsIterator() {
         return new AllTAsIterator();
+    }
+    
+    public Iterator<Lectures> lecturesIterator(){
+        return lectures.iterator();
+    }
+    
+    public Iterator<Recitations> recitationsIterator(){
+        return recitations.iterator();
+    }
+    
+    public Iterator<Labs> labsIterator(){
+        return labs.iterator();
+    }
+    
+    public Iterator<Schedule> scheduleIterator(){
+        return schedule.iterator();
     }
     
     private class AllTAsIterator implements Iterator {

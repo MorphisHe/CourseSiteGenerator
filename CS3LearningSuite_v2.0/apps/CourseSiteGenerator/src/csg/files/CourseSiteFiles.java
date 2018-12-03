@@ -29,6 +29,10 @@ import csg.data.TimeSlot;
 import csg.data.TimeSlot.DayOfWeek;
 import djf.modules.AppGUIModule;
 import static csg.CourseSitePropertyType.*;
+import csg.data.Labs;
+import csg.data.Lectures;
+import csg.data.Recitations;
+import csg.data.Schedule;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -119,14 +123,29 @@ public class CourseSiteFiles implements AppFileComponent {
     static final String JSON_START_MONDAY_DAY = "startingMondayDay";
     static final String JSON_END_FRIDAY_MONTH = "endingFridayMonth";
     static final String JSON_END_FRIDAY_DAY = "endingFridayDay";
-    static final String JSON_HOLIDAYS = "holidays";
     static final String JSON_MONTH = "month";
     static final String JSON_DAY = "day";
-    // TODO
+    static final String JSON_TOPIC = "topic";
+    static final String JSON_CRITERIA = "criteria";
+    static final String JSON_DATE = "date";
+    static final String JSON_SCHEDULE = "schedule";
+    static final String JSON_SD_HOLIDAYS = "schedule_holidays";
+    static final String JSON_SD_LECTURES = "schedule_lectures";
+    static final String JSON_SD_REFERENCES = "schedule_references";
+    static final String JSON_SD_RECITATIONS = "schedule_recitations";
+    static final String JSON_SD_HWS = "schedule_hws";
+    // JSON TYPES FOR MEETING TIME PAGE
+    // LECTURES TABLE
+    static final String JSON_SECTION = "section";
+    static final String JSON_DAYS = "days";
     static final String JSON_LECTURES = "lectures";
-    static final String JSON_REFERENCES = "references";
+    // RECITATIONS AND LABS TABLE
+    static final String JSON_LABS = "labs";
     static final String JSON_RECITATIONS = "recitations";
-    static final String JSON_HWS = "hws";
+    static final String JSON_DAY_TIME = "day_time";
+    static final String JSON_LOCATION = "location";
+    static final String JSON_TA1 = "ta_1";
+    static final String JSON_TA2 = "ta_2";
     // JSON TYPES FOR COMBO BOX DATA
     static final String JSON_SITE_SEMESTER = "siteSemester";
     static final String JSON_SITE_SUBJECT = "siteSubject";
@@ -154,6 +173,9 @@ public class CourseSiteFiles implements AppFileComponent {
         
         // LOAD DATA FOR SCHEDULE PAGE
         loadSchedulePage(json, gui);
+        
+        // LOAD DATA FOR MEETING TIME PAGE
+        loadMeetingTimePage(json, gui);
         
         // DISABLE SAVE BUTTON
         ((Button)gui.getGUINode(SAVE_BUTTON)).setDisable(true);
@@ -293,12 +315,133 @@ public class CourseSiteFiles implements AppFileComponent {
         String[] endDate = ((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER))
                                              .getValue().toString().split("-");
        
-        // BUILD THE REST TABLES THAT HAS NOT BEING IMPLEMENTED (TODO)
-        JsonArray holidayJsonArray = Json.createArrayBuilder().build();
-        JsonArray lectureJsonArray = Json.createArrayBuilder().build();
-        JsonArray referenceJsonArray = Json.createArrayBuilder().build();
-        JsonArray recitaionsJsonArray = Json.createArrayBuilder().build();
-        JsonArray hwsJsonArray = Json.createArrayBuilder().build();
+        // BUILD THE DATA FOR SCHEDULE TABLE
+        JsonArrayBuilder scheduleArrayBuilder = Json.createArrayBuilder();
+        
+        Iterator<Schedule> scheduleIterator = dataManager.scheduleIterator();
+        while (scheduleIterator.hasNext()) {
+            Schedule schedule = scheduleIterator.next();
+            JsonObject scheduleObject = Json.createObjectBuilder()
+                                            .add(JSON_TYPE, schedule.getType())
+                                            .add(JSON_DATE, schedule.getDate())
+                                            .add(JSON_TOPIC, schedule.getTopic())
+                                            .add(JSON_TITLE, schedule.getTitle())
+                                            .add(JSON_LINK, schedule.getLink()).build();
+            scheduleArrayBuilder.add(scheduleObject);
+        }
+        JsonArray scheduleJsonArray = scheduleArrayBuilder.build();
+        //FOLLOWING ARE USED FOR EXPORTING
+//        JsonArrayBuilder sdHolidaysJsonArrayBuilder = Json.createArrayBuilder();
+//        JsonArrayBuilder sdLecturesJsonArrayBuilder = Json.createArrayBuilder();
+//        JsonArrayBuilder sdReferencesJsonArrayBuilder = Json.createArrayBuilder();
+//        JsonArrayBuilder sdRecitationsJsonArrayBuilder = Json.createArrayBuilder();
+//        JsonArrayBuilder sdHWsJsonArrayBuilder = Json.createArrayBuilder();
+//        
+//        Iterator<Schedule> scheduleIterator = dataManager.scheduleIterator();
+//        while (scheduleIterator.hasNext()) {
+//            Schedule schedule = scheduleIterator.next();
+//            switch(schedule.getType()){
+//                case "Holiday" :
+//                    JsonObject holidayObject = Json.createObjectBuilder()
+//                                                   .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
+//                                                   .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
+//                                                   .add(JSON_TITLE, schedule.getTitle())
+//                                                   .add(JSON_LINK, schedule.getLink()).build();
+//                    sdHolidaysJsonArrayBuilder.add(holidayObject);
+//                    break;
+//                case "Lecture" :
+//                    JsonObject lecturesObject = Json.createObjectBuilder()
+//                                                    .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
+//                                                    .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
+//                                                    .add(JSON_TITLE, schedule.getTitle())
+//                                                    .add(JSON_TOPIC, schedule.getTopic())
+//                                                    .add(JSON_LINK, schedule.getLink()).build();
+//                    sdLecturesJsonArrayBuilder.add(lecturesObject);
+//                    break;
+//                case "Reference" :
+//                    JsonObject referencesObject = Json.createObjectBuilder()
+//                                                      .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
+//                                                      .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
+//                                                      .add(JSON_TITLE, schedule.getTitle())
+//                                                      .add(JSON_TOPIC, schedule.getTopic())
+//                                                      .add(JSON_LINK, schedule.getLink()).build();
+//                    sdReferencesJsonArrayBuilder.add(referencesObject);
+//                    break;
+//                case "Recitation" :
+//                    JsonObject recitationsObject = Json.createObjectBuilder()
+//                                                       .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
+//                                                       .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
+//                                                       .add(JSON_TITLE, schedule.getTitle())
+//                                                       .add(JSON_TOPIC, schedule.getTopic())
+//                                                       .add(JSON_LINK, schedule.getLink()).build();
+//                    sdRecitationsJsonArrayBuilder.add(recitationsObject);
+//                    break;
+//                case "HW" :
+//                    JsonObject hwsObject = Json.createObjectBuilder()
+//                                               .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
+//                                               .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
+//                                               .add(JSON_TITLE, schedule.getTitle())
+//                                               .add(JSON_TOPIC, schedule.getTopic())
+//                                               .add(JSON_LINK, schedule.getLink())
+//                                               .add(JSON_TIME, "")
+//                                               .add(JSON_CRITERIA, "none").build();
+//                    sdHWsJsonArrayBuilder.add(hwsObject);
+//                    break;    
+//            }
+//        }
+//        
+//        JsonArray sdHolidaysJsonArray = sdHolidaysJsonArrayBuilder.build();
+//        JsonArray sdLecturesJsonArray = sdLecturesJsonArrayBuilder.build();
+//        JsonArray sdReferencesJsonArray = sdReferencesJsonArrayBuilder.build();
+//        JsonArray sdRecitationsJsonArray = sdRecitationsJsonArrayBuilder.build();
+//        JsonArray sdHWsJsonArray = sdHWsJsonArrayBuilder.build();
+        
+        // BUILD DATA FOR LECTURE TABLE IN MEETING TIME TAB       
+        // BUILD LECTURES TABLE DATA
+        JsonArrayBuilder lecturesJsonArrayBuilder = Json.createArrayBuilder();
+        Iterator<Lectures> lecturesIterator = dataManager.lecturesIterator();
+        while (lecturesIterator.hasNext()) {
+            Lectures lectures = lecturesIterator.next();
+	    JsonObject lectureJson = Json.createObjectBuilder()
+		    .add(JSON_SECTION, lectures.getSection())
+		    .add(JSON_DAYS, lectures.getDay())
+                    .add(JSON_TIME, lectures.getTime())
+                    .add(JSON_ROOM, lectures.getRoom()).build();
+            lecturesJsonArrayBuilder.add(lectureJson);
+	}
+        JsonArray lecturesJsonArray = lecturesJsonArrayBuilder.build();
+        
+        // BUILD RECITATIONS TABLE DATA
+        JsonArrayBuilder recitationsJsonArrayBuilder = Json.createArrayBuilder();
+        Iterator<Recitations> recitationsIterator = dataManager.recitationsIterator();
+        while (recitationsIterator.hasNext()) {
+            Recitations recitation = recitationsIterator.next();
+	    JsonObject recitationJson = Json.createObjectBuilder()
+		    .add(JSON_SECTION, recitation.getSection())
+		    .add(JSON_DAY_TIME, recitation.getDaysTime())
+                    .add(JSON_LOCATION, recitation.getRoom())
+                    .add(JSON_TA1, recitation.getTA1())
+                    .add(JSON_TA2, recitation.getTA2()).build();
+            recitationsJsonArrayBuilder.add(recitationJson);
+	}
+        JsonArray recitationsJsonArray = recitationsJsonArrayBuilder.build();
+        
+        // BUILD LABS TABLE DATA
+        JsonArrayBuilder labsJsonArrayBuilder = Json.createArrayBuilder();
+        Iterator<Labs> labsIterator = dataManager.labsIterator();
+        while (labsIterator.hasNext()) {
+            Labs lab = labsIterator.next();
+	    JsonObject labJson = Json.createObjectBuilder()
+		    .add(JSON_SECTION, lab.getSection())
+		    .add(JSON_DAY_TIME, lab.getDaysTime())
+                    .add(JSON_LOCATION, lab.getRoom())
+                    .add(JSON_TA1, lab.getTA1())
+                    .add(JSON_TA2, lab.getTA2()).build();
+            labsJsonArrayBuilder.add(labJson);
+	}
+        JsonArray labsJsonArray = labsJsonArrayBuilder.build();
+        
+        
         
 	// THEN PUT IT ALL TOGETHER IN A JsonObject
         JsonObject fullJsonData = Json.createObjectBuilder()
@@ -336,11 +479,10 @@ public class CourseSiteFiles implements AppFileComponent {
                                       .add(JSON_START_MONDAY_DAY, StartDate[2]) //schedule page date picker starting day
                                       .add(JSON_END_FRIDAY_MONTH, endDate[1]) //schedule page date picker ending month
                                       .add(JSON_END_FRIDAY_DAY, endDate[2]) //schedule page date picker ending day
-                                      .add(JSON_HOLIDAYS, holidayJsonArray) //todo
-                                      .add(JSON_LECTURES, lectureJsonArray) //todo
-                                      .add(JSON_REFERENCES, referenceJsonArray) //todo
-                                      .add(JSON_RECITATIONS, recitaionsJsonArray) //todo
-                                      .add(JSON_HWS, hwsJsonArray) //todo
+                                      .add(JSON_SCHEDULE, scheduleJsonArray) //schedule table data
+                                      .add(JSON_LECTURES, lecturesJsonArray) //meeting time page lectures table data
+                                      .add(JSON_RECITATIONS, recitationsJsonArray) //meeting time page recitations table data
+                                      .add(JSON_LABS, labsJsonArray) //meeting time page labs table data
                                       .build();
         
         // AND NOW OUTPUT IT TO A JSON FILE WITH PRETTY PRINTING
@@ -777,6 +919,8 @@ public class CourseSiteFiles implements AppFileComponent {
     }
     
     private void loadSchedulePage(JsonObject json, AppGUIModule gui) throws IOException{
+        OfficeHoursData data = (OfficeHoursData) app.getDataComponent();
+        
         //Loading the data picker time
         String startingMonday = json.getJsonString(JSON_START_MONDAY_MONTH).toString().replaceAll("\"", "") + "-" 
                 + json.getJsonString(JSON_START_MONDAY_DAY).toString().replaceAll("\"", "") + "-" 
@@ -787,6 +931,62 @@ public class CourseSiteFiles implements AppFileComponent {
         
         ((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER)).setValue(loadedDate(startingMonday));
         ((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER)).setValue(loadedDate(endingFriday));
+        
+        //Load the data for holiday array in schedule table
+        JsonArray jsonScheduleArray = json.getJsonArray(JSON_SCHEDULE);
+        for (int i = 0; i < jsonScheduleArray.size(); i++) {
+            JsonObject jsonSchedule = jsonScheduleArray.getJsonObject(i);
+            String type = jsonSchedule.getString(JSON_TYPE);
+            String date = jsonSchedule.getString(JSON_DATE);
+            String title = jsonSchedule.getString(JSON_TITLE);
+            String topic = jsonSchedule.getString(JSON_TOPIC);
+            String link = jsonSchedule.getString(JSON_LINK);
+            Schedule schedule = new Schedule(type, date, title, topic, link);
+            data.addSchedule(schedule);
+        }
+        
+    }
+    
+    private void loadMeetingTimePage(JsonObject json, AppGUIModule gui) throws IOException{
+        OfficeHoursData data = (OfficeHoursData) app.getDataComponent();
+        
+        //Load the data for lecture table
+        JsonArray jsonLecturesArray = json.getJsonArray(JSON_LECTURES);
+        for (int i = 0; i < jsonLecturesArray.size(); i++) {
+            JsonObject jsonLecture = jsonLecturesArray.getJsonObject(i);
+            String section = jsonLecture.getString(JSON_SECTION);
+            String days = jsonLecture.getString(JSON_DAYS);
+            String time = jsonLecture.getString(JSON_TIME);
+            String room = jsonLecture.getString(JSON_ROOM);
+            Lectures lecture = new Lectures(section, days, time, room);
+            data.addLecture(lecture);
+        } 
+        
+        //Load the data for recitation table
+        JsonArray jsonRecitationArray = json.getJsonArray(JSON_RECITATIONS);
+        for (int i = 0; i < jsonRecitationArray.size(); i++) {
+            JsonObject jsonRecitation = jsonRecitationArray.getJsonObject(i);
+            String section = jsonRecitation.getString(JSON_SECTION);
+            String daysTime = jsonRecitation.getString(JSON_DAY_TIME);
+            String location = jsonRecitation.getString(JSON_LOCATION);
+            String ta_1 = jsonRecitation.getString(JSON_TA1);
+            String ta_2 = jsonRecitation.getString(JSON_TA2);
+            Recitations recitation = new Recitations(section, daysTime, location, ta_1, ta_2);
+            data.addRecitation(recitation);
+        }
+        
+        //Load the data for lab table
+        JsonArray jsonLabArray = json.getJsonArray(JSON_LABS);
+        for (int i = 0; i < jsonLabArray.size(); i++) {
+            JsonObject jsonLab = jsonLabArray.getJsonObject(i);
+            String section = jsonLab.getString(JSON_SECTION);
+            String daysTime = jsonLab.getString(JSON_DAY_TIME);
+            String location = jsonLab.getString(JSON_LOCATION);
+            String ta_1 = jsonLab.getString(JSON_TA1);
+            String ta_2 = jsonLab.getString(JSON_TA2);
+            Labs lab = new Labs(section, daysTime, location, ta_1, ta_2);
+            data.addLab(lab);
+        } 
     }
     
     public void loadComboBoxData() throws IOException{

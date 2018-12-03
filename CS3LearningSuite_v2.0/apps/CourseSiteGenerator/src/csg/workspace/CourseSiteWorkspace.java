@@ -696,14 +696,22 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         //table
         TableView<Schedule> sdTable = ohBuilder.buildTableView(SD_SCHEDULE_ITEM_TABLE_VIEW, null, CLASS_OH_TABLE_VIEW, ENABLED);
         sdTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        
         TableColumn typeColumn = ohBuilder.buildTableColumn(SD_TYPE_TABLE_COLUMN, sdTable, CLASS_OH_COLUMN);
         TableColumn dateColumn = ohBuilder.buildTableColumn(SD_DATE_TABLE_COLUMN, sdTable, CLASS_OH_COLUMN);
         TableColumn titleColumn = ohBuilder.buildTableColumn(SD_TITLE_TABLE_COLUMN, sdTable, CLASS_OH_COLUMN);
         TableColumn topicColumn = ohBuilder.buildTableColumn(SD_TOPIC_TABLE_COLUMN, sdTable, CLASS_OH_COLUMN);
+        
         typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
         dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         topicColumn.setCellValueFactory(new PropertyValueFactory<>("topic"));
+        
+        typeColumn.setSortable(false);
+        dateColumn.setSortable(false);
+        titleColumn.setSortable(false);
+        topicColumn.setSortable(false);
+        
         typeColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(1.0 / 5.0));
         dateColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(1.0 / 5.0));
         titleColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(1.0 / 5.0));
@@ -859,6 +867,11 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         setupMeetingTabColumns(daysColumn, lectureTable, "lectures", "days");
         setupMeetingTabColumns(timeColumn, lectureTable, "lectures", "time");
         setupMeetingTabColumns(roomColumn, lectureTable, "lectures", "room");
+        
+        sectionColumn.setSortable(false);
+        daysColumn.setSortable(false);
+        timeColumn.setSortable(false);
+        roomColumn.setSortable(false);
 
         sectionColumn.prefWidthProperty().bind(lectureTable.widthProperty().multiply(1.0 / 5.0));
         daysColumn.prefWidthProperty().bind(lectureTable.widthProperty().multiply(2.0 / 5.0));
@@ -898,6 +911,12 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         setupMeetingTabColumns(TA1Column, recitationTable, "recitation", "TA1");
         setupMeetingTabColumns(TA2Column, recitationTable, "recitation", "TA2");
         setupMeetingTabColumns(recRoomColumn, recitationTable, "recitation", "room");
+        
+        recSectionColumn.setSortable(false);
+        daysTimesColumn.setSortable(false);
+        TA1Column.setSortable(false);
+        TA2Column.setSortable(false);
+        recRoomColumn.setSortable(false);
         
         recSectionColumn.prefWidthProperty().bind(recitationTable.widthProperty().multiply(1.0 / 6.0));
         daysTimesColumn.prefWidthProperty().bind(recitationTable.widthProperty().multiply(2.0 / 6.0));
@@ -944,6 +963,12 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         setupMeetingTabColumns(labsTA1Column, labsTable, "labs", "TA1");
         setupMeetingTabColumns(labsTA2Column, labsTable, "labs", "TA2");
         setupMeetingTabColumns(labsRoomColumn, labsTable, "labs", "room");
+        
+        labsSectionColumn.setSortable(false);
+        labsDaysTimesColumn.setSortable(false);
+        labsTA1Column.setSortable(false);
+        labsTA2Column.setSortable(false);
+        labsRoomColumn.setSortable(false);
         
         labsSectionColumn.prefWidthProperty().bind(labsTable.widthProperty().multiply(1.0 / 6.0));
         labsDaysTimesColumn.prefWidthProperty().bind(labsTable.widthProperty().multiply(2.0 / 6.0));

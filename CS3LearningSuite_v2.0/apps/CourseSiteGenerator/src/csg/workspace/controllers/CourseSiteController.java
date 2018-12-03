@@ -595,6 +595,9 @@ public class CourseSiteController {
                     titleTF.getText(), topicTF.getText(), linkTF.getText());
             app.processTransaction(AUS_Transaction);
         }
+        //sort the table by date
+        ((OfficeHoursData)app.getDataComponent()).sortScheduleTable();
+        scheduleTable.refresh();
         //after processing the transaction we clear the textfields
         titleTF.clear();
         topicTF.clear();

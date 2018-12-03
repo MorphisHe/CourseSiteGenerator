@@ -998,14 +998,67 @@
     "startingMondayDay":"02",
     "endingFridayMonth":"12",
     "endingFridayDay":"31",
-    "holidays":[
+    "schedule":[
+        {
+            "type":"Holiday",
+            "date":"9/5/2018",
+            "topic":"",
+            "title":"Labor Day",
+            "link":""
+        },
+        {
+            "type":"Lecture",
+            "date":"9/6/2018",
+            "topic":"Introduction",
+            "title":"Lecture 1",
+            "link":""
+        },
+        {
+            "type":"Lecture",
+            "date":"9/8/2018",
+            "topic":"Graphical User Interfaces",
+            "title":"Lecture 2",
+            "link":""
+        },
+        {
+            "type":"HW",
+            "date":"9/18/2018",
+            "topic":"UML",
+            "title":"HW 3",
+            "link":""
+        }
     ],
     "lectures":[
-    ],
-    "references":[
+        {
+            "section":"L01",
+            "days":"Tuesdays &amp; Thursdays",
+            "time":"10:00am-11:20pm",
+            "room":"Humanities 1006"
+        }
     ],
     "recitations":[
+        {
+            "section":"<strong>R06</strong> (McKenna)",
+            "day_time":"Mondays, 10:00am-10:53am",
+            "location":"New CS 115",
+            "ta_1":"Lei Song",
+            "ta_2":"Qihong Jiang"
+        },
+        {
+            "section":"<strong>R07</strong> (McKenna)",
+            "day_time":"Wednesdays, 10:00am-10:53am",
+            "location":"New CS 115",
+            "ta_1":"Mankirat Gulati",
+            "ta_2":"Sammi Wu Leung"
+        },
+        {
+            "section":"<strong>R08</strong> (McKenna)",
+            "day_time":"Wednesdays, 2:30pm-3:23pm",
+            "location":"New CS 115",
+            "ta_1":"Sammi Wu Leung",
+            "ta_2":"Qihong Jiang"
+        }
     ],
-    "hws":[
+    "labs":[
     ]
 }
