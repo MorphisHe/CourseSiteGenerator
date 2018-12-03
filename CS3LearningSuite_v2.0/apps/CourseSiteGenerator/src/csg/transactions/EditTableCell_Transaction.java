@@ -44,7 +44,6 @@ public class EditTableCell_Transaction implements jtps.jTPS_Transaction{
                 case "section":
                     oldData = currentCell.getSection();
                     currentCell.setSection(newData);
-                    System.out.println("old: " + oldData + "\nnew: " + newData);
                     break;
                 case "days":
                     oldData = currentCell.getDay();
@@ -125,7 +124,6 @@ public class EditTableCell_Transaction implements jtps.jTPS_Transaction{
             switch (typeOfMethod) {
                 case "section":
                     currentCell.setSection(oldData);
-                    System.out.println("old: " + oldData + "\nnew: " + newData);
                     break;
                 case "days":
                     currentCell.setDay(oldData);

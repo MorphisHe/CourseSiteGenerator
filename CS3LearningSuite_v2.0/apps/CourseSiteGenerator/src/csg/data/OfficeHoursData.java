@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
 import csg.CourseSiteGeneratorApp;
+import csg.CourseSitePropertyType;
 import csg.data.TimeSlot.DayOfWeek;
 import static csg.CourseSitePropertyType.MT_RECITATION_TABLE_VIEW;
 import static csg.CourseSitePropertyType.MT_LABS_TABLE_VIEW;
@@ -20,6 +21,7 @@ import static csg.CourseSitePropertyType.CSG_ALL_RADIO_BUTTON;
 import static csg.CourseSitePropertyType.CSG_GRAD_RADIO_BUTTON;
 import static csg.CourseSitePropertyType.CSG_TAS_TABLE_VIEW;
 import static csg.CourseSitePropertyType.CSG_OFFICE_HOURS_TABLE_VIEW;
+import static csg.CourseSitePropertyType.SD_SCHEDULE_ITEM_TABLE_VIEW;
 
 /**
  * This is the data component for TAManagerApp. It has all the data needed
@@ -43,6 +45,7 @@ public class OfficeHoursData implements AppDataComponent {
     ObservableList<Lectures> lectures;
     ObservableList<Recitations> recitations;
     ObservableList<Labs> labs;
+    ObservableList<Schedule> schedule;
     
     
     // HOLDER FOR FULL TAS TABLE
@@ -96,6 +99,9 @@ public class OfficeHoursData implements AppDataComponent {
         // LABS DATA
         TableView<Labs> labsTableView = (TableView)gui.getGUINode(MT_LABS_TABLE_VIEW);
         labs = labsTableView.getItems();
+        // SCHEDULE DATA
+        TableView<Schedule> scheduleTableView = (TableView)gui.getGUINode(SD_SCHEDULE_ITEM_TABLE_VIEW);
+        schedule = scheduleTableView.getItems();
     }
     
     // ACCESSOR METHODS

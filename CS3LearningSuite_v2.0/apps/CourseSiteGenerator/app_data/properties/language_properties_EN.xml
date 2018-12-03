@@ -116,7 +116,7 @@
         <property name="SD_TOPIC_TEXT_FIELD_TEXT" value="TOPIC"></property>
         <property name="SD_TITLE_TEXT_FIELD_TEXT" value="TITLE"></property>
         <property name="SD_CLEAR_BUTTON_TEXT" value="Clear"></property>
-        <property name="SD_ADD_UPDATE_BUTTON_TEXT" value="Add/Update"></property>
+        <property name="SD_ADD_UPDATE_BUTTON_TEXT" value="Add"></property>
 
 
 

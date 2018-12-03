@@ -115,7 +115,7 @@
         <property name="SD_TOPIC_TEXT_FIELD_TEXT" value="主题"></property>
         <property name="SD_TITLE_TEXT_FIELD_TEXT" value="标题"></property>
         <property name="SD_CLEAR_BUTTON_TEXT" value="清除"></property>
-        <property name="SD_ADD_UPDATE_BUTTON_TEXT" value="添加／更新"></property>
+        <property name="SD_ADD_UPDATE_BUTTON_TEXT" value="添加"></property>
 
 
 

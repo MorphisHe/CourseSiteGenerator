@@ -29,6 +29,7 @@ import csg.data.Lectures;
 import csg.data.Recitations;
 import csg.data.Schedule;
 import csg.files.CourseSiteFiles;
+import csg.transactions.AddUpdateSchedule_Transaction;
 import csg.transactions.CheckBox_Transaction;
 import csg.transactions.ComboBox_Transaction;
 import csg.transactions.CourseInfoComboBox_Transaction;
@@ -45,6 +46,8 @@ import static djf.modules.AppGUIModule.DISABLED;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,6 +64,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -91,7 +95,7 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     
     //booleans that keep tract of all true and false action in each user interface
     private static boolean currentState = false;
-
+    
     //these are the file path for site style editing
     private final String FAV_ICON_PATH = "/Users/turtle714804947/repos/"
             + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/fav_icon";
@@ -243,7 +247,6 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         //set cell factory for all other combo boxes
         initComboBoxes((ComboBox) gui.getGUINode(SITE_YEAR_COMBO_BOX));
         initComboBoxes((ComboBox) gui.getGUINode(SITE_CSS_COMBO_BOX));
-        initComboBoxes((ComboBox) gui.getGUINode(SD_TYPE_COMBO_BOX));
         
         //set undo redo for all text fields
         initTextFields(((TextField)gui.getGUINode(SITE_TITLE_TEXT_FIELD)));
@@ -251,9 +254,6 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         initTextFields(((TextField)gui.getGUINode(SITE_EMAIL_TEXT_FIELD)));
         initTextFields(((TextField)gui.getGUINode(SITE_ROOM_TEXT_FIELD)));
         initTextFields(((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD)));
-        initTextFields(((TextField)gui.getGUINode(SD_TITLE_TEXT_FIELD)));
-        initTextFields(((TextField)gui.getGUINode(SD_TOPIC_TEXT_FIELD)));
-        initTextFields(((TextField)gui.getGUINode(SD_LINK_TEXT_FIELD)));
         
         //set undo redo for all check boxes
         initCheckBoxes(((CheckBox)gui.getGUINode(SITE_HOME_CHECK_BOX)));
@@ -276,7 +276,6 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         //set undo redo for all datePickers
         initDatePicker((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER));
         initDatePicker((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER));
-        initDatePicker((DatePicker)gui.getGUINode(SD_DATE_DATE_PICKER));
         
         //meeting time tab button controllers
         TableView<Lectures> lecturesTable = (TableView<Lectures>)gui.getGUINode(MT_LECTURE_TABLE_VIEW);
@@ -326,6 +325,89 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         removeLecturesButton.setFocusTraversable(false);
         removeRecButton.setFocusTraversable(false);
         removeLabsButton.setFocusTraversable(false);
+        
+        //Schedule tab controller
+        TableView<Schedule> scheduleTable = (TableView)gui.getGUINode(SD_SCHEDULE_ITEM_TABLE_VIEW);
+        Button addUpdateButton = (Button)gui.getGUINode(SD_ADD_UPDATE_BUTTON);
+        Button clearButton = (Button)gui.getGUINode(SD_CLEAR_BUTTON);
+        ComboBox typeCB = (ComboBox)gui.getGUINode(SD_TYPE_COMBO_BOX);
+        DatePicker sdDatePicker = (DatePicker)gui.getGUINode(SD_DATE_DATE_PICKER);
+        TextField titleTF = (TextField)gui.getGUINode(SD_TITLE_TEXT_FIELD);
+        TextField topicTF = (TextField)gui.getGUINode(SD_TOPIC_TEXT_FIELD);
+        TextField linkTF = (TextField)gui.getGUINode(SD_LINK_TEXT_FIELD);
+        DateTimeFormatter formatters = DateTimeFormatter.ofPattern("M/d/uuuu"); //formatter to convert localDate object
+        
+        addUpdateButton.setOnAction(e -> {
+            controller.addUpdateAction(addUpdateButton, sdDatePicker, formatters, 
+                                       typeCB, titleTF, topicTF, linkTF, scheduleTable);
+        });
+        
+        clearButton.setOnAction(e -> {
+            controller.clearScheduleEdit(scheduleTable, typeCB, sdDatePicker, 
+                    titleTF, topicTF, linkTF, addUpdateButton);
+        });
+        
+        //these two arraylist are used for addUpdateButton text language dependentcy
+        ArrayList<String> engWord = new ArrayList<>();
+        engWord.add("Add");
+        engWord.add("Update");
+        ArrayList<String> cnWord = new ArrayList<>();
+        cnWord.add("添加");
+        cnWord.add("更新");
+        
+        //this keep the addUpdateButton language dependent, changes text for each actions
+        addUpdateButton.textProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldVal, Object newVal) {
+                if (engWord.contains(oldVal.toString()) && cnWord.contains(newVal.toString())) {
+                    //changed language from english to chinese
+                    if (oldVal.toString().equals("Add")) addUpdateButton.setText("添加");
+                    else {
+                        addUpdateButton.setText("更新");
+                        //currentState is a boolean to keep track if we entering below if statement
+                        currentState = true; 
+                    }
+                }
+                else if(cnWord.contains(oldVal.toString()) && engWord.contains(newVal.toString())){
+                    //changed language from chinese to english
+                    if(oldVal.toString().equals("添加")) addUpdateButton.setText("Add");
+                    else {
+                        addUpdateButton.setText("Update");
+                        currentState = true;
+                    }
+                }
+                //these two if statemet is to fix the error in upper if else statement
+                if(cnWord.contains(oldVal.toString()) && cnWord.contains(newVal.toString()) && currentState){
+                    addUpdateButton.setText("更新");
+                    currentState = false;
+                }
+                if(engWord.contains(oldVal.toString()) && engWord.contains(newVal.toString()) && currentState){
+                    addUpdateButton.setText("Update");
+                    currentState = false;
+                }
+            }
+        });
+        
+        //this catches mouse click event on scheduleTable
+        scheduleTable.setRowFactory(tv -> {
+            TableRow<Schedule> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 1 && (!row.isEmpty())) {
+                    //when the row is selected, load all data to the editing section
+                    //change the add button to update
+                    Schedule item = row.getItem();
+                    typeCB.getSelectionModel().select(item.getType());
+                    //convert string back to localDate
+                    sdDatePicker.setValue(LocalDate.parse(item.getDate(), formatters)); 
+                    titleTF.setText(item.getTitle());
+                    topicTF.setText(item.getTopic());
+                    linkTF.setText(item.getLink());
+                    
+                    controller.changeButtonText(addUpdateButton, DISABLED);
+                }
+            });
+            return row;
+        });
         
         
         // DON'T LET ANYONE SORT THE TABLES
@@ -605,10 +687,10 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         TableColumn dateColumn = ohBuilder.buildTableColumn(SD_DATE_TABLE_COLUMN, sdTable, CLASS_OH_COLUMN);
         TableColumn titleColumn = ohBuilder.buildTableColumn(SD_TITLE_TABLE_COLUMN, sdTable, CLASS_OH_COLUMN);
         TableColumn topicColumn = ohBuilder.buildTableColumn(SD_TOPIC_TABLE_COLUMN, sdTable, CLASS_OH_COLUMN);
-        typeColumn.setCellValueFactory(new PropertyValueFactory<>("sd type"));
-        dateColumn.setCellValueFactory(new PropertyValueFactory<>("sd date"));
-        titleColumn.setCellValueFactory(new PropertyValueFactory<>("sd title"));
-        topicColumn.setCellValueFactory(new PropertyValueFactory<>("sd topic"));
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("type"));
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+        topicColumn.setCellValueFactory(new PropertyValueFactory<>("topic"));
         typeColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(1.0 / 5.0));
         dateColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(2.0 / 5.0));
         titleColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(1.0 / 5.0));
@@ -662,9 +744,14 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         ohBuilder.buildLabel(SD_EDIT_LINK_LABEL, linkBox1, CLASS_LABEL, ENABLED);
         
         //typing of main edit section
-        ComboBox typeCB = ohBuilder.buildComboBox(SD_TYPE_COMBO_BOX, null, EMPTY_TEXT, typeBox2, 
-                CLASS_COMBO_BOX, ENABLED, EDITABLE, FIRST_OPTION);
+        ObservableList<String> scheduleType
+            = FXCollections.observableArrayList(
+                    "Holiday", "Lecture", "HW", "Recitation", "Lab", "Reference"
+            );
+        ComboBox typeCB = ohBuilder.buildComboBox(SD_TYPE_COMBO_BOX, scheduleType, EMPTY_TEXT, typeBox2, 
+                CLASS_COMBO_BOX, ENABLED, NOT_EDITABLE, FIRST_OPTION);
         DatePicker datePicker = ohBuilder.buildDatePicker(SD_DATE_DATE_PICKER, dateBox2, CLASS_DATE_PICKER, ENABLED);
+        datePicker.setValue(LocalDate.now()); //set the date picker to today's date
         TextField titleTF = ohBuilder.buildTextField(SD_TITLE_TEXT_FIELD, titleBox2, CLASS_OH_TEXT_FIELD, ENABLED);
         TextField topicTF = ohBuilder.buildTextField(SD_TOPIC_TEXT_FIELD, topicBox2, CLASS_OH_TEXT_FIELD, ENABLED);
         TextField linkTF = ohBuilder.buildTextField(SD_LINK_TEXT_FIELD, linkBox2, CLASS_OH_TEXT_FIELD, ENABLED);
@@ -1456,5 +1543,5 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
             }
         });
     }
-    
+     
 }

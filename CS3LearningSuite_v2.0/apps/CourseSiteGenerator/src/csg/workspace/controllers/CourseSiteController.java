@@ -29,13 +29,20 @@ import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
 import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
+import csg.data.Schedule;
 import csg.transactions.AddTableRow_Transaction;
+import csg.transactions.AddUpdateSchedule_Transaction;
 import csg.transactions.DeleteTableRow_Transaction;
 import csg.transactions.SiteIcon_Transaction;
 import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.HashMap;
 import javafx.collections.FXCollections;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.image.Image;
@@ -533,5 +540,64 @@ public class CourseSiteController {
         
         // select first cell
         table.getSelectionModel().selectFirst();
+    }
+    
+    public void clearScheduleEdit(TableView scheduleTable, ComboBox typeCB,
+                                  DatePicker sdDatePicker, TextField titleTF,
+                                  TextField topicTF, TextField linkTF, Button addUpdateButton) {
+        scheduleTable.getSelectionModel().clearSelection();
+        typeCB.getSelectionModel().selectFirst();
+        sdDatePicker.setValue(LocalDate.now());
+        titleTF.clear();
+        topicTF.clear();
+        linkTF.clear();
+        changeButtonText(addUpdateButton, true);
+    }
+    
+    /**
+     * this method is to help change meeting tab button state, this is language dependent
+     * @param bt : button we working on (Only addUpdateButton)
+     * @param addState : state of button : either add or update
+     */
+    public void changeButtonText(Button bt, boolean addState){
+        String currentLanguage = app.getLanguageModule().getCurrentLanguage();
+        if(currentLanguage.equals("English")){
+            if(addState) bt.setText("Add");
+            else bt.setText("Update");
+        }
+        else{
+            if(addState) bt.setText("添加");
+            else bt.setText("更新");
+        }
+    }
+    
+    public void addUpdateAction(Button addUpdateButton, DatePicker sdDatePicker,
+                                DateTimeFormatter formatters, ComboBox typeCB,
+                                TextField titleTF, TextField topicTF, TextField linkTF,
+                                TableView scheduleTable) {
+        if (addUpdateButton.getText().equals("Add") || addUpdateButton.getText().equals("添加")) {
+            //adding new row
+            String date = sdDatePicker.getValue().format(formatters);
+            Schedule schedule = new Schedule(
+                    typeCB.getSelectionModel().getSelectedItem().toString(),
+                    date, titleTF.getText(), topicTF.getText(), linkTF.getText());
+            AddUpdateSchedule_Transaction AUS_Transaction = new AddUpdateSchedule_Transaction(
+                    schedule, scheduleTable, "Add", null, null, null, null, null);
+            app.processTransaction(AUS_Transaction);
+        } 
+        else {
+            //updating the selected row
+            Schedule currentEditingItem = (Schedule) scheduleTable.getSelectionModel().getSelectedItem();
+            AddUpdateSchedule_Transaction AUS_Transaction = new AddUpdateSchedule_Transaction(
+                    currentEditingItem, scheduleTable, "Update",
+                    typeCB.getSelectionModel().getSelectedItem().toString(),
+                    sdDatePicker.getValue().format(formatters),
+                    titleTF.getText(), topicTF.getText(), linkTF.getText());
+            app.processTransaction(AUS_Transaction);
+        }
+        //after processing the transaction we clear the textfields
+        titleTF.clear();
+        topicTF.clear();
+        linkTF.clear();
     }
 }
