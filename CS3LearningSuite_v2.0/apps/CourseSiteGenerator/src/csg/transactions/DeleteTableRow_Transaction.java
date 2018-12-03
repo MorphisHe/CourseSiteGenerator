@@ -4,6 +4,7 @@ package csg.transactions;
 import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
+import csg.data.Schedule;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableView;
 import jtps.jTPS_Transaction;
@@ -48,6 +49,9 @@ public class DeleteTableRow_Transaction implements jTPS_Transaction{
                 break;
             case "labs" :
                 data = (Labs)data;
+                break;
+            case "schedule" :
+                data = (Schedule)data;
                 break;
         }
         

@@ -599,5 +599,5 @@ public class CourseSiteController {
         titleTF.clear();
         topicTF.clear();
         linkTF.clear();
-    }
+    }   
 }

@@ -311,6 +311,11 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Button removeLecturesButton = (Button)gui.getGUINode(MT_DELETE_LECUTURE_BUTTON);
         Button removeRecButton = (Button)gui.getGUINode(MT_DELETE_RECITATION_BUTTON);
         Button removeLabsButton = (Button)gui.getGUINode(MT_DELETE_LABS_BUTTON);
+        //set all remove button on fool proof
+        removeLecturesButton.disableProperty().bind(lecturesTable.getFocusModel().focusedItemProperty().isNull());
+        removeRecButton.disableProperty().bind(recitationTable.getFocusModel().focusedItemProperty().isNull());
+        removeLabsButton.disableProperty().bind(labsTable.getFocusModel().focusedItemProperty().isNull());
+        //set all remove button on action
         removeLecturesButton.setOnAction(e -> {
             controller.removeSelectedRows(lecturesTable, "lectures");
         });
@@ -330,12 +335,16 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         TableView<Schedule> scheduleTable = (TableView)gui.getGUINode(SD_SCHEDULE_ITEM_TABLE_VIEW);
         Button addUpdateButton = (Button)gui.getGUINode(SD_ADD_UPDATE_BUTTON);
         Button clearButton = (Button)gui.getGUINode(SD_CLEAR_BUTTON);
+        Button removeSchedule = (Button)gui.getGUINode(SD_DELETE_SCHEDULE_ITEM_BUTTON);
         ComboBox typeCB = (ComboBox)gui.getGUINode(SD_TYPE_COMBO_BOX);
         DatePicker sdDatePicker = (DatePicker)gui.getGUINode(SD_DATE_DATE_PICKER);
         TextField titleTF = (TextField)gui.getGUINode(SD_TITLE_TEXT_FIELD);
         TextField topicTF = (TextField)gui.getGUINode(SD_TOPIC_TEXT_FIELD);
         TextField linkTF = (TextField)gui.getGUINode(SD_LINK_TEXT_FIELD);
         DateTimeFormatter formatters = DateTimeFormatter.ofPattern("M/d/uuuu"); //formatter to convert localDate object
+        
+        //set fool proof for remove schedule button, only enable when a row is selected
+        removeSchedule.disableProperty().bind(scheduleTable.getFocusModel().focusedItemProperty().isNull());
         
         addUpdateButton.setOnAction(e -> {
             controller.addUpdateAction(addUpdateButton, sdDatePicker, formatters, 
@@ -345,6 +354,10 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         clearButton.setOnAction(e -> {
             controller.clearScheduleEdit(scheduleTable, typeCB, sdDatePicker, 
                     titleTF, topicTF, linkTF, addUpdateButton);
+        });
+        
+        removeSchedule.setOnAction(e ->{
+            controller.removeSelectedRows(scheduleTable, "schedule");
         });
         
         //these two arraylist are used for addUpdateButton text language dependentcy
@@ -692,9 +705,9 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         topicColumn.setCellValueFactory(new PropertyValueFactory<>("topic"));
         typeColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(1.0 / 5.0));
-        dateColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(2.0 / 5.0));
+        dateColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(1.0 / 5.0));
         titleColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(1.0 / 5.0));
-        topicColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(1.0 / 5.0));
+        topicColumn.prefWidthProperty().bind(sdTable.widthProperty().multiply(2.0 / 5.0));
         
         sdTableBox.getChildren().addAll(tableHeaderBox, sdTable);
         
