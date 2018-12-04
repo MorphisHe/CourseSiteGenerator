@@ -45,6 +45,9 @@ import static csg.workspace.style.OHStyle.*;
 import static djf.modules.AppGUIModule.DISABLED;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -96,16 +99,18 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
     //booleans that keep tract of all true and false action in each user interface
     private static boolean currentState = false;
     
-    //these are the file path for site style editing
-    private final String FAV_ICON_PATH = "/Users/turtle714804947/repos/"
-            + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/fav_icon";
-    private final String NAV_BAR_PATH = "/Users/turtle714804947/repos/"
-            + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/nav_bar";
-    private final String LEFT_FOOTER_IMAGE_PATH = "/Users/turtle714804947/repos/"
-            + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/left_footer_image";
-    private final String RIGHT_FOOTER_IMAGE_PATH = "/Users/turtle714804947/repos/"
-            + "coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/images/right_footer_image";
+    //these are the relative file path for site style images
+    private final String FAV_ICON_PATH = "images\\fav_icon";
+    private final String NAV_BAR_PATH = "images\\nav_bar";
+    private final String LEFT_FOOTER_IMAGE_PATH = "images\\left_footer_image";
+    private final String RIGHT_FOOTER_IMAGE_PATH = "images\\right_footer_image";
 
+    //relative paths for site style editing
+    private final String FAV_ICON_RELATIVE_PATH = "images\\fav_icon\\Favicon_SeaWolf.png";
+    private final String NAV_BAR_RELATIVE_PATH = "images\\nav_bar\\Navbar_SeaWolf.png";
+    private final String LEFT_FOOTER_IMAGE_RELATIVE_PATH = "images\\left_footer_image\\Left_Footer_Image_SeaWolf.png";
+    private final String RIGHT_FOOTER_IMAGE_RELATIVE_PATH = "images\\right_footer_image\\Right_Footer_Image_SeaWolf.png";
+    
     public CourseSiteWorkspace(CourseSiteGeneratorApp app) {
         super(app);
 
@@ -445,27 +450,32 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         Button navBar = (Button) gui.getGUINode(SITE_NAVBAR_BUTTON);
         Button leftFotter = (Button) gui.getGUINode(SITE_LEFT_FOTTER_BUTTON);
         Button rightFotter = (Button) gui.getGUINode(SITE_RIGHT_FOTTER_BUTTON);
-        
+        //get the relative paths of the image folder
+        Path favIconPath = Paths.get(FAV_ICON_PATH);
+        Path navBarPath = Paths.get(NAV_BAR_PATH);
+        Path leftFooterPath = Paths.get(LEFT_FOOTER_IMAGE_PATH);
+        Path rightFooterPath = Paths.get(RIGHT_FOOTER_IMAGE_PATH);
+        //need to transfer the path to abs path
         FileChooser favIconChooser = new FileChooser();
-        favIconChooser.setInitialDirectory(new File(FAV_ICON_PATH));
+        favIconChooser.setInitialDirectory(new File(favIconPath.toAbsolutePath().toString().replace("\\", "/")));
         favIcon.setOnAction((e) -> {
             controller.processEditSiteStyle(favIconChooser, SITE_FAV_HBOX);
         });
         
         FileChooser navBarChooser = new FileChooser();
-        navBarChooser.setInitialDirectory(new File(NAV_BAR_PATH));
+        navBarChooser.setInitialDirectory(new File(navBarPath.toAbsolutePath().toString().replace("\\", "/")));
         navBar.setOnAction((e) -> {
             controller.processEditSiteStyle(navBarChooser, SITE_NAV_HBOX);
         });
         
         FileChooser lfImageChooser = new FileChooser();
-        lfImageChooser.setInitialDirectory(new File(LEFT_FOOTER_IMAGE_PATH));
+        lfImageChooser.setInitialDirectory(new File(leftFooterPath.toAbsolutePath().toString().replace("\\", "/")));
         leftFotter.setOnAction((e) -> {
             controller.processEditSiteStyle(lfImageChooser, SITE_LF_IMAGE_HBOX);
         });
         
         FileChooser rfImageChooser = new FileChooser();
-        rfImageChooser.setInitialDirectory(new File(RIGHT_FOOTER_IMAGE_PATH));
+        rfImageChooser.setInitialDirectory(new File(rightFooterPath.toAbsolutePath().toString().replace("\\", "/")));
         rightFotter.setOnAction((e) -> {
             controller.processEditSiteStyle(rfImageChooser, SITE_RF_IMAGE_HBOX);
         });
@@ -1375,19 +1385,28 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         HBox lfImageBox = ohBuilder.buildHBox(SITE_LF_IMAGE_HBOX, null, EMPTY_TEXT, ENABLED);
         HBox rfImageBox = ohBuilder.buildHBox(SITE_RF_IMAGE_HBOX, null, EMPTY_TEXT, ENABLED);
         HBox styleSheetBox = new HBox();
-        //default images
-        Image fabIconImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
-                + "apps/CourseSiteGenerator/images/fav_icon/Favicon_SeaWolf.png").toURI().toString());
-        Image navBarImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
-                + "apps/CourseSiteGenerator/images/nav_bar/Navbar_SeaWolf.png").toURI().toString());
-        Image leftFooterImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
-                + "apps/CourseSiteGenerator/images/left_footer_image/Left_Footer_Image_SeaWolf.png").toURI().toString());
-        Image rightFooterImage = new Image(new File("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/"
-                + "apps/CourseSiteGenerator/images/right_footer_image/Right_Footer_Image_SeaWolf.png").toURI().toString());
+        
+        //relative path for the images
+        Path favIconPath = Paths.get(FAV_ICON_RELATIVE_PATH);
+        Path navBarPath = Paths.get(NAV_BAR_RELATIVE_PATH);
+        Path leftFooterPath = Paths.get(LEFT_FOOTER_IMAGE_RELATIVE_PATH);
+        Path rightFooterPath = Paths.get(RIGHT_FOOTER_IMAGE_RELATIVE_PATH);
+        
+        //default images,Image object only takes absolute path as parameter, so we converting to abs path
+        Image fabIconImage = new Image(new File(favIconPath.toAbsolutePath().toString()
+                .replace("\\", "/")).toURI().toString());
+        Image navBarImage = new Image(new File(navBarPath.toAbsolutePath().toString()
+                .replace("\\", "/")).toURI().toString());
+        Image leftFooterImage = new Image(new File(leftFooterPath.toAbsolutePath().toString()
+                .replace("\\", "/")).toURI().toString());
+        Image rightFooterImage = new Image(new File(rightFooterPath.toAbsolutePath().toString()
+                .replace("\\", "/")).toURI().toString());
+        
         ImageView fabIconImageView = new ImageView(fabIconImage);
         ImageView navBarImageView = new ImageView(navBarImage);
         ImageView leftFooterImageView = new ImageView(leftFooterImage);
         ImageView rightFooterImageView = new ImageView(rightFooterImage);
+        
         //adding button and images to HBox
         Button favIcon = ohBuilder.buildTextButton(SITE_FAV_ICON_BUTTON, favBox, CLASS_OH_BUTTON, ENABLED);
         favBox.getChildren().add(fabIconImageView);

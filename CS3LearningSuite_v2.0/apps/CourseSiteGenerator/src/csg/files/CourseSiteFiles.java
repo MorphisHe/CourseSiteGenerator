@@ -42,6 +42,7 @@ import csg.workspace.CourseSiteWorkspace;
 import csg.workspace.controllers.CourseSiteController;
 import static djf.AppPropertyType.SAVE_BUTTON;
 import java.io.File;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -990,7 +991,12 @@ public class CourseSiteFiles implements AppFileComponent {
     }
     
     public void loadComboBoxData() throws IOException{
-        JsonObject json = loadJSONFile(CB_DATA_FILE_PATH);
+        //turn the combo box data file to relative path first
+        URI base = URI.create("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator");
+        URI absolute = URI.create(CB_DATA_FILE_PATH);
+        URI relative = base.relativize(absolute);
+        
+        JsonObject json = loadJSONFile(relative.toString());
         CourseSiteController controller = new CourseSiteController((CourseSiteGeneratorApp) app);
         
         // GET ALL JSON ARRAYS
@@ -1023,8 +1029,12 @@ public class CourseSiteFiles implements AppFileComponent {
     
     //method to add a new value to specific observable list
     public void addToObvList(String typeOfList, String valueToAdd, CourseSiteController controller) throws IOException{
+        //turn the combo box data file to relative path first
+        URI base = URI.create("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator");
+        URI absolute = URI.create(CB_DATA_FILE_PATH);
+        URI relative = base.relativize(absolute);
         
-        JsonObject json = loadJSONFile(CB_DATA_FILE_PATH);
+        JsonObject json = loadJSONFile(relative.toString());
         JsonObjectBuilder fullJsonData = Json.createObjectBuilder();
         JsonArrayBuilder builder = Json.createArrayBuilder();
         
@@ -1093,11 +1103,11 @@ public class CourseSiteFiles implements AppFileComponent {
         }
 
 	// INIT THE WRITER
-	OutputStream os = new FileOutputStream(CB_DATA_FILE_PATH);
+	OutputStream os = new FileOutputStream(relative.toString());
 	JsonWriter jsonFileWriter = Json.createWriter(os);
 	jsonFileWriter.writeObject(fullJsonData.build());
 	String prettyPrinted = sw.toString();
-        try (PrintWriter pw = new PrintWriter(CB_DATA_FILE_PATH)) {
+        try (PrintWriter pw = new PrintWriter(relative.toString())) {
             pw.write(prettyPrinted);
         }
     }
