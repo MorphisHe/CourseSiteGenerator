@@ -29,7 +29,6 @@ import csg.data.Lectures;
 import csg.data.Recitations;
 import csg.data.Schedule;
 import csg.files.CourseSiteFiles;
-import csg.transactions.AddUpdateSchedule_Transaction;
 import csg.transactions.CheckBox_Transaction;
 import csg.transactions.ComboBox_Transaction;
 import csg.transactions.CourseInfoComboBox_Transaction;
@@ -45,7 +44,6 @@ import static csg.workspace.style.OHStyle.*;
 import static djf.modules.AppGUIModule.DISABLED;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -62,6 +60,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -279,8 +278,82 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         initTextAreas(((TextArea)gui.getGUINode(SITE_OFFICE_HOURS_TEXT_AREA)));
         
         //set undo redo for all datePickers
-        initDatePicker((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER));
-        initDatePicker((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER));
+        DatePicker startDatePicker = (DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER);
+        DatePicker endDatePicker = (DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER);
+        DatePicker editDatePicker = (DatePicker)gui.getGUINode(SD_DATE_DATE_PICKER);
+        
+        startDatePicker.setEditable(DISABLED);
+        endDatePicker.setEditable(DISABLED);
+        editDatePicker.setEditable(DISABLED);
+        
+        initDatePicker(startDatePicker, editDatePicker, "start");
+        initDatePicker(endDatePicker, editDatePicker, "end");
+        
+        
+        startDatePicker.setDayCellFactory(dp -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+
+                try {
+                    if (item.isAfter(endDatePicker.getValue())) {
+                        setDisable(true);
+                        setStyle("-fx-background-color: #ffc0cb;");
+                    }
+                }
+                catch(Exception e){
+                    System.out.println("");
+                }
+                
+            }
+        });
+        
+        endDatePicker.setDayCellFactory(dp -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                DateCell cell = this;
+                try {
+                    if (item.isBefore(startDatePicker.getValue())) {
+                        setDisable(true);
+                        setStyle("-fx-background-color: #ffc0cb;");
+                    }
+                }
+                catch(Exception e){
+                    System.out.println("");
+                }
+            }
+        });
+        
+        editDatePicker.setDayCellFactory(dp -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                //for checking items before start date
+                try {
+                    if (item.isBefore(startDatePicker.getValue())) {
+                        setDisable(true);
+                        setStyle("-fx-background-color: #ffc0cb;");
+                    }
+                }
+                catch(Exception e){
+                    System.out.println("");
+                }
+                
+                //for checking items after end date
+                try {
+                    if (item.isAfter(endDatePicker.getValue())) {
+                        setDisable(true);
+                        setStyle("-fx-background-color: #ffc0cb;");
+                    }
+                }
+                catch(Exception e){
+                    System.out.println("");
+                }
+            }
+        });
+        
+
         
         //meeting time tab button controllers
         TableView<Lectures> lecturesTable = (TableView<Lectures>)gui.getGUINode(MT_LECTURE_TABLE_VIEW);
@@ -656,20 +729,30 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         
     }
     
-    //this method is helper method for initController, deals with all date picker undo redo
-    private void initDatePicker(DatePicker datePicker){
+    /**
+     * this method is helper method for initController, deals with all date picker undo redo
+     * @param datePicker : the date picker object we setting action on 
+     * @param editDatePicker : we might to to change the date picked on this date pick
+     * @param typeOfDP :type of the date picker we working on
+     */
+    private void initDatePicker(DatePicker datePicker, DatePicker editDatePicker, String typeOfDP){
         datePicker.focusedProperty().addListener((ObservableValue<? extends Boolean> obs,
                 Boolean oldVal, Boolean newVal) -> {
             if (!newVal) {
                 //happens when lose focus
-                newDate = datePicker.getValue();
-                if(!newDate.equals(oldDate)){
-                    DatePicker_Transaction datePickerTransaction = new DatePicker_Transaction(
-                            datePicker, oldDate, newDate);
-                    app.processTransaction(datePickerTransaction);
+                try {
+                    newDate = datePicker.getValue();
+                    if (!newDate.equals(oldDate)) {
+                        DatePicker_Transaction datePickerTransaction = new DatePicker_Transaction(
+                                datePicker, editDatePicker, typeOfDP, oldDate, newDate);
+                        app.processTransaction(datePickerTransaction);
+                    }
                 }
-            }
-            else{
+                catch(Exception e){
+                    //this is catch potential null
+                    System.out.print("");
+                }  
+            } else {
                 //happens when gain focus
                 oldDate = datePicker.getValue();
             }
