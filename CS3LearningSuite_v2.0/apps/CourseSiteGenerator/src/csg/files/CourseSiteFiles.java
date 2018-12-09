@@ -42,7 +42,8 @@ import csg.workspace.CourseSiteWorkspace;
 import csg.workspace.controllers.CourseSiteController;
 import static djf.AppPropertyType.SAVE_BUTTON;
 import java.io.File;
-import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -66,8 +67,7 @@ public class CourseSiteFiles implements AppFileComponent {
     CourseSiteGeneratorApp app;
     
     // PATH FOR COMBO BOX DATA FILE
-    static final String CB_DATA_FILE_PATH = "/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator/cb_data/cb_data.json";
-   
+    static final String CB_DATA_FILE_PATH = "cb_data\\cb_data.json";   
     
     // FOLLOWING ARE USED FOR IDENTIFYING JSON TYPES
     
@@ -777,10 +777,13 @@ public class CourseSiteFiles implements AppFileComponent {
                 typePath = ((CourseSiteWorkspace)app.getWorkspaceComponent()).getRFpath();
                 break;
         }
-        String path = (typePath + "/" + jsonFav);
+        //get the relative path
+        String pathString = (typePath + "\\" + jsonFav);
+        Path imagePath = Paths.get(pathString);
         
         //maing the image view object
-        Image icon = new Image(new File(path).toURI().toString());
+        Image icon = new Image(new File(imagePath.toAbsolutePath().toString()
+                .replace("\\", "/")).toURI().toString());
         ImageView imageView = new ImageView(icon);
         
         //rendering the image view to gui
@@ -992,11 +995,9 @@ public class CourseSiteFiles implements AppFileComponent {
     
     public void loadComboBoxData() throws IOException{
         //turn the combo box data file to relative path first
-        URI base = URI.create("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator");
-        URI absolute = URI.create(CB_DATA_FILE_PATH);
-        URI relative = base.relativize(absolute);
+        Path path = Paths.get(CB_DATA_FILE_PATH);
         
-        JsonObject json = loadJSONFile(relative.toString());
+        JsonObject json = loadJSONFile(path.toString().replace("\\", "/"));
         CourseSiteController controller = new CourseSiteController((CourseSiteGeneratorApp) app);
         
         // GET ALL JSON ARRAYS
@@ -1030,11 +1031,9 @@ public class CourseSiteFiles implements AppFileComponent {
     //method to add a new value to specific observable list
     public void addToObvList(String typeOfList, String valueToAdd, CourseSiteController controller) throws IOException{
         //turn the combo box data file to relative path first
-        URI base = URI.create("/Users/turtle714804947/repos/coursesitegenerator/CS3LearningSuite_v2.0/apps/CourseSiteGenerator");
-        URI absolute = URI.create(CB_DATA_FILE_PATH);
-        URI relative = base.relativize(absolute);
+        Path path = Paths.get(CB_DATA_FILE_PATH);
         
-        JsonObject json = loadJSONFile(relative.toString());
+        JsonObject json = loadJSONFile(path.toString().replace("\\", "/"));
         JsonObjectBuilder fullJsonData = Json.createObjectBuilder();
         JsonArrayBuilder builder = Json.createArrayBuilder();
         
@@ -1103,11 +1102,11 @@ public class CourseSiteFiles implements AppFileComponent {
         }
 
 	// INIT THE WRITER
-	OutputStream os = new FileOutputStream(relative.toString());
+	OutputStream os = new FileOutputStream(path.toString().replace("\\", "/"));
 	JsonWriter jsonFileWriter = Json.createWriter(os);
 	jsonFileWriter.writeObject(fullJsonData.build());
 	String prettyPrinted = sw.toString();
-        try (PrintWriter pw = new PrintWriter(relative.toString())) {
+        try (PrintWriter pw = new PrintWriter(path.toString().replace("\\", "/"))) {
             pw.write(prettyPrinted);
         }
     }
