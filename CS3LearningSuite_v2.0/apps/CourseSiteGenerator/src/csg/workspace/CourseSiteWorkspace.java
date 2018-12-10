@@ -418,13 +418,13 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         removeLabsButton.disableProperty().bind(labsTable.getFocusModel().focusedItemProperty().isNull());
         //set all remove button on action
         removeLecturesButton.setOnAction(e -> {
-            controller.removeSelectedRows(lecturesTable, "lectures");
+            controller.removeSelectedRows(lecturesTable, "lectures", gui);
         });
         removeRecButton.setOnAction(e -> {
-            controller.removeSelectedRows(recitationTable, "recitation");
+            controller.removeSelectedRows(recitationTable, "recitation", gui);
         });
         removeLabsButton.setOnAction(e -> {
-            controller.removeSelectedRows(labsTable, "labs");
+            controller.removeSelectedRows(labsTable, "labs", gui);
         });
         // don't let it get the focus or else the table would lose it when we click the button 
         // and we's have to request the focus on the table in the event handler
@@ -457,12 +457,15 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         });
         
         clearButton.setOnAction(e -> {
-            controller.clearScheduleEdit(scheduleTable, typeCB, sdDatePicker, 
-                    titleTF, topicTF, linkTF, addUpdateButton);
+            controller.clearScheduleEdit(gui);
         });
         
         removeSchedule.setOnAction(e ->{
-            controller.removeSelectedRows(scheduleTable, "schedule");
+            controller.removeSelectedSchedule(scheduleTable, "schedule", 
+                                          typeCB, sdDatePicker, 
+                                          titleTF, topicTF, linkTF,
+                                          startDatePicker, addUpdateButton, 
+                                          gui, controller);
         });
         
         //these two arraylist are used for addUpdateButton text language dependentcy

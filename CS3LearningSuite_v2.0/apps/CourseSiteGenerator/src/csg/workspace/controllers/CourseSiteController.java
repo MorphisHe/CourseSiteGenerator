@@ -26,7 +26,14 @@ import static csg.CourseSitePropertyType.CSG_FOOLPROOF_SETTINGS;
 import static csg.CourseSitePropertyType.CSG_TA_EDIT_DIALOG;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
+import static csg.CourseSitePropertyType.SD_ADD_UPDATE_BUTTON;
+import static csg.CourseSitePropertyType.SD_DATE_DATE_PICKER;
+import static csg.CourseSitePropertyType.SD_LINK_TEXT_FIELD;
 import static csg.CourseSitePropertyType.SD_SCHEDULE_ITEM_TABLE_VIEW;
+import static csg.CourseSitePropertyType.SD_START_MON_DATE_PICKER;
+import static csg.CourseSitePropertyType.SD_TITLE_TEXT_FIELD;
+import static csg.CourseSitePropertyType.SD_TOPIC_TEXT_FIELD;
+import static csg.CourseSitePropertyType.SD_TYPE_COMBO_BOX;
 import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
@@ -536,15 +543,50 @@ public class CourseSiteController {
      * Remove all selected rows.
      * @param table : the TableView object that we working on
      * @param typeOfData : the type of data of the line we removing, this param is made of undo and redo
+     * @param gui
      */
-    public void removeSelectedRows(TableView table, String typeOfData) {
+    public void removeSelectedRows(TableView table, String typeOfData, AppGUIModule gui) {
         DeleteTableRow_Transaction deleteTableRow_Transaction = new DeleteTableRow_Transaction(
-                                 table.getSelectionModel().getSelectedItem(), table, typeOfData,
-                                 table.getSelectionModel().getFocusedIndex());
+                table.getSelectionModel().getSelectedItem(), table, typeOfData,
+                table.getSelectionModel().getFocusedIndex(), gui, this);
         app.processTransaction(deleteTableRow_Transaction);
 
         // table selects by index, so we have to clear the selection or else items with that index would be selected 
         table.getSelectionModel().selectBelowCell();
+    }
+    
+    public void removeSelectedSchedule(TableView table, String typeOfData,
+                                   ComboBox typeCB, DatePicker sdDatePicker, 
+                                   TextField titleTF, TextField topicTF, TextField linkTF,
+                                   DatePicker startDatePicker, Button addUpdateButton, 
+                                   AppGUIModule gui, CourseSiteController controller) {
+        
+        DeleteTableRow_Transaction deleteTableRow_Transaction = new DeleteTableRow_Transaction(
+                                 table.getSelectionModel().getSelectedItem(), table, typeOfData,
+                                 table.getSelectionModel().getFocusedIndex(), gui, controller);
+        app.processTransaction(deleteTableRow_Transaction);
+
+        // table selects by index, so we have to clear the selection or else items with that index would be selected 
+        table.getSelectionModel().selectBelowCell();
+        Schedule selectedSchedule = (Schedule) table.getSelectionModel().getSelectedItem();
+        
+        //if the table is empty after deletion
+        if(table.getItems().isEmpty()){
+            typeCB.getSelectionModel().selectFirst();
+            sdDatePicker.setValue(startDatePicker.getValue());
+            titleTF.setText("");
+            topicTF.setText("");
+            linkTF.setText("");
+        }
+        else {
+            //set the editting section values
+            typeCB.getSelectionModel().select(selectedSchedule.getType());
+            sdDatePicker.setValue(selectedSchedule.getLocalDate());
+            titleTF.setText(selectedSchedule.getTitle());
+            topicTF.setText(selectedSchedule.getTopic());
+            linkTF.setText(selectedSchedule.getLink());
+            changeButtonText(addUpdateButton, true);
+        }
     }
     
     // method to setup how table views work
@@ -578,12 +620,19 @@ public class CourseSiteController {
         table.getSelectionModel().selectFirst();
     }
     
-    public void clearScheduleEdit(TableView scheduleTable, ComboBox typeCB,
-                                  DatePicker sdDatePicker, TextField titleTF,
-                                  TextField topicTF, TextField linkTF, Button addUpdateButton) {
+    public void clearScheduleEdit(AppGUIModule gui) {
+        TableView<Schedule> scheduleTable = (TableView<Schedule>) gui.getGUINode(SD_SCHEDULE_ITEM_TABLE_VIEW);
+        ComboBox typeCB = (ComboBox)gui.getGUINode(SD_TYPE_COMBO_BOX);
+        DatePicker sdDatePicker = (DatePicker)gui.getGUINode(SD_DATE_DATE_PICKER);
+        TextField titleTF = (TextField)gui.getGUINode(SD_TITLE_TEXT_FIELD);
+        TextField topicTF = (TextField)gui.getGUINode(SD_TOPIC_TEXT_FIELD);
+        TextField linkTF = (TextField)gui.getGUINode(SD_LINK_TEXT_FIELD);
+        DatePicker startDatePicker = (DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER);
+        Button addUpdateButton = (Button) gui.getGUINode(SD_ADD_UPDATE_BUTTON);
+        
         scheduleTable.getSelectionModel().clearSelection();
         typeCB.getSelectionModel().selectFirst();
-        sdDatePicker.setValue(LocalDate.now());
+        sdDatePicker.setValue(startDatePicker.getValue());
         titleTF.clear();
         topicTF.clear();
         linkTF.clear();
@@ -637,9 +686,5 @@ public class CourseSiteController {
         }
         
         scheduleTable.refresh();
-        //after processing the transaction we clear the textfields
-        titleTF.clear();
-        topicTF.clear();
-        linkTF.clear();
     }   
 }

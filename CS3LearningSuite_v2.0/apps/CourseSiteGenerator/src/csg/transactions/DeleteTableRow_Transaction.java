@@ -1,12 +1,19 @@
 
 package csg.transactions;
 
+import csg.CourseSitePropertyType;
 import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
 import csg.data.Schedule;
-import javafx.collections.ObservableList;
+import csg.workspace.controllers.CourseSiteController;
+import djf.modules.AppGUIModule;
+import java.time.LocalDate;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import jtps.jTPS_Transaction;
 
 /**
@@ -18,6 +25,8 @@ public class DeleteTableRow_Transaction implements jTPS_Transaction{
     TableView table;
     String typeOfData;
     int index;
+    AppGUIModule gui;
+    CourseSiteController controller;
     
     /**
      * this class focus on redo and undo for deleting a table row
@@ -25,12 +34,17 @@ public class DeleteTableRow_Transaction implements jTPS_Transaction{
      * @param table : the table that we are working on 
      * @param typeOfData : the type of data we deleting (since we have many different type of tables)
      * @param index : the index of the row we deleting (so we can add back the row to its original row index when redo)
+     * @param gui : gui to pass to clear editing section method
+     * @param controller : to call clear editing section method
      */
-    public DeleteTableRow_Transaction(Object data, TableView table, String typeOfData, int index) {
+    public DeleteTableRow_Transaction(Object data, TableView table, String typeOfData, int index, 
+                                      AppGUIModule gui, CourseSiteController controller) {
         this.data = data;
         this.table = table;
         this.typeOfData = typeOfData;
         this.index = index;
+        this.gui = gui;
+        this.controller = controller;
     }
     
     @Override
@@ -56,6 +70,7 @@ public class DeleteTableRow_Transaction implements jTPS_Transaction{
         }
         
         table.getItems().add(index, data);
+        if(typeOfData.equals("schedule")) controller.clearScheduleEdit(gui);
     }
     
 }
