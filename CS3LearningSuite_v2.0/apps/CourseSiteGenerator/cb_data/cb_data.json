@@ -3,10 +3,7 @@
     "siteSubject":[
         "CSE",
         "ISE",
-        "ITS",
-        "MEC",
-        "EEE",
-        "PSY"
+        "ITS"
     ],
     "siteSemester":[
         "Fall",
@@ -19,8 +16,7 @@
     ],
     "subjectNumber":[
         "219",
-        "220",
-        "305"
+        "220"
     ],
     "siteCss":[
         "sea_wolf.css",

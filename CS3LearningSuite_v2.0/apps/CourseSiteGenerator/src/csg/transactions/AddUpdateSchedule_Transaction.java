@@ -1,7 +1,10 @@
 
 package csg.transactions;
 
+import csg.data.OfficeHoursData;
 import csg.data.Schedule;
+import csg.workspace.controllers.CourseSiteController;
+import java.time.LocalDate;
 import javafx.scene.control.TableView;
 import jtps.jTPS_Transaction;
 
@@ -15,6 +18,9 @@ public class AddUpdateSchedule_Transaction implements jTPS_Transaction{
     TableView table;
     String typeOfAction;
     String type, date, title, topic, link;
+    OfficeHoursData dataModule;
+    LocalDate startDate, endDate;
+    CourseSiteController controller;
     
     /**
      * @param schedule : the schedule object that we adding or updating
@@ -25,13 +31,20 @@ public class AddUpdateSchedule_Transaction implements jTPS_Transaction{
      * @param title : data of title for schedule
      * @param topic : data of topic for schedule
      * @param link : data of link for schedule
+     * @param dataModule : use for accessing the sort schedule table method
+     * @param startDate : startDate for processing schedule table display
+     * @param endDate : endDate for processing schedule table display
+     * @param controller : to call process schedule display method
      */
     public AddUpdateSchedule_Transaction(
             Schedule schedule,
             TableView table,
             String typeOfAction,
             String type, String date, 
-            String title, String topic, String link) {
+            String title, String topic, String link,
+            OfficeHoursData dataModule,
+            LocalDate startDate, LocalDate endDate,
+            CourseSiteController controller) {
         this.schedule = schedule;
         this.table = table;
         this.typeOfAction = typeOfAction;
@@ -40,12 +53,16 @@ public class AddUpdateSchedule_Transaction implements jTPS_Transaction{
         this.title = title;
         this.topic = topic;
         this.link = link;
+        this.dataModule = dataModule;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.controller = controller;
     }
     
     @Override
     public void doTransaction() {
         if(typeOfAction.equals("Add")){
-            table.getItems().add(schedule);
+            dataModule.addSchedule(schedule);
         }
         else{
             oldScheduleData = schedule.clone();
@@ -56,12 +73,14 @@ public class AddUpdateSchedule_Transaction implements jTPS_Transaction{
             schedule.setTopic(topic);
             table.refresh();
         }
+        dataModule.sortScheduleTable();
+        controller.processScheduledisplay(startDate, endDate);
     }
 
     @Override
     public void undoTransaction() {
         if(typeOfAction.equals("Add")){
-            table.getItems().remove(schedule);
+            dataModule.removeSchedule(schedule);
         }
         else{
             schedule.setDate(oldScheduleData.getDate());
@@ -71,6 +90,8 @@ public class AddUpdateSchedule_Transaction implements jTPS_Transaction{
             schedule.setType(oldScheduleData.getType());
             table.refresh();
         }
+        dataModule.sortScheduleTable();
+        controller.processScheduledisplay(startDate, endDate);
     }
     
 }

@@ -26,6 +26,7 @@ import csg.data.TeachingAssistantPrototype;
 import csg.data.TimeSlot;
 import csg.data.Labs;
 import csg.data.Lectures;
+import csg.data.OfficeHoursData;
 import csg.data.Recitations;
 import csg.data.Schedule;
 import csg.files.CourseSiteFiles;
@@ -285,18 +286,23 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         startDatePicker.setEditable(DISABLED);
         endDatePicker.setEditable(DISABLED);
         editDatePicker.setEditable(DISABLED);
+     
+        startDatePicker.setOnMouseClicked(e -> {
+            oldDate = startDatePicker.getValue();
+        });
         
-        initDatePicker(startDatePicker, editDatePicker, "start");
-        initDatePicker(endDatePicker, editDatePicker, "end");
-        
+        endDatePicker.setOnMouseClicked(e -> {
+            oldDate = endDatePicker.getValue();
+        });
         
         startDatePicker.setDayCellFactory(dp -> new DateCell() {
             @Override
             public void updateItem(LocalDate item, boolean empty) {
                 super.updateItem(item, empty);
-
+                DateCell cell = this;
+                
                 try {
-                    if (item.isAfter(endDatePicker.getValue())) {
+                    if (item.isAfter(endDatePicker.getValue().minusDays(7))) {
                         setDisable(true);
                         setStyle("-fx-background-color: #ffc0cb;");
                     }
@@ -305,16 +311,25 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                     System.out.println("");
                 }
                 
+                cell.setOnMouseClicked(e -> {
+                    newDate = startDatePicker.getValue();
+                    DatePicker_Transaction datePickerTransaction = new DatePicker_Transaction(
+                                startDatePicker, editDatePicker, "start", oldDate, 
+                                newDate, endDatePicker.getValue(), controller);
+                    app.processTransaction(datePickerTransaction);
+                });
+                
             }
         });
         
         endDatePicker.setDayCellFactory(dp -> new DateCell() {
             @Override
             public void updateItem(LocalDate item, boolean empty) {
-                super.updateItem(item, empty);
+                super.updateItem(item, empty);   
                 DateCell cell = this;
+                
                 try {
-                    if (item.isBefore(startDatePicker.getValue())) {
+                    if (item.isBefore(startDatePicker.getValue().plusDays(7))) {
                         setDisable(true);
                         setStyle("-fx-background-color: #ffc0cb;");
                     }
@@ -322,6 +337,14 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
                 catch(Exception e){
                     System.out.println("");
                 }
+                
+                cell.setOnMouseClicked(e -> {
+                    newDate = endDatePicker.getValue();
+                    DatePicker_Transaction datePickerTransaction = new DatePicker_Transaction(
+                                endDatePicker, editDatePicker, "end", oldDate, 
+                                newDate, startDatePicker.getValue(), controller);
+                    app.processTransaction(datePickerTransaction);
+                });
             }
         });
         
@@ -426,7 +449,11 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         
         addUpdateButton.setOnAction(e -> {
             controller.addUpdateAction(addUpdateButton, sdDatePicker, formatters, 
-                                       typeCB, titleTF, topicTF, linkTF, scheduleTable);
+                                       typeCB, titleTF, topicTF, linkTF, scheduleTable, 
+                                       (OfficeHoursData) app.getDataComponent(),
+                                       startDatePicker, endDatePicker, controller);
+            //sort the table by date
+            ((OfficeHoursData)app.getDataComponent()).sortScheduleTable();
         });
         
         clearButton.setOnAction(e -> {
@@ -729,36 +756,6 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         
     }
     
-    /**
-     * this method is helper method for initController, deals with all date picker undo redo
-     * @param datePicker : the date picker object we setting action on 
-     * @param editDatePicker : we might to to change the date picked on this date pick
-     * @param typeOfDP :type of the date picker we working on
-     */
-    private void initDatePicker(DatePicker datePicker, DatePicker editDatePicker, String typeOfDP){
-        datePicker.focusedProperty().addListener((ObservableValue<? extends Boolean> obs,
-                Boolean oldVal, Boolean newVal) -> {
-            if (!newVal) {
-                //happens when lose focus
-                try {
-                    newDate = datePicker.getValue();
-                    if (!newDate.equals(oldDate)) {
-                        DatePicker_Transaction datePickerTransaction = new DatePicker_Transaction(
-                                datePicker, editDatePicker, typeOfDP, oldDate, newDate);
-                        app.processTransaction(datePickerTransaction);
-                    }
-                }
-                catch(Exception e){
-                    //this is catch potential null
-                    System.out.print("");
-                }  
-            } else {
-                //happens when gain focus
-                oldDate = datePicker.getValue();
-            }
-        });
-    }
-    
     private void initSchedulePage(AppNodesBuilder ohBuilder, TabPane tabPane){
         GridPane sdGridPane = new GridPane();
         
@@ -774,9 +771,11 @@ public final class CourseSiteWorkspace extends AppWorkspaceComponent {
         //calendar 
         HBox calSecHeaderBox = new HBox();
         ohBuilder.buildLabel(SD_START_MON_LABEL, calSecHeaderBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildDatePicker(SD_START_MON_DATE_PICKER, calSecHeaderBox, CLASS_DATE_PICKER, ENABLED);
+        DatePicker startDatePicker = ohBuilder.buildDatePicker(SD_START_MON_DATE_PICKER, calSecHeaderBox, CLASS_DATE_PICKER, ENABLED);
+        startDatePicker.setValue(LocalDate.ofYearDay(LocalDate.now().getYear(), 1));
         ohBuilder.buildLabel(SD_END_FRI_LABEL, calSecHeaderBox, CLASS_LABEL, ENABLED);
-        ohBuilder.buildDatePicker(SD_END_FRI_DATE_PICKER, calSecHeaderBox, CLASS_DATE_PICKER, ENABLED);
+        DatePicker endDatePicker = ohBuilder.buildDatePicker(SD_END_FRI_DATE_PICKER, calSecHeaderBox, CLASS_DATE_PICKER, ENABLED);
+        endDatePicker.setValue(LocalDate.ofYearDay(LocalDate.now().getYear(), 365));
         
         calendarBox.getChildren().addAll(calHeaderBox, calSecHeaderBox);
         

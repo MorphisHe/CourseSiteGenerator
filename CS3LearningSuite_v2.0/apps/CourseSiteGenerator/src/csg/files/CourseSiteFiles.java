@@ -917,7 +917,7 @@ public class CourseSiteFiles implements AppFileComponent {
     
     // METHOD TO CREATE A DATE OBBJECT FOR DATE PICKER
     public static final LocalDate loadedDate(String dateString) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M-d-yyyy");
         LocalDate localDate = LocalDate.parse(dateString, formatter);
         return localDate;
     }
@@ -1153,6 +1153,6 @@ public class CourseSiteFiles implements AppFileComponent {
 
     @Override
     public void exportData(AppDataComponent data, String filePath) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
 }

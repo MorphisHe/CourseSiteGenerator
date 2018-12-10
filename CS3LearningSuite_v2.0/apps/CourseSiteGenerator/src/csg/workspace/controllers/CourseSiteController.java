@@ -26,6 +26,7 @@ import static csg.CourseSitePropertyType.CSG_FOOLPROOF_SETTINGS;
 import static csg.CourseSitePropertyType.CSG_TA_EDIT_DIALOG;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_TITLE;
 import static csg.CourseSitePropertyType.CSG_NO_TA_SELECTED_CONTENT;
+import static csg.CourseSitePropertyType.SD_SCHEDULE_ITEM_TABLE_VIEW;
 import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
@@ -296,6 +297,41 @@ public class CourseSiteController {
                 laterThanStartTime = true;
                 //break the loop if we hit the endTime row
                 if (columnEndTime.equals(endTime)) break;
+            }
+        }
+        //add all rows to oh table
+        table.setItems(subentries);
+    }
+    
+    /**
+     * This method is to set display for the schedules table after start date and end
+     * date is picked. Will only show the rows within the picked date interval
+     * @param startDate : starting date for the schedule table
+     * @param endDate : ending date for the schedule table      
+     */
+    public void processScheduledisplay(LocalDate startDate, LocalDate endDate){
+        AppGUIModule gui = app.getGUIModule();
+        OfficeHoursData data = (OfficeHoursData)app.getDataComponent();
+        TableView<Schedule> table = (TableView) gui.getGUINode(SD_SCHEDULE_ITEM_TABLE_VIEW);
+        
+        //get the full oh table first
+        table.setItems(data.getSchedules());
+        
+        //this will store the rows that we are showing
+        ObservableList subentries = FXCollections.observableArrayList();
+ 
+        for (int i = 0; i < table.getItems().size(); i++) {
+           
+            Schedule schedule = (Schedule) table.getItems().get(i);
+
+            if(schedule.getLocalDate().isAfter(startDate) || schedule.getLocalDate().equals(startDate)){
+                subentries.add(schedule);
+                
+                //break if the date is after end date
+                if(schedule.getLocalDate().isAfter(endDate) && !subentries.isEmpty()){
+                    subentries.remove(subentries.size()-1);
+                    break;
+                }
             }
         }
         //add all rows to oh table
@@ -574,7 +610,9 @@ public class CourseSiteController {
     public void addUpdateAction(Button addUpdateButton, DatePicker sdDatePicker,
                                 DateTimeFormatter formatters, ComboBox typeCB,
                                 TextField titleTF, TextField topicTF, TextField linkTF,
-                                TableView scheduleTable) {
+                                TableView scheduleTable, OfficeHoursData data,
+                                DatePicker startDatePicker, DatePicker endDatePicker,
+                                CourseSiteController controller) {
         if (addUpdateButton.getText().equals("Add") || addUpdateButton.getText().equals("添加")) {
             //adding new row
             String date = sdDatePicker.getValue().format(formatters);
@@ -582,7 +620,8 @@ public class CourseSiteController {
                     typeCB.getSelectionModel().getSelectedItem().toString(),
                     date, titleTF.getText(), topicTF.getText(), linkTF.getText());
             AddUpdateSchedule_Transaction AUS_Transaction = new AddUpdateSchedule_Transaction(
-                    schedule, scheduleTable, "Add", null, null, null, null, null);
+                    schedule, scheduleTable, "Add", null, null, null, null, null, data,
+                    startDatePicker.getValue(), endDatePicker.getValue(), controller);
             app.processTransaction(AUS_Transaction);
         } 
         else {
@@ -592,11 +631,11 @@ public class CourseSiteController {
                     currentEditingItem, scheduleTable, "Update",
                     typeCB.getSelectionModel().getSelectedItem().toString(),
                     sdDatePicker.getValue().format(formatters),
-                    titleTF.getText(), topicTF.getText(), linkTF.getText());
+                    titleTF.getText(), topicTF.getText(), linkTF.getText(), data,
+                    startDatePicker.getValue(), endDatePicker.getValue(), controller);
             app.processTransaction(AUS_Transaction);
         }
-        //sort the table by date
-        ((OfficeHoursData)app.getDataComponent()).sortScheduleTable();
+        
         scheduleTable.refresh();
         //after processing the transaction we clear the textfields
         titleTF.clear();

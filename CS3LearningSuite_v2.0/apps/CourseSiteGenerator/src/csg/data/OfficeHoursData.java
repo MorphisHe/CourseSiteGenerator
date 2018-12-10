@@ -46,6 +46,8 @@ public class OfficeHoursData implements AppDataComponent {
     ObservableList<Labs> labs;
     ObservableList<Schedule> schedule;
     
+    // HOLDER FOR FULL SCHEDULE TABLE
+    ObservableList<Schedule> scheduleHolder;
     
     // HOLDER FOR FULL TAS TABLE
     ObservableList<TeachingAssistantPrototype> tempTAS;
@@ -123,6 +125,10 @@ public class OfficeHoursData implements AppDataComponent {
     
     public ObservableList<Lectures> getLectures(){
         return lectures;
+    }
+    
+    public ObservableList<Schedule> getSchedules(){
+        return schedule;
     }
     
     public ObservableList<TeachingAssistantPrototype> getTempTAs(){
@@ -233,6 +239,11 @@ public class OfficeHoursData implements AppDataComponent {
     
     public void addSchedule(Schedule schedules){
         this.schedule.add(schedules);
+        sortScheduleTable();
+    }
+    
+    public void removeSchedule(Schedule schedules){
+        this.schedule.remove(schedules);
         sortScheduleTable();
     }
     

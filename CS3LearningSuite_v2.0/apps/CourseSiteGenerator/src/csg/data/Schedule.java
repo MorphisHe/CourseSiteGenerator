@@ -1,6 +1,8 @@
 
 package csg.data;
 
+import static csg.files.CourseSiteFiles.loadedDate;
+import java.time.LocalDate;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -37,6 +39,10 @@ public class Schedule <E extends Comparable<E>> implements Comparable<E> {
     public String getDate() {
         return date.get();
     }
+    
+    public LocalDate getLocalDate(){
+        return loadedDate(this.date.get().replace("/", "-"));
+    }
 
     public String getTopic() {
         return topic.get();
@@ -70,7 +76,7 @@ public class Schedule <E extends Comparable<E>> implements Comparable<E> {
         return new Schedule(this.getType(), this.getDate(), this.getTitle(),
                                          this.getTopic(), this.getLink());
     }
-
+    
     @Override
     public int compareTo(E otherSchedule) {       
         //split them into arrays of formate  "mm", "dd", "yyyy"

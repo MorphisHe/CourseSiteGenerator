@@ -1,6 +1,7 @@
 
 package csg.transactions;
 
+import csg.workspace.controllers.CourseSiteController;
 import java.time.LocalDate;
 import javafx.scene.control.DatePicker;
 import jtps.jTPS_Transaction;
@@ -16,15 +17,20 @@ public class DatePicker_Transaction implements jTPS_Transaction{
     String typeOfDP;
     LocalDate oldValue;
     LocalDate newValue;
+    LocalDate otherDate;
     LocalDate dateHolder = null;
+    CourseSiteController controller;
     
     public DatePicker_Transaction(DatePicker datePicker, DatePicker editDatePicker,
-                                  String typeOfDP,LocalDate oldValue, LocalDate newValue){
+                                  String typeOfDP,LocalDate oldValue, LocalDate newValue,
+                                   LocalDate otherDate, CourseSiteController controller){
         this.datePicker = datePicker;
         this.editDatePicker = editDatePicker;
         this.typeOfDP = typeOfDP;
         this.oldValue = oldValue;
         this.newValue = newValue;
+        this.otherDate = otherDate;
+        this.controller = controller;
     }
     
     @Override
@@ -33,8 +39,12 @@ public class DatePicker_Transaction implements jTPS_Transaction{
             datePicker.setValue(newValue);
             dateHolder = editDatePicker.getValue();
             editDatePicker.setValue(newValue);
+            controller.processScheduledisplay(newValue, otherDate);
         }
-        else datePicker.setValue(newValue);
+        else{
+            datePicker.setValue(newValue);
+            controller.processScheduledisplay(otherDate, newValue);
+        }
     }
 
     @Override
@@ -42,8 +52,12 @@ public class DatePicker_Transaction implements jTPS_Transaction{
         if(typeOfDP.equals("start")){
             datePicker.setValue(oldValue);
             editDatePicker.setValue(dateHolder);
+            controller.processScheduledisplay(oldValue, otherDate);
         }
-        else datePicker.setValue(oldValue);
+        else {
+            datePicker.setValue(oldValue);
+            controller.processScheduledisplay(otherDate, oldValue);
+        }
     }
     
 }
