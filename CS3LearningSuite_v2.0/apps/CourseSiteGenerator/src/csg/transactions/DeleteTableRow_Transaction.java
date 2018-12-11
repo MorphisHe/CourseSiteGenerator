@@ -1,19 +1,13 @@
 
 package csg.transactions;
 
-import csg.CourseSitePropertyType;
 import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
 import csg.data.Schedule;
 import csg.workspace.controllers.CourseSiteController;
 import djf.modules.AppGUIModule;
-import java.time.LocalDate;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import jtps.jTPS_Transaction;
 
 /**

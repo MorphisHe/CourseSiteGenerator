@@ -40,8 +40,13 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import csg.workspace.CourseSiteWorkspace;
 import csg.workspace.controllers.CourseSiteController;
+import djf.AppPropertyType;
 import static djf.AppPropertyType.SAVE_BUTTON;
+import djf.ui.dialogs.AppWebDialog;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -51,8 +56,11 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javax.json.JsonObjectBuilder;
+import org.apache.commons.io.FileUtils;
+import properties_manager.PropertiesManager;
 
 
 /**
@@ -69,9 +77,13 @@ public class CourseSiteFiles implements AppFileComponent {
     // PATH FOR COMBO BOX DATA FILE
     static final String CB_DATA_FILE_PATH = "cb_data\\cb_data.json";   
     
+    // DATA FOR EXPORT
+    static final String EXPORT_DATA_PATH = ".\\export_data\\";
+    
     // FOLLOWING ARE USED FOR IDENTIFYING JSON TYPES
     
     // JSON TYPES FOR OFFICE HOURS PAGE
+    static final String JSON_PHOTO = "photo";
     static final String JSON_GRAD_TAS = "grad_tas";
     static final String JSON_UNDERGRAD_TAS = "undergrad_tas";
     static final String JSON_NAME = "name";
@@ -134,7 +146,10 @@ public class CourseSiteFiles implements AppFileComponent {
     static final String JSON_SD_LECTURES = "schedule_lectures";
     static final String JSON_SD_REFERENCES = "schedule_references";
     static final String JSON_SD_RECITATIONS = "schedule_recitations";
-    static final String JSON_SD_HWS = "schedule_hws";
+    static final String JSON_SD_HWS = "hws";
+    static final String JSON_HOLIDAYS = "holidays";
+    static final String JSON_REFERENCES = "references";
+    static final String JSON_HWS = "hws";
     // JSON TYPES FOR MEETING TIME PAGE
     // LECTURES TABLE
     static final String JSON_SECTION = "section";
@@ -331,71 +346,7 @@ public class CourseSiteFiles implements AppFileComponent {
             scheduleArrayBuilder.add(scheduleObject);
         }
         JsonArray scheduleJsonArray = scheduleArrayBuilder.build();
-        //FOLLOWING ARE USED FOR EXPORTING
-//        JsonArrayBuilder sdHolidaysJsonArrayBuilder = Json.createArrayBuilder();
-//        JsonArrayBuilder sdLecturesJsonArrayBuilder = Json.createArrayBuilder();
-//        JsonArrayBuilder sdReferencesJsonArrayBuilder = Json.createArrayBuilder();
-//        JsonArrayBuilder sdRecitationsJsonArrayBuilder = Json.createArrayBuilder();
-//        JsonArrayBuilder sdHWsJsonArrayBuilder = Json.createArrayBuilder();
-//        
-//        Iterator<Schedule> scheduleIterator = dataManager.scheduleIterator();
-//        while (scheduleIterator.hasNext()) {
-//            Schedule schedule = scheduleIterator.next();
-//            switch(schedule.getType()){
-//                case "Holiday" :
-//                    JsonObject holidayObject = Json.createObjectBuilder()
-//                                                   .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
-//                                                   .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
-//                                                   .add(JSON_TITLE, schedule.getTitle())
-//                                                   .add(JSON_LINK, schedule.getLink()).build();
-//                    sdHolidaysJsonArrayBuilder.add(holidayObject);
-//                    break;
-//                case "Lecture" :
-//                    JsonObject lecturesObject = Json.createObjectBuilder()
-//                                                    .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
-//                                                    .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
-//                                                    .add(JSON_TITLE, schedule.getTitle())
-//                                                    .add(JSON_TOPIC, schedule.getTopic())
-//                                                    .add(JSON_LINK, schedule.getLink()).build();
-//                    sdLecturesJsonArrayBuilder.add(lecturesObject);
-//                    break;
-//                case "Reference" :
-//                    JsonObject referencesObject = Json.createObjectBuilder()
-//                                                      .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
-//                                                      .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
-//                                                      .add(JSON_TITLE, schedule.getTitle())
-//                                                      .add(JSON_TOPIC, schedule.getTopic())
-//                                                      .add(JSON_LINK, schedule.getLink()).build();
-//                    sdReferencesJsonArrayBuilder.add(referencesObject);
-//                    break;
-//                case "Recitation" :
-//                    JsonObject recitationsObject = Json.createObjectBuilder()
-//                                                       .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
-//                                                       .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
-//                                                       .add(JSON_TITLE, schedule.getTitle())
-//                                                       .add(JSON_TOPIC, schedule.getTopic())
-//                                                       .add(JSON_LINK, schedule.getLink()).build();
-//                    sdRecitationsJsonArrayBuilder.add(recitationsObject);
-//                    break;
-//                case "HW" :
-//                    JsonObject hwsObject = Json.createObjectBuilder()
-//                                               .add(JSON_MONTH, schedule.getDate().split("\\\\")[0])
-//                                               .add(JSON_DAY, schedule.getDate().split("\\\\")[1])
-//                                               .add(JSON_TITLE, schedule.getTitle())
-//                                               .add(JSON_TOPIC, schedule.getTopic())
-//                                               .add(JSON_LINK, schedule.getLink())
-//                                               .add(JSON_TIME, "")
-//                                               .add(JSON_CRITERIA, "none").build();
-//                    sdHWsJsonArrayBuilder.add(hwsObject);
-//                    break;    
-//            }
-//        }
-//        
-//        JsonArray sdHolidaysJsonArray = sdHolidaysJsonArrayBuilder.build();
-//        JsonArray sdLecturesJsonArray = sdLecturesJsonArrayBuilder.build();
-//        JsonArray sdReferencesJsonArray = sdReferencesJsonArrayBuilder.build();
-//        JsonArray sdRecitationsJsonArray = sdRecitationsJsonArrayBuilder.build();
-//        JsonArray sdHWsJsonArray = sdHWsJsonArrayBuilder.build();
+        
         
         // BUILD DATA FOR LECTURE TABLE IN MEETING TIME TAB       
         // BUILD LECTURES TABLE DATA
@@ -1153,6 +1104,472 @@ public class CourseSiteFiles implements AppFileComponent {
 
     @Override
     public void exportData(AppDataComponent data, String filePath) throws IOException {
+        // GET THE DATA
+	OfficeHoursData dataManager = (OfficeHoursData)data;
+        AppGUIModule gui = app.getGUIModule();
+       
+        // the export directory
+        String exportDirectory = ((Label)gui.getGUINode(SITE_EXPORT_DIR)).getText();
+        //.\\export\\ISE_220_Winter_2019\\public.html
+        String [] pathSplit = exportDirectory.split("\\\\");
+        Path path = Paths.get((pathSplit[2] + "\\\\" + pathSplit[4] + "\\\\" 
+                                            + pathSplit[6]).replace("\\", "/"));
         
+        //check if the file exist
+        if(Files.exists(path)){
+            
+        }
+        //if file dont exist we need to create folder name
+        // -pathSplit[4] and pathSplit[6]
+        else{
+            FileUtils.forceMkdir(path.toFile());
+            Path sourcePath = Paths.get(EXPORT_DATA_PATH.replace("\\", "/"));
+            //copy the source data to the new directory
+            FileUtils.copyDirectory(sourcePath.toFile(), path.toFile());
+        }
+        
+        // export all 5 json files
+        exportJsonSchedule(path.toString() + "/js/ScheduleData.json", dataManager);
+        exportJsonSite(path.toString() + "/js/PageData.json");
+        exportJsonSyllubus(path.toString() + "/js/SyllabusData.json");
+        exportJsonMT(path.toString() + "/js/SectionsData.json", dataManager);
+        exportJsonOH(path.toString() + "/js/OfficeHoursData.json", dataManager);
+        
+        PropertiesManager props = PropertiesManager.getPropertiesManager();
+        props.addProperty(AppPropertyType.APP_EXPORT_PAGE, path.toString() + "/index.html");
+    }
+    
+    private void exportJsonSchedule(String filePath, OfficeHoursData dataManager) throws FileNotFoundException{
+        AppGUIModule gui = app.getGUIModule();
+        // BUILD DATA FOR DATA PICKER
+        String[] StartDate = ((DatePicker)gui.getGUINode(SD_START_MON_DATE_PICKER))
+                                             .getValue().toString().split("-");
+        String[] endDate = ((DatePicker)gui.getGUINode(SD_END_FRI_DATE_PICKER))
+                                             .getValue().toString().split("-");
+        
+        //FOLLOWING ARE USED FOR EXPORTING
+        JsonArrayBuilder sdHolidaysJsonArrayBuilder = Json.createArrayBuilder();
+        JsonArrayBuilder sdLecturesJsonArrayBuilder = Json.createArrayBuilder();
+        JsonArrayBuilder sdReferencesJsonArrayBuilder = Json.createArrayBuilder();
+        JsonArrayBuilder sdRecitationsJsonArrayBuilder = Json.createArrayBuilder();
+        JsonArrayBuilder sdHWsJsonArrayBuilder = Json.createArrayBuilder();
+        
+        Iterator<Schedule> scheduleIterator = dataManager.scheduleIterator();
+        while (scheduleIterator.hasNext()) {
+            Schedule schedule = scheduleIterator.next();
+            switch(schedule.getType()){
+                case "Holiday" :
+                    JsonObject holidayObject = Json.createObjectBuilder()
+                                                   .add(JSON_MONTH, schedule.getDate().split("/")[0])
+                                                   .add(JSON_DAY, schedule.getDate().split("/")[1])
+                                                   .add(JSON_TITLE, schedule.getTitle())
+                                                   .add(JSON_LINK, schedule.getLink()).build();
+                    sdHolidaysJsonArrayBuilder.add(holidayObject);
+                    break;
+                case "Lecture" :
+                    JsonObject lecturesObject = Json.createObjectBuilder()
+                                                    .add(JSON_MONTH, schedule.getDate().split("/")[0])
+                                                    .add(JSON_DAY, schedule.getDate().split("/")[1])
+                                                    .add(JSON_TITLE, schedule.getTitle())
+                                                    .add(JSON_TOPIC, schedule.getTopic())
+                                                    .add(JSON_LINK, schedule.getLink()).build();
+                    sdLecturesJsonArrayBuilder.add(lecturesObject);
+                    break;
+                case "Reference" :
+                    JsonObject referencesObject = Json.createObjectBuilder()
+                                                      .add(JSON_MONTH, schedule.getDate().split("/")[0])
+                                                      .add(JSON_DAY, schedule.getDate().split("/")[1])
+                                                      .add(JSON_TITLE, schedule.getTitle())
+                                                      .add(JSON_TOPIC, schedule.getTopic())
+                                                      .add(JSON_LINK, schedule.getLink()).build();
+                    sdReferencesJsonArrayBuilder.add(referencesObject);
+                    break;
+                case "Recitation" :
+                    JsonObject recitationsObject = Json.createObjectBuilder()
+                                                       .add(JSON_MONTH, schedule.getDate().split("/")[0])
+                                                       .add(JSON_DAY, schedule.getDate().split("/")[1])
+                                                       .add(JSON_TITLE, schedule.getTitle())
+                                                       .add(JSON_TOPIC, schedule.getTopic())
+                                                       .add(JSON_LINK, schedule.getLink()).build();
+                    sdRecitationsJsonArrayBuilder.add(recitationsObject);
+                    break;
+                case "HW" :
+                    JsonObject hwsObject = Json.createObjectBuilder()
+                                               .add(JSON_MONTH, schedule.getDate().split("/")[0])
+                                               .add(JSON_DAY, schedule.getDate().split("/")[1])
+                                               .add(JSON_TITLE, schedule.getTitle())
+                                               .add(JSON_TOPIC, schedule.getTopic())
+                                               .add(JSON_LINK, schedule.getLink())
+                                               .add(JSON_TIME, "")
+                                               .add(JSON_CRITERIA, "none").build();
+                    sdHWsJsonArrayBuilder.add(hwsObject);
+                    break;    
+            }
+        }
+        
+        JsonArray sdHolidaysJsonArray = sdHolidaysJsonArrayBuilder.build();
+        JsonArray sdLecturesJsonArray = sdLecturesJsonArrayBuilder.build();
+        JsonArray sdReferencesJsonArray = sdReferencesJsonArrayBuilder.build();
+        JsonArray sdRecitationsJsonArray = sdRecitationsJsonArrayBuilder.build();
+        JsonArray sdHWsJsonArray = sdHWsJsonArrayBuilder.build();
+        
+        // THEN PUT IT ALL TOGETHER IN A JsonObject
+        JsonObject fullJsonData = Json.createObjectBuilder()
+                                      .add(JSON_START_MONDAY_MONTH, StartDate[1]) //schedule page date picker starting month
+                                      .add(JSON_START_MONDAY_DAY, StartDate[2]) //schedule page date picker starting day
+                                      .add(JSON_END_FRIDAY_MONTH, endDate[1]) //schedule page date picker ending month
+                                      .add(JSON_END_FRIDAY_DAY, endDate[2]) //schedule page date picker ending day
+                                      .add(JSON_HOLIDAYS, sdHolidaysJsonArray)
+                                      .add(JSON_LECTURES, sdLecturesJsonArray)
+                                      .add(JSON_REFERENCES, sdReferencesJsonArray)
+                                      .add(JSON_RECITATIONS, sdRecitationsJsonArray)
+                                      .add(JSON_HWS, sdHWsJsonArray).build();
+        
+        // AND NOW OUTPUT IT TO A JSON FILE WITH PRETTY PRINTING
+	Map<String, Object> properties = new HashMap<>(1);
+	properties.put(JsonGenerator.PRETTY_PRINTING, true);
+	JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+	StringWriter sw = new StringWriter();
+        try (JsonWriter jsonWriter = writerFactory.createWriter(sw)) {
+            jsonWriter.writeObject(fullJsonData);
+        }
+
+	// INIT THE WRITER
+	OutputStream os = new FileOutputStream(filePath);
+	JsonWriter jsonFileWriter = Json.createWriter(os);
+	jsonFileWriter.writeObject(fullJsonData);
+	String prettyPrinted = sw.toString();
+        
+        try (PrintWriter pw = new PrintWriter(filePath)) {
+            pw.write(prettyPrinted);
+        }
+    }
+    
+    private void exportJsonSite(String filePath) throws FileNotFoundException{
+        AppGUIModule gui = app.getGUIModule();
+        
+        // BUILD THE SITE LOGOS DATA      
+        JsonObject faviconJson = Json.createObjectBuilder()
+                .add(JSON_HREF, "./images/SBUShieldFavicon.ico")
+                .build();
+        JsonObject navBarJson = Json.createObjectBuilder()
+                .add(JSON_HREF, "http://www.stonybrook.edu")
+                .add(JSON_SRC, "./images/SBUDarkRedShieldLogo.png")
+                .build();
+        JsonObject lfImageJson = Json.createObjectBuilder()
+                .add(JSON_HREF, "http://www.cs.stonybrook.edu")
+                .add(JSON_SRC, "./images/SBUWhiteShieldLogo.jpg")
+                .build();
+        JsonObject rfImageJson = Json.createObjectBuilder()
+                .add(JSON_HREF, "http://www.cs.stonybrook.edu")
+                .add(JSON_SRC, "./images/SBUCSLogo.png")
+                .build();
+        JsonObject logosJson = Json.createObjectBuilder()
+                .add(JSON_FAB_ICON, faviconJson)
+                .add(JSON_NAV_BAR, navBarJson)
+                .add(JSON_BOTTOM_LEFT, lfImageJson)
+                .add(JSON_BOTTOM_RIGHT, rfImageJson)
+                .build();
+        
+        // BUILD THE INSTRUCTOR OFFICE HOUR DATA
+        String[] breakDownArray = ((TextArea)gui.getGUINode(SITE_OFFICE_HOURS_TEXT_AREA))
+                .getText().replace("[", "").replace("]", "").split("\n");
+        JsonArrayBuilder insOhArrayBuilder = Json.createArrayBuilder();
+        for (String breakDownArray1 : breakDownArray) {
+            if (breakDownArray1.contains("{")) {
+                String[] temp = breakDownArray1.split(",", 2);
+                JsonObject insOHjson = Json.createObjectBuilder()
+                        .add(JSON_DAY, temp[0].split(":")[1]
+                                .replace("\"", "").trim()) //adding the day value
+                        .add(JSON_TIME, temp[1].split(":", 2)[1]
+                                .replace("\"", "").replace("}", "")
+                                .replace(",", "").trim())
+                        .build();
+                insOhArrayBuilder.add(insOHjson);
+            } 
+        }
+        JsonArray insOhArray = insOhArrayBuilder.build();
+        
+        // BUILD THE INSTRUCTOR INFO
+        JsonObject instructorJson = Json.createObjectBuilder()
+                .add(JSON_NAME, ((TextField)gui.getGUINode(SITE_NAME_TEXT_FIELD)).getText())
+                .add(JSON_EMAIL, ((TextField)gui.getGUINode(SITE_EMAIL_TEXT_FIELD)).getText())
+                .add(JSON_ROOM, ((TextField)gui.getGUINode(SITE_ROOM_TEXT_FIELD)).getText())
+                .add(JSON_LINK, ((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD)).getText())
+                .add(JSON_PHOTO, "./images/RichardMcKenna.jpg")
+                .add(JSON_HOURS, insOhArray)
+                .build();
+        
+        // NOW BUILD THE PAGE DATA
+        JsonArrayBuilder sitePageArrayBuilder = Json.createArrayBuilder();
+        JsonObject homePageJson = Json.createObjectBuilder()
+                                      .add(JSON_NAME, pageIsSelected(gui, SITE_HOME_CHECK_BOX, "Home"))
+                                      .add(JSON_LINK, "index.html")
+                                      .build();
+        JsonObject syllabusPageJson = Json.createObjectBuilder()
+                                      .add(JSON_NAME, pageIsSelected(gui, SITE_SYLLUBUS_CHECK_BOX, "Syllabus"))
+                                      .add(JSON_LINK, "syllabus.html")
+                                      .build();
+        JsonObject schedulePageJson = Json.createObjectBuilder()
+                                      .add(JSON_NAME, pageIsSelected(gui, SITE_SCHEDULE_CHECK_BOX, "Schedule"))
+                                      .add(JSON_LINK, "schedule.html")
+                                      .build();
+        JsonObject hwsPageJson = Json.createObjectBuilder()
+                                      .add(JSON_NAME, pageIsSelected(gui, SITE_HWS_CHECK_BOX, "HWs"))
+                                      .add(JSON_LINK, "hws.html")
+                                      .build();
+        JsonArray sitePageJson = sitePageArrayBuilder.add(homePageJson)
+                                                     .add(syllabusPageJson)
+                                                     .add(schedulePageJson)
+                                                     .add(hwsPageJson)
+                                                     .build();
+        
+        // THEN PUT IT ALL TOGETHER IN A JsonObject
+        JsonObject fullJsonData = Json.createObjectBuilder()
+                                      .add(JSON_SUBJECT, ((ComboBox) gui.getGUINode(SITE_SBJ_COMBO_BOX)) //subject combobox item
+                                                    .getSelectionModel().getSelectedItem().toString())
+                                      .add(JSON_NUMBER, ((ComboBox) gui.getGUINode(SITE_NUMBER_COMBO_BOX)) //number combobox item
+                                                    .getSelectionModel().getSelectedItem().toString())
+                                      .add(JSON_SEMESTER, ((ComboBox) gui.getGUINode(SITE_SEMESTER_COMBO_BOX)) //semester combobox item
+                                                    .getSelectionModel().getSelectedItem().toString())
+                                      .add(JSON_YEAR, ((ComboBox) gui.getGUINode(SITE_YEAR_COMBO_BOX)) //year combobox item
+                                                    .getSelectionModel().getSelectedItem().toString())
+                                      .add(JSON_TITLE, ((TextField) gui.getGUINode(SITE_TITLE_TEXT_FIELD)).getText()) //title text field
+                                      .add(JSON_LOGOS, logosJson) //adding the logo data
+                                      .add(JSON_INSTRUCTOR, instructorJson)
+                                      .add(JSON_PAGES, sitePageJson).build();
+                                      
+         
+        // AND NOW OUTPUT IT TO A JSON FILE WITH PRETTY PRINTING
+	Map<String, Object> properties = new HashMap<>(1);
+	properties.put(JsonGenerator.PRETTY_PRINTING, true);
+	JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+	StringWriter sw = new StringWriter();
+        try (JsonWriter jsonWriter = writerFactory.createWriter(sw)) {
+            jsonWriter.writeObject(fullJsonData);
+        }
+
+	// INIT THE WRITER
+	OutputStream os = new FileOutputStream(filePath);
+	JsonWriter jsonFileWriter = Json.createWriter(os);
+	jsonFileWriter.writeObject(fullJsonData);
+	String prettyPrinted = sw.toString();
+        
+        try (PrintWriter pw = new PrintWriter(filePath)) {
+            pw.write(prettyPrinted);
+        }
+    }
+    
+    private void exportJsonSyllubus(String filePath) throws FileNotFoundException{
+        AppGUIModule gui = app.getGUIModule();
+        
+        // THEN PUT IT ALL TOGETHER IN A JsonObject
+        JsonObject fullJsonData = Json.createObjectBuilder()
+                                      .add(JSON_DESCRIPTION, ((TextArea)gui.getGUINode(SYLLUBUS_DES_TEXTAREA)).getText().replace("\"", "")) //syllabus des
+                                      .add(JSON_TOPICS, stringToJsonArray(gui, SYLLUBUS_TOPIC_TEXTAREA)) //syllabus topics
+                                      .add(JSON_PREQ, ((TextArea)gui.getGUINode(SYLLUBUS_PREQ_TEXTAREA)).getText().replace("\"", "")) //syllabus prerequisites
+                                      .add(JSON_OUTCOMES, stringToJsonArray(gui, SYLLUBUS_OUTCOME_TEXTAREA)) //syllabus outcomes
+                                      .add(JSON_TEXTBOOKS, StringToArrayOfDic(gui, SYLLUBUS_TEXTBOOK_TEXTAREA)) //syllabus textbook
+                                      .add(JSON_GRADED_COMP, StringToArrayOfDic(gui, SYLLUBUS_GRADED_COMP_TEXTAREA)) //syllabus graded components
+                                      .add(JSON_GRADING_NOTE, ((TextArea)gui.getGUINode(SYLLUBUS_GRADING_NOTE_TEXTAREA)).getText().replace("\"", "")) //syllabus grading note
+                                      .add(JSON_ACAD_DIS, ((TextArea)gui.getGUINode(SYLLUBUS_ACAD_DIS_TEXTAREA)).getText().replace("\"", "")) //syllabus academic dishonesty
+                                      .add(JSON_SPECIAL_ASIST, ((TextArea)gui.getGUINode(SYLLUBUS_SPEC_ASSIST_TEXTAREA)).getText().replace("\"", "")) //syllabus special assistance
+                                      .build();
+                                      
+         
+        // AND NOW OUTPUT IT TO A JSON FILE WITH PRETTY PRINTING
+	Map<String, Object> properties = new HashMap<>(1);
+	properties.put(JsonGenerator.PRETTY_PRINTING, true);
+	JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+	StringWriter sw = new StringWriter();
+        try (JsonWriter jsonWriter = writerFactory.createWriter(sw)) {
+            jsonWriter.writeObject(fullJsonData);
+        }
+
+	// INIT THE WRITER
+	OutputStream os = new FileOutputStream(filePath);
+	JsonWriter jsonFileWriter = Json.createWriter(os);
+	jsonFileWriter.writeObject(fullJsonData);
+	String prettyPrinted = sw.toString();
+        
+        try (PrintWriter pw = new PrintWriter(filePath)) {
+            pw.write(prettyPrinted);
+        }
+    }
+    
+    private void exportJsonMT(String filePath, OfficeHoursData dataManager) throws FileNotFoundException{
+        AppGUIModule gui = app.getGUIModule();
+        
+        // BUILD DATA FOR LECTURE TABLE IN MEETING TIME TAB       
+        // BUILD LECTURES TABLE DATA
+        JsonArrayBuilder lecturesJsonArrayBuilder = Json.createArrayBuilder();
+        Iterator<Lectures> lecturesIterator = dataManager.lecturesIterator();
+        while (lecturesIterator.hasNext()) {
+            Lectures lectures = lecturesIterator.next();
+	    JsonObject lectureJson = Json.createObjectBuilder()
+		    .add(JSON_SECTION, lectures.getSection())
+		    .add(JSON_DAYS, lectures.getDay())
+                    .add(JSON_TIME, lectures.getTime())
+                    .add(JSON_ROOM, lectures.getRoom()).build();
+            lecturesJsonArrayBuilder.add(lectureJson);
+	}
+        JsonArray lecturesJsonArray = lecturesJsonArrayBuilder.build();
+        
+        // BUILD RECITATIONS TABLE DATA
+        JsonArrayBuilder recitationsJsonArrayBuilder = Json.createArrayBuilder();
+        Iterator<Recitations> recitationsIterator = dataManager.recitationsIterator();
+        while (recitationsIterator.hasNext()) {
+            Recitations recitation = recitationsIterator.next();
+	    JsonObject recitationJson = Json.createObjectBuilder()
+		    .add(JSON_SECTION, recitation.getSection())
+		    .add(JSON_DAY_TIME, recitation.getDaysTime())
+                    .add(JSON_LOCATION, recitation.getRoom())
+                    .add(JSON_TA1, recitation.getTA1())
+                    .add(JSON_TA2, recitation.getTA2()).build();
+            recitationsJsonArrayBuilder.add(recitationJson);
+	}
+        JsonArray recitationsJsonArray = recitationsJsonArrayBuilder.build();
+        
+        // BUILD LABS TABLE DATA
+        JsonArrayBuilder labsJsonArrayBuilder = Json.createArrayBuilder();
+        Iterator<Labs> labsIterator = dataManager.labsIterator();
+        while (labsIterator.hasNext()) {
+            Labs lab = labsIterator.next();
+	    JsonObject labJson = Json.createObjectBuilder()
+		    .add(JSON_SECTION, lab.getSection())
+		    .add(JSON_DAY_TIME, lab.getDaysTime())
+                    .add(JSON_LOCATION, lab.getRoom())
+                    .add(JSON_TA1, lab.getTA1())
+                    .add(JSON_TA2, lab.getTA2()).build();
+            labsJsonArrayBuilder.add(labJson);
+	}
+        JsonArray labsJsonArray = labsJsonArrayBuilder.build();
+        
+        // THEN PUT IT ALL TOGETHER IN A JsonObject
+        JsonObject fullJsonData = Json.createObjectBuilder()
+                                      .add(JSON_LECTURES, lecturesJsonArray) //meeting time page lectures table data
+                                      .add(JSON_RECITATIONS, recitationsJsonArray) //meeting time page recitations table data
+                                      .add(JSON_LABS, labsJsonArray) //meeting time page labs table data
+                                      .build();                             
+         
+        // AND NOW OUTPUT IT TO A JSON FILE WITH PRETTY PRINTING
+	Map<String, Object> properties = new HashMap<>(1);
+	properties.put(JsonGenerator.PRETTY_PRINTING, true);
+	JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+	StringWriter sw = new StringWriter();
+        try (JsonWriter jsonWriter = writerFactory.createWriter(sw)) {
+            jsonWriter.writeObject(fullJsonData);
+        }
+
+	// INIT THE WRITER
+	OutputStream os = new FileOutputStream(filePath);
+	JsonWriter jsonFileWriter = Json.createWriter(os);
+	jsonFileWriter.writeObject(fullJsonData);
+	String prettyPrinted = sw.toString();
+        
+        try (PrintWriter pw = new PrintWriter(filePath)) {
+            pw.write(prettyPrinted);
+        }
+    }
+    
+    private void exportJsonOH(String filePath, OfficeHoursData dataManager) throws FileNotFoundException{
+        AppGUIModule gui = app.getGUIModule();
+        
+        // BUILD THE INSTRUCTOR OFFICE HOUR DATA
+        String[] breakDownArray = ((TextArea)gui.getGUINode(SITE_OFFICE_HOURS_TEXT_AREA))
+                .getText().replace("[", "").replace("]", "").split("\n");
+        JsonArrayBuilder insOhArrayBuilder = Json.createArrayBuilder();
+        for (String breakDownArray1 : breakDownArray) {
+            if (breakDownArray1.contains("{")) {
+                String[] temp = breakDownArray1.split(",", 2);
+                JsonObject insOHjson = Json.createObjectBuilder()
+                        .add(JSON_DAY, temp[0].split(":")[1]
+                                .replace("\"", "").trim()) //adding the day value
+                        .add(JSON_TIME, temp[1].split(":", 2)[1]
+                                .replace("\"", "").replace("}", "")
+                                .replace(",", "").trim())
+                        .build();
+                insOhArrayBuilder.add(insOHjson);
+            } 
+        }
+        JsonArray insOhArray = insOhArrayBuilder.build();
+        
+        // BUILD THE INSTRUCTOR INFO
+        JsonObject instructorJson = Json.createObjectBuilder()
+                .add(JSON_NAME, ((TextField)gui.getGUINode(SITE_NAME_TEXT_FIELD)).getText())
+                .add(JSON_EMAIL, ((TextField)gui.getGUINode(SITE_EMAIL_TEXT_FIELD)).getText())
+                .add(JSON_ROOM, ((TextField)gui.getGUINode(SITE_ROOM_TEXT_FIELD)).getText())
+                .add(JSON_LINK, ((TextField)gui.getGUINode(SITE_HOME_PAGE_TEXT_FIELD)).getText())
+                .add(JSON_PHOTO, "./images/RichardMcKenna.jpg")
+                .add(JSON_HOURS, insOhArray)
+                .build();
+        
+        // NOW BUILD THE TA JSON OBJCTS TO SAVE
+	JsonArrayBuilder gradTAsArrayBuilder = Json.createArrayBuilder();
+        JsonArrayBuilder undergradTAsArrayBuilder = Json.createArrayBuilder();
+	Iterator<TeachingAssistantPrototype> tasIterator = dataManager.teachingAssistantsIterator();
+        while (tasIterator.hasNext()) {
+            TeachingAssistantPrototype ta = tasIterator.next();
+	    JsonObject taJson = Json.createObjectBuilder()
+		    .add(JSON_NAME, ta.getName())
+		    .add(JSON_EMAIL, ta.getEmail())
+                    .add(JSON_TYPE, ta.getType()).build();
+            if (ta.getType().equals(TAType.Graduate.toString()))
+                gradTAsArrayBuilder.add(taJson);
+            else
+                undergradTAsArrayBuilder.add(taJson);
+	}
+        JsonArray gradTAsArray = gradTAsArrayBuilder.build();
+	JsonArray undergradTAsArray = undergradTAsArrayBuilder.build();
+
+	// NOW BUILD THE OFFICE HOURS JSON OBJCTS TO SAVE
+	JsonArrayBuilder officeHoursArrayBuilder = Json.createArrayBuilder();
+        Iterator<TimeSlot> timeSlotsIterator = dataManager.officeHoursIterator();
+        while (timeSlotsIterator.hasNext()) {
+            TimeSlot timeSlot = timeSlotsIterator.next();
+            for (DayOfWeek dow : DayOfWeek.values()) {
+                tasIterator = timeSlot.getTAsIterator(dow);
+                while (tasIterator.hasNext()) {
+                    TeachingAssistantPrototype ta = tasIterator.next();
+                    JsonObject tsJson = Json.createObjectBuilder()
+                            .add(JSON_START_TIME, timeSlot.getStartTime().replace(":", "_"))
+                            .add(JSON_DAY_OF_WEEK, dow.toString())
+                            .add(JSON_NAME, ta.getName()).build();
+                    officeHoursArrayBuilder.add(tsJson);
+                }
+            }
+	}
+	JsonArray officeHoursArray = officeHoursArrayBuilder.build();
+        
+        // THEN PUT IT ALL TOGETHER IN A JsonObject
+        JsonObject fullJsonData = Json.createObjectBuilder()
+                                      .add(JSON_START_HOUR, "" + dataManager.getStartHour())
+                                      .add(JSON_END_HOUR, "" + dataManager.getEndHour())
+                                      .add(JSON_OH_TABLE_START_INTERVAL, ((ComboBox)gui.getGUINode(OH_START_TIME_COMBO_BOX)).getValue().toString())
+                                      .add(JSON_OH_TABLE_END_INTERVAL, ((ComboBox)gui.getGUINode(OH_END_TIME_COMBO_BOX)).getValue().toString())
+                                      .add(JSON_INSTRUCTOR, instructorJson)
+                                      .add(JSON_GRAD_TAS, gradTAsArray)
+                                      .add(JSON_UNDERGRAD_TAS, undergradTAsArray)
+                                      .add(JSON_OFFICE_HOURS, officeHoursArray) //above inclusive are oh page
+                                      .build();                                          
+         
+        // AND NOW OUTPUT IT TO A JSON FILE WITH PRETTY PRINTING
+	Map<String, Object> properties = new HashMap<>(1);
+	properties.put(JsonGenerator.PRETTY_PRINTING, true);
+	JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+	StringWriter sw = new StringWriter();
+        try (JsonWriter jsonWriter = writerFactory.createWriter(sw)) {
+            jsonWriter.writeObject(fullJsonData);
+        }
+
+	// INIT THE WRITER
+	OutputStream os = new FileOutputStream(filePath);
+	JsonWriter jsonFileWriter = Json.createWriter(os);
+	jsonFileWriter.writeObject(fullJsonData);
+	String prettyPrinted = sw.toString();
+        
+        try (PrintWriter pw = new PrintWriter(filePath)) {
+            pw.write(prettyPrinted);
+        }
     }
 }

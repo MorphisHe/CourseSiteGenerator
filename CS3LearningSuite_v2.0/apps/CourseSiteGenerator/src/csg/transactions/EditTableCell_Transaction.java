@@ -4,6 +4,8 @@ package csg.transactions;
 import csg.data.Labs;
 import csg.data.Lectures;
 import csg.data.Recitations;
+import csg.workspace.controllers.CourseSiteController;
+import djf.modules.AppGUIModule;
 import javafx.scene.control.TableView;
 
 /**
@@ -17,6 +19,8 @@ public class EditTableCell_Transaction implements jtps.jTPS_Transaction{
     String typeOfTable;
     String typeOfMethod;
     TableView table;
+    CourseSiteController controller;
+    AppGUIModule gui;
     
     /**
      * this class takes care of table cell editing undo and redo

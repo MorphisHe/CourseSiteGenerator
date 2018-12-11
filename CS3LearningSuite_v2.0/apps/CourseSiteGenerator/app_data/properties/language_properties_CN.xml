@@ -106,7 +106,7 @@
         <property name="SD_TITLE_TABLE_COLUMN_TEXT" value="标题"></property>
         <property name="SD_TOPIC_TABLE_COLUMN_TEXT" value="主题"></property>
         <property name="SD_ADD_EDIT_LABEL_TEXT" value="添加／编辑"></property>
-        <property name="SD_EDIT_TYPE_LABEL_TEXT" value="类型:"></property>
+        <property name="SD_EDIT_TYPE_LABEL_TEXT" value="类型:"></property> 
         <property name="SD_EDIT_DATE_LABEL_TEXT" value="日期:"></property>
         <property name="SD_EDIT_TITLE_LABEL_TEXT" value="标题:"></property>
         <property name="SD_EDIT_TOPIC_LABEL_TEXT" value="主题:"></property>

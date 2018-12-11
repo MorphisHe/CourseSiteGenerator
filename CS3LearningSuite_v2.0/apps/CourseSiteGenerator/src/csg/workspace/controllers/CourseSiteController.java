@@ -577,6 +577,7 @@ public class CourseSiteController {
             titleTF.setText("");
             topicTF.setText("");
             linkTF.setText("");
+            changeButtonText(addUpdateButton, true);
         }
         else {
             //set the editting section values
@@ -585,7 +586,7 @@ public class CourseSiteController {
             titleTF.setText(selectedSchedule.getTitle());
             topicTF.setText(selectedSchedule.getTopic());
             linkTF.setText(selectedSchedule.getLink());
-            changeButtonText(addUpdateButton, true);
+            changeButtonText(addUpdateButton, false);
         }
     }
     
