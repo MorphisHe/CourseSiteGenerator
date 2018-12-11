@@ -1,0 +1,64 @@
+
+{
+    "subject":"ISE",
+    "number":"220",
+    "semester":"Winter",
+    "year":"2019",
+    "title":"Computer Science III",
+    "logos":{
+        "favicon":{
+            "href":"./images/SBUShieldFavicon.ico"
+        },
+        "navbar":{
+            "href":"http://www.stonybrook.edu",
+            "src":"./images/SBUDarkRedShieldLogo.png"
+        },
+        "bottom_left":{
+            "href":"http://www.cs.stonybrook.edu",
+            "src":"./images/SBUWhiteShieldLogo.jpg"
+        },
+        "bottom_right":{
+            "href":"http://www.cs.stonybrook.edu",
+            "src":"./images/SBUCSLogo.png"
+        }
+    },
+    "instructor":{
+        "name":"Richard McKenna",
+        "email":"richard@cs.stonybrook.edu",
+        "room":"New CS 216",
+        "link":"http://www.cs.stonybrook.edu/~richard",
+        "photo":"./images/RichardMcKenna.jpg",
+        "hours":[
+            {
+                "day":"Tuesday",
+                "time":"1:00pm-2:20pm"
+            },
+            {
+                "day":"Wednesday",
+                "time":"2pm-3pm"
+            },
+            {
+                "day":"Thursday",
+                "time":"1:00pm-2:20pm"
+            }
+        ]
+    },
+    "pages":[
+        {
+            "name":"Home",
+            "link":"index.html"
+        },
+        {
+            "name":"Syllabus",
+            "link":"syllabus.html"
+        },
+        {
+            "name":"Schedule",
+            "link":"schedule.html"
+        },
+        {
+            "name":"HWs",
+            "link":"hws.html"
+        }
+    ]
+}

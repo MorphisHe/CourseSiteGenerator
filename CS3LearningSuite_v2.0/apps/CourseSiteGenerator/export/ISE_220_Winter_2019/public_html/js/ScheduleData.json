@@ -1,0 +1,46 @@
+
+{
+    "startingMondayMonth":"08",
+    "startingMondayDay":"02",
+    "endingFridayMonth":"12",
+    "endingFridayDay":"31",
+    "holidays":[
+        {
+            "month":"9",
+            "day":"5",
+            "title":"Labor Day",
+            "link":""
+        }
+    ],
+    "lectures":[
+        {
+            "month":"9",
+            "day":"6",
+            "title":"Lecture 1",
+            "topic":"Introduction",
+            "link":""
+        },
+        {
+            "month":"9",
+            "day":"8",
+            "title":"Lecture 2",
+            "topic":"Graphical User Interfaces",
+            "link":""
+        }
+    ],
+    "references":[
+    ],
+    "recitations":[
+    ],
+    "hws":[
+        {
+            "month":"9",
+            "day":"18",
+            "title":"HW 3",
+            "topic":"UML",
+            "link":"",
+            "time":"",
+            "criteria":"none"
+        }
+    ]
+}
