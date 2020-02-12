@@ -13,7 +13,7 @@ edit data and style of their website.
 
 ### Welcoming Dialog
 - user can create a new workspace or continue on a recently used workspace
-![](welcome.png)
+![](images/welcome.png)
 
 ### Site Tab
 - this specific project is setup for the course website
