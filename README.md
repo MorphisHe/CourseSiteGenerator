@@ -18,15 +18,15 @@ edit data and style of their website.
 ### Site Tab
 - this specific project is setup for the course website
 - user can edit Banner, pages, style, and instructor data
-![](site.png)
+![](images/site.png)
 
 ### Syllubus Tab
 - this tab allows user to edit syllubus information
-![](syllubus.png)
+![](images/syllubus.png)
 
 ### Meeting Times Tab
 - this tab allows user to add/remove/edit meeting times for lecture and recitation
-![](meetingtime.png)
+![](images/meetingtime.png)
 
 ### Office Hours Tab
 - this tab is most difficault one to implement
@@ -45,25 +45,25 @@ edit data and style of their website.
 - filtering time frame with start/end time
     - office hour grid can be filtered with the start and end time
     - when filtering, the TA name table will be filtered too
-![](officehour.png)
+![](images/officehour.png)
 
 ### Schedule Tab
 - allows user to edit schedule data
-![](schedule.png)
+![](images/schedule.png)
 
 ### Changing Language
 - user can change the language of this application
-![](language.png)
-![](chinese.png)
+![](images/language.png)
+![](images/chinese.png)
 
 ### Webview
 - after all data and style is set, user can user export functionality to export all the files
 - A webview window will also pop-up to show user to exported website
-![](webpage)
+![](images/webpage.png)
 
 ### Tools
 - user can also save and load workspace
-![](tools.png)
+![](images/tools.png)
 
 
 
